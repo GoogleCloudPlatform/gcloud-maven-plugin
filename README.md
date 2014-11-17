@@ -2,7 +2,6 @@
 # Cloud SDK App Engine Apache Maven Plugin
 
 
-[[TOC]]
 
 [Apache Maven](http://maven.apache.org/) is a software project management and comprehension tool.  It
 is capable of building WAR files for deployment into App Engine. The App Engine
@@ -15,7 +14,7 @@ To use Maven with Managed VMs, you need to do the following:
 
 0. [Download and install](http://maven.apache.org/) Maven if you don't have it installed.
 
-1. Install the [Google Cloud SDK](/sdk) on your machine. The new Maven plugin
+1. Install the [Google Cloud SDK](https://cloud.google.com/sdk/) on your machine. The new Maven plugin
 goals will not download it automatically on build. Make sure you install an
 up-to-date version (Beta or later) that has the App Engine Managed VM components
 installed. 
@@ -68,7 +67,7 @@ development server, as described in the next section.
 ## Run and test your app with the Cloud SDK development server
 
 During the development phase, you can run and test your app at any time in
-the development server by invoking the App Engine Maven plugin.
+the development server by invoking the Cloud SDK App Engine Maven plugin.
 
 To run your app in the development server:
 
@@ -87,9 +86,9 @@ example, to `myapp`) and invoking Maven as follows:
 Windows/Linux terminal window where you started it, or **CMD+C** on the Mac.
 
 
-### Adding the App Engine Maven plugin to an existing Maven project
+### Adding the Cloud SDK App Engine Maven plugin to an existing Maven project
 
-To add the Google App Engine Maven plugin to an existing Maven project, add the
+To add the Cloud SDK Google App Engine Maven plugin to an existing Maven project, add the
 following into the `plugins` section in the project `pom.xml` file:
 
     <plugin>
@@ -99,7 +98,7 @@ following into the `plugins` section in the project `pom.xml` file:
     </plugin>
 
 Important: The Google Cloud SDK Maven goals work only with the App Engine Java
-SDK version 1.9.15 or above.
+SDK version 1.9.17 or above.
 
 ### App Engine Maven plugin goals for the Cloud SDK
 
