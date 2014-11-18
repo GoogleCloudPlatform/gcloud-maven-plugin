@@ -43,6 +43,18 @@ following line to your `.bashrc` file:
 
 5. If you want to start with a Java Managed VM sample code and tutorial, you can ue the github project: [https://github.com/GoogleCloudPlatform/appengine-java-vm-guestbook-extras](https://github.com/GoogleCloudPlatform/appengine-java-vm-guestbook-extras)
 
+### Adding the Cloud SDK App Engine Maven plugin to an existing Maven project
+
+To add the Cloud SDK Google App Engine Maven plugin to an existing Maven project, add the
+following into the `plugins` section in the project `pom.xml` file:
+
+    <plugin>
+       <groupId>com.google.appengine</groupId>
+       <artifactId>gcloud-maven-plugin</artifactId>
+       <version>1.9.17</version>
+    </plugin>
+
+Important: The Google Cloud SDK Maven goals work only with version 1.9.17 or above.
 
 ## Compile and build your project using Maven
 
@@ -85,20 +97,6 @@ example, to `myapp`) and invoking Maven as follows:
 4. Shut down the app and the development server by pressing **Control+C** in the
 Windows/Linux terminal window where you started it, or **CMD+C** on the Mac.
 
-
-### Adding the Cloud SDK App Engine Maven plugin to an existing Maven project
-
-To add the Cloud SDK Google App Engine Maven plugin to an existing Maven project, add the
-following into the `plugins` section in the project `pom.xml` file:
-
-    <plugin>
-       <groupId>com.google.appengine</groupId>
-       <artifactId>gcloud-maven-plugin</artifactId>
-       <version>{{ appengine_java_version }}</version>
-    </plugin>
-
-Important: The Google Cloud SDK Maven goals work only with the App Engine Java
-SDK version 1.9.17 or above.
 
 ### App Engine Maven plugin goals for the Cloud SDK
 
@@ -218,3 +216,17 @@ Goal | Description
 | ------------|-------------|
 |`server` |The App Engine server to connect to. You will not typically need to change this value.
 |`version`|The version of the app that will be created or replaced by this deployment.
+
+
+#### Configuration elements override via the command line interface
+
+Instead of editing the pom.xml with the desired configuration, all the configuration parameters can be overridden in the mvn command line, following the simple pattern `-Dgcloud.PARAM_NAME=PARAM_VALUE`.
+For example:
+
+      # To start the development server with debug flag:
+      $ mvn gcloud:run -Dgcloud.verbosity=debug
+      # To start the development server listening to 0.0.0.0 so it can be accessed outside of localhost:
+      $mvn gcloud:run -Dgcloud.host=0.0.0.0:8081
+      # To specify a non default Cloud SDK installation directory:
+      mvn gcloud:run -Dgcloud.gcloud_directory=YOUR_OWN_SPECIFIC_INSTALLATION_PATH
+    

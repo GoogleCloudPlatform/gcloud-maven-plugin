@@ -39,27 +39,27 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
   /**
    * gcloud installation gcloud_directory
    *
-   * @parameter
+   * @parameter expression="${gcloud.gcloud_directory}"
    */
   protected String gcloud_directory;
 
   /**
    * docker_host
    *
-   * @parameter default-value="ENV_or_default"
+   * @parameter expression="${gcloud.docker_host}" default-value="ENV_or_default"
    */
   protected String docker_host;
   /**
    * docker_tls_verify
    *
-   * @parameter default-value="ENV_or_default"
+   * @parameter expression="${gcloud.docker_tls_verify}" default-value="ENV_or_default"
    */
   protected String docker_tls_verify;
 
   /**
    * docker_host_cert_path
    *
-   * @parameter default-value="ENV_or_default"
+   * @parameter expression="${gcloud.docker_cert_path}" default-value="ENV_or_default"
    */
   protected String docker_cert_path;
 
@@ -68,14 +68,14 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
    * logging verbosity level: [debug, info, warning, error, critical, none]
    * (Default: [info]).
    *
-   * @parameter
+   * @parameter expression="${gcloud.verbosity}"
    */
   protected String verbosity;
 
   /**
    * Google Cloud Platform gcloud_project to use for this invocation.
    *
-   * @parameter
+   * @parameter expression="${gcloud.gcloud_project}"
    */
   protected String gcloud_project;
 
@@ -122,7 +122,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
 
     if (error || !script.exists()) {
       getLog().error("Cannot determine the location of the Google Cloud SDK.");
-      getLog().error("You can set it via <directory> </directory> in the pom.xml");
+      getLog().error("You can set it via <gcloud_directory> </gcloud_directory> in the pom.xml");
       getLog().info("If you need to install the Google Cloud SDK, follow the instructions located at https://cloud.google.com/appengine/docs/java/managed-vms");
       throw new MojoExecutionException("Unkown Google Cloud SDK location.");
     }
