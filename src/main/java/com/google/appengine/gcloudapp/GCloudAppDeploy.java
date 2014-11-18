@@ -23,7 +23,7 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
   /**
    * server The App Engine server to connect to.
    *
-   * @parameter
+   * @parameter expression="${gcloud.server}"
    */
   private String server;
 
@@ -31,14 +31,14 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
    * version The version of the app that will be created or replaced by this
    * deployment.
    *
-   * @parameter
+   * @parameter expression="${gcloud.version}"
    */
   private String version;
 
   /**
    * env-vars ENV_VARS Environment variable overrides for your app.
    *
-   * @parameter
+   * @parameter expression="${gcloud.env_vars}"
    */
   private String env_vars;
 
@@ -47,51 +47,51 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
    * force Force deploying, overriding any previous in-progress deployments to
    * this version.
    *
-   * @parameter
+   * @parameter expression="${gcloud.force}"
    */
   private boolean force;
   /**
    * Set the encoding to be used when compiling Java source files (default
    * "UTF-8")
    *
-   * @parameter
+   * @parameter expression="${gcloud.compile_encoding}"
    */
   private String compile_encoding;
   /**
    * Delete the JSP source files after compilation
    *
-   * @parameter
+   * @parameter expression="${gcloud.delete_jsps}"
    */
   private boolean delete_jsps;
   /**
    * Do not jar the classes generated from JSPs
    *
-   * @parameter
+   * @parameter expression="${gcloud.disable_jar_jsps}"
    */
   private boolean disable_jar_jsps;
   /**
    * Jar the WEB-INF/classes content
    *
-   * @parameter
+   * @parameter expression="${gcloud.enable_jar_classes}"
    */
   private boolean enable_jar_classes;
   /**
    * Split large jar files (> 32M) into smaller fragments
    *
-   * @parameter
+   * @parameter expression="${gcloud.enable_jar_splitting}"
    */
   private boolean enable_jar_splitting;
   /**
    * Do not use symbolic links when making the temporary (staging) gcloud_directory
  used in uploading Java apps
    *
-   * @parameter
+   * @parameter expression="${gcloud.no_symlinks}"
    */
   private boolean no_symlinks;
   /**
    * Do not delete temporary (staging) gcloud_directory used in uploading Java apps
    *
-   * @parameter
+   * @parameter expression="${gcloud.retain_upload_dir}"
    */
   private boolean retain_upload_dir;
   /**
@@ -100,14 +100,14 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
    * ends with one of the suffixes will not be included in the split jar
    * fragments
    *
-   * @parameter
+   * @parameter expression="${gcloud.jar_splitting_excludes}"
    */
   private String jar_splitting_excludes;
 
   /**
    * Set the deployed version to be the default serving version.
    *
-   * @parameter
+   * @parameter expression="${gcloud.set_default}"
    */
   private boolean set_default;
 
