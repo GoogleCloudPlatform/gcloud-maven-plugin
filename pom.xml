@@ -54,10 +54,6 @@
 
   <repositories>
     <repository>
-      <id>gae-staging</id>
-      <url>https://oss.sonatype.org/content/repositories/comgoogleappengine-1168/</url>
-    </repository>
-    <repository>
       <id>sonatype-google-releases</id>
       <name>Sonatype Google Releases</name>
       <url>https://oss.sonatype.org/service/local/repositories/google-releases/content</url>
@@ -142,12 +138,6 @@
       <groupId>org.apache.maven.shared</groupId>
       <artifactId>maven-invoker</artifactId>
       <version>2.1.1</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-xml</artifactId>
-      <version>9.2.3.v20140905</version>
       <type>jar</type>
     </dependency>
   </dependencies>
