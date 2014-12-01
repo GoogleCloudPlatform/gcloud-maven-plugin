@@ -116,8 +116,8 @@ public class GCloudAppRun extends AbstractGcloudMojo {
   private String appidentity_private_key_path;
 
   /**
-   * path to gcloud_directory used to store blob contents (defaults to a subdirectory
- of --storage_path if not set) (default: None)
+   * path to gcloud_directory used to store blob contents (defaults to a
+   * subdirectory of --storage_path if not set) (default: None)
    *
    * @parameter expression="${gcloud.blobstore_path}"
    */
@@ -172,8 +172,8 @@ public class GCloudAppRun extends AbstractGcloudMojo {
    * JVM_FLAG Additional arguments to pass to the java command when launching an
    * instance of the app. May be specified more than once. Example:
    * &lt;jvm_flag&gt; &lt;param&gt;-Xmx1024m&lt;/param&gt;
-   * &lt;param&gt;-Xms256m&lt;/param&gt; &lt;/jvm_flag&gt; Note: This
-   * is not for Java Managed VMs applications. Please use a Dockerfile for that.
+   * &lt;param&gt;-Xms256m&lt;/param&gt; &lt;/jvm_flag&gt; Note: This is not for
+   * Java Managed VMs applications. Please use a Dockerfile for that.
    *
    * @parameter
    */
@@ -270,7 +270,12 @@ public class GCloudAppRun extends AbstractGcloudMojo {
     }
     File appDirFile = new File(application_directory);
     if (!appDirFile.exists()) {
-      throw new MojoExecutionException("The application directory does not exist : " + application_directory);
+      File f = new File(maven_project.getBasedir(), application_directory);
+      if (f.exists()) {
+        application_directory = f.getAbsolutePath();
+      } else {
+        throw new MojoExecutionException("The application directory does not exist : " + application_directory);
+      }
     }
     if (!appDirFile.isDirectory()) {
       throw new MojoExecutionException("The application directory is not a directory : " + application_directory);
@@ -295,11 +300,16 @@ public class GCloudAppRun extends AbstractGcloudMojo {
     File f = new File(appDir, "WEB-INF/appengine-web.xml");
     if (!f.exists()) { // EAR project possibly, add all modules one by one:
       File ear = new File(appDir);
+      boolean oneMod = false;
       for (File w : ear.listFiles()) {
         if (new File(w, "WEB-INF/appengine-web.xml").exists()) {
           devAppServerCommand.add(w.getAbsolutePath());
-
+          oneMod = true;
         }
+      }
+      if (!oneMod) {
+        devAppServerCommand.add(appDir);
+
       }
 
     } else {
@@ -439,8 +449,8 @@ public class GCloudAppRun extends AbstractGcloudMojo {
 //      connection.getInputStream().close();
       connection.disconnect();
 
-      getLog().info("Shutting down Cloud SDK Server on port " + 8000 +
-              " and waiting 4 seconds...");
+      getLog().info("Shutting down Cloud SDK Server on port " + 8000
+              + " and waiting 4 seconds...");
       Thread.sleep(4000);
     } catch (MalformedURLException e) {
       throw new MojoExecutionException("URL malformed attempting to stop the devserver : " + e.getMessage());
