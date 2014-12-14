@@ -97,12 +97,12 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
 
         pythonLocation = "python.exe";
       }
-    }
-
-    String possibleLinuxPythonLocation = System.getenv("CLOUDSDK_PYTHON");
-    if (possibleLinuxPythonLocation != null) {
-      getLog().info("Found a python interpreter specified via CLOUDSDK_PYTHON at: " + possibleLinuxPythonLocation);
-      pythonLocation = possibleLinuxPythonLocation;
+    } else {
+      String possibleLinuxPythonLocation = System.getenv("CLOUDSDK_PYTHON");
+      if (possibleLinuxPythonLocation != null) {
+        getLog().info("Found a python interpreter specified via CLOUDSDK_PYTHON at: " + possibleLinuxPythonLocation);
+        pythonLocation = possibleLinuxPythonLocation;
+      }
     }
 
     commands.add(pythonLocation);
