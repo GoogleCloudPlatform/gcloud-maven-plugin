@@ -255,12 +255,6 @@ public class GCloudAppRun extends AbstractGcloudMojo {
    */
   private String smtp_user;
 
-  /**
-   * The location of the appengine application to run.
-   *
-   * @parameter expression="${gcloud.application_directory}"
-   */
-  protected String application_directory;
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
@@ -284,8 +278,8 @@ public class GCloudAppRun extends AbstractGcloudMojo {
     stopDevAppServer();
 
     ArrayList<String> devAppServerCommand = getCommand(application_directory);
-    startCommand(appDirFile, devAppServerCommand, WaitDirective.WAIT_SERVER_STOPPED);
-  }
+          startCommand(appDirFile, devAppServerCommand, WaitDirective.WAIT_SERVER_STOPPED);
+        }
 
   @Override
   protected ArrayList<String> getCommand(String appDir) throws MojoExecutionException {
@@ -296,31 +290,35 @@ public class GCloudAppRun extends AbstractGcloudMojo {
     setupInitialCommands(devAppServerCommand);
 
     devAppServerCommand.add("run");
-
-    File f = new File(appDir, "WEB-INF/appengine-web.xml");
+    File appDirectory = new File(appDir);
+    File f = new File(appDirectory, "WEB-INF/appengine-web.xml");
     if (!f.exists()) { // EAR project possibly, add all modules one by one:
-      File ear = new File(appDir);
-      boolean oneMod = false;
-      for (File w : ear.listFiles()) {
-        if (new File(w, "WEB-INF/appengine-web.xml").exists()) {
-          devAppServerCommand.add(w.getAbsolutePath());
-          oneMod = true;
+      f = new File(appDirectory, "app.yaml");
+      if (f.exists()) {
+          devAppServerCommand.add(f.getAbsolutePath());
+      } else {
+        boolean oneMod = false;
+        for (File w : appDirectory.listFiles()) {
+          if (new File(w, "WEB-INF/appengine-web.xml").exists()) {
+            devAppServerCommand.add(w.getAbsolutePath());
+            oneMod = true;
+          }
         }
-      }
-      if (!oneMod) {
-        devAppServerCommand.add(appDir);
+        if (!oneMod) {
+          devAppServerCommand.add(appDirectory.getAbsolutePath());
 
+        }
       }
 
     } else {
       // Point to our application
-      devAppServerCommand.add(appDir);
+      devAppServerCommand.add(appDirectory.getAbsolutePath());
     }
 
     if ((modules != null) && !modules.isEmpty()) {
       for (String modDir : modules) {
         getLog().info("Running gcloud app run with extra module in " + modDir);
-        devAppServerCommand.add(modDir);
+        devAppServerCommand.add(new File(modDir).getAbsolutePath());
 
       }
 

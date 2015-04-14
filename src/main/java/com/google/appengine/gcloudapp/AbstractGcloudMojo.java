@@ -81,8 +81,12 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
 
   protected AppEngineWebXml appengineWebXml = null;
 
-  protected String applicationDirectory = null;
-
+  /**
+   * The location of the appengine application to run.
+   *
+   * @parameter expression="${gcloud.application_directory}"
+   */
+  protected String application_directory;
 
   protected abstract ArrayList<String> getCommand(String appDir) throws MojoExecutionException;
 
@@ -132,7 +136,10 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     if (gcloud_project != null) {
       commands.add("--project=" + gcloud_project);
     } else {
-      commands.add("--project=" + getAppId());
+      String appId =  getAppId();
+      if (appId != null) {
+       commands.add("--project=" + getAppId());
+      }
     }
     if (verbosity != null) {
       commands.add("--verbosity=" + verbosity);
@@ -285,22 +292,25 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
   }
 
   protected String getApplicationDirectory() throws MojoExecutionException {
-    if (applicationDirectory != null) {
-      return applicationDirectory;
+    if (application_directory != null) {
+      return application_directory;
     }
-    applicationDirectory = maven_project.getBuild().getDirectory() + "/" + maven_project.getBuild().getFinalName();
-    File appDirFile = new File(applicationDirectory);
+    application_directory = maven_project.getBuild().getDirectory() + "/" + maven_project.getBuild().getFinalName();
+    File appDirFile = new File(application_directory);
     if (!appDirFile.exists()) {
-      throw new MojoExecutionException("The application directory does not exist : " + applicationDirectory);
+      throw new MojoExecutionException("The application directory does not exist : " + application_directory);
     }
     if (!appDirFile.isDirectory()) {
-      throw new MojoExecutionException("The application directory is not a directory : " + applicationDirectory);
+      throw new MojoExecutionException("The application directory is not a directory : " + application_directory);
     }
-    return applicationDirectory;
+    return application_directory;
   }
 
   protected String getAppId() throws MojoExecutionException {
 
+    if (gcloud_project != null) {
+      return gcloud_project;
+    }
     String appDir = getApplicationDirectory();
     if (EarHelper.isEar(appDir)) { // EAR project
       AppEngineApplicationXmlReader reader
@@ -310,8 +320,11 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       return appEngineApplicationXml.getApplicationId();
 
     }
-
-    return getAppEngineWebXml().getAppId();
+    if (new File(appDir, "WEB-INF/appengine-web.xml").exists()) {
+      return getAppEngineWebXml().getAppId();
+    } else {
+      return null;
+    }
   }
 
   private static InputStream getInputStream(File file) {
