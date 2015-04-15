@@ -4,6 +4,7 @@
 package com.google.appengine.gcloudapp;
 
 
+import com.google.appengine.SdkResolver;
 import com.google.apphosting.utils.config.AppEngineApplicationXml;
 import com.google.apphosting.utils.config.AppEngineApplicationXmlReader;
 import com.google.apphosting.utils.config.AppEngineWebXml;
@@ -16,12 +17,16 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.repository.RemoteRepository;
 
 /**
  *
@@ -341,5 +346,51 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       appengineWebXml = reader.readAppEngineWebXml();
     }
     return appengineWebXml;
+  }
+  
+  
+  /**
+   * The entry point to Aether, i.e. the component doing all the work.
+   *
+   * @component
+   */
+
+  protected RepositorySystem repoSystem;
+
+  /**
+   * The current repository/network configuration of Maven.
+   *
+   * @parameter default-value="${repositorySystemSession}"
+   * @readonly
+   */
+  protected RepositorySystemSession repoSession;
+
+  /**
+   * The project's remote repositories to use for the resolution of project
+   * dependencies.
+   *
+   * @parameter default-value="${project.remoteProjectRepositories}"
+   * @readonly
+   */
+  protected List<RemoteRepository> projectRepos;
+
+  /**
+   * The project's remote repositories to use for the resolution of plugins and
+   * their dependencies.
+   *
+   * @parameter default-value="${project.remotePluginRepositories}"
+   * @readonly
+   */
+  protected List<RemoteRepository> pluginRepos;
+
+  protected void resolveAndSetSdkRoot() throws MojoExecutionException {
+
+    File sdkBaseDir = SdkResolver.getSdk(maven_project, repoSystem, repoSession, pluginRepos, projectRepos);
+
+    try {
+      System.setProperty("appengine.sdk.root", sdkBaseDir.getCanonicalPath());
+    } catch (IOException e) {
+      throw new MojoExecutionException("Could not open SDK zip archive.", e);
+    }
   }
 }
