@@ -4,6 +4,7 @@
 package com.google.appengine.gcloudapp;
 
 
+import com.google.appengine.SdkResolver;
 import com.google.apphosting.utils.config.AppEngineApplicationXml;
 import com.google.apphosting.utils.config.AppEngineApplicationXmlReader;
 import com.google.apphosting.utils.config.AppEngineWebXml;
@@ -16,12 +17,16 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.repository.RemoteRepository;
 
 /**
  *
@@ -81,8 +86,12 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
 
   protected AppEngineWebXml appengineWebXml = null;
 
-  protected String applicationDirectory = null;
-
+  /**
+   * The location of the appengine application to run.
+   *
+   * @parameter expression="${gcloud.application_directory}"
+   */
+  protected String application_directory;
 
   protected abstract ArrayList<String> getCommand(String appDir) throws MojoExecutionException;
 
@@ -132,7 +141,10 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     if (gcloud_project != null) {
       commands.add("--project=" + gcloud_project);
     } else {
-      commands.add("--project=" + getAppId());
+      String appId =  getAppId();
+      if (appId != null) {
+       commands.add("--project=" + getAppId());
+      }
     }
     if (verbosity != null) {
       commands.add("--verbosity=" + verbosity);
@@ -285,22 +297,25 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
   }
 
   protected String getApplicationDirectory() throws MojoExecutionException {
-    if (applicationDirectory != null) {
-      return applicationDirectory;
+    if (application_directory != null) {
+      return application_directory;
     }
-    applicationDirectory = maven_project.getBuild().getDirectory() + "/" + maven_project.getBuild().getFinalName();
-    File appDirFile = new File(applicationDirectory);
+    application_directory = maven_project.getBuild().getDirectory() + "/" + maven_project.getBuild().getFinalName();
+    File appDirFile = new File(application_directory);
     if (!appDirFile.exists()) {
-      throw new MojoExecutionException("The application directory does not exist : " + applicationDirectory);
+      throw new MojoExecutionException("The application directory does not exist : " + application_directory);
     }
     if (!appDirFile.isDirectory()) {
-      throw new MojoExecutionException("The application directory is not a directory : " + applicationDirectory);
+      throw new MojoExecutionException("The application directory is not a directory : " + application_directory);
     }
-    return applicationDirectory;
+    return application_directory;
   }
 
   protected String getAppId() throws MojoExecutionException {
 
+    if (gcloud_project != null) {
+      return gcloud_project;
+    }
     String appDir = getApplicationDirectory();
     if (EarHelper.isEar(appDir)) { // EAR project
       AppEngineApplicationXmlReader reader
@@ -310,8 +325,11 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       return appEngineApplicationXml.getApplicationId();
 
     }
-
-    return getAppEngineWebXml().getAppId();
+    if (new File(appDir, "WEB-INF/appengine-web.xml").exists()) {
+      return getAppEngineWebXml().getAppId();
+    } else {
+      return null;
+    }
   }
 
   private static InputStream getInputStream(File file) {
@@ -328,5 +346,51 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       appengineWebXml = reader.readAppEngineWebXml();
     }
     return appengineWebXml;
+  }
+  
+  
+  /**
+   * The entry point to Aether, i.e. the component doing all the work.
+   *
+   * @component
+   */
+
+  protected RepositorySystem repoSystem;
+
+  /**
+   * The current repository/network configuration of Maven.
+   *
+   * @parameter default-value="${repositorySystemSession}"
+   * @readonly
+   */
+  protected RepositorySystemSession repoSession;
+
+  /**
+   * The project's remote repositories to use for the resolution of project
+   * dependencies.
+   *
+   * @parameter default-value="${project.remoteProjectRepositories}"
+   * @readonly
+   */
+  protected List<RemoteRepository> projectRepos;
+
+  /**
+   * The project's remote repositories to use for the resolution of plugins and
+   * their dependencies.
+   *
+   * @parameter default-value="${project.remotePluginRepositories}"
+   * @readonly
+   */
+  protected List<RemoteRepository> pluginRepos;
+
+  protected void resolveAndSetSdkRoot() throws MojoExecutionException {
+
+    File sdkBaseDir = SdkResolver.getSdk(maven_project, repoSystem, repoSession, pluginRepos, projectRepos);
+
+    try {
+      System.setProperty("appengine.sdk.root", sdkBaseDir.getCanonicalPath());
+    } catch (IOException e) {
+      throw new MojoExecutionException("Could not open SDK zip archive.", e);
+    }
   }
 }
