@@ -136,22 +136,30 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       throw new MojoExecutionException("Unkown Google Cloud SDK location.");
     }
 
-    commands.add(gcloud_directory + "/lib/googlecloudsdk/gcloud/gcloud.py");
+    script = new File(s, "/bin/dev_appserver.py");
+
+    if (!script.exists()) {
+      getLog().error("Cannot find the /bin/dev_appserver.py script");
+      getLog().info("You might want to run the command: gcloud components update gae-python");
+      throw new MojoExecutionException("Install the correct Cloud SDK components");
+    }
+    
+    commands.add(gcloud_directory + "/bin/dev_appserver.py");
 
     if (gcloud_project != null) {
-      commands.add("--project=" + gcloud_project);
+       commands.add("-A");
+       commands.add(getAppId());
     } else {
       String appId =  getAppId();
       if (appId != null) {
-       commands.add("--project=" + getAppId());
+       commands.add("-A");
+       commands.add(getAppId());
       }
     }
     if (verbosity != null) {
       commands.add("--verbosity=" + verbosity);
     }
 
-    commands.add("preview");
-    commands.add("app");
     return commands;
   }
 
