@@ -16,6 +16,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -185,7 +186,19 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
 
   protected void startCommand(File appDirFile, ArrayList<String> devAppServerCommand, WaitDirective waitDirective) throws MojoExecutionException {
     getLog().info("Running " + Joiner.on(" ").join(devAppServerCommand));
-
+     
+    if (!new File(appDirFile, "Dockerfile").exists()) {
+      PrintWriter out;
+      try {
+        out = new PrintWriter(new File(appDirFile, "Dockerfile"));
+        out.println("FROM gcr.io/google_appengine/java-compat");
+        out.println("ADD . /app");
+        out.close();
+      } catch (FileNotFoundException ex) {
+          throw new MojoExecutionException("Error: creating default Dockerfile " + ex);
+      }
+    }
+    
     Thread stdOutThread;
     Thread stdErrThread;
     try {
