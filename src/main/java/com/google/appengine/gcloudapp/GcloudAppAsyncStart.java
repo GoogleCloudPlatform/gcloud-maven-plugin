@@ -14,7 +14,7 @@ import java.util.ArrayList;
  *
  * @author Ludo
  * @goal run_start
- * @execute phase="validate"
+ * @execute phase="package"
  * @threadSafe false
  */
 public class GcloudAppAsyncStart extends GCloudAppRun {
