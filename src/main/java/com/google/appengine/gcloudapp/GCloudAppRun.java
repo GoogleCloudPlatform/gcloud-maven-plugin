@@ -287,7 +287,7 @@ public class GCloudAppRun extends AbstractGcloudMojo {
     getLog().info("Running gcloud app run...");
 
     ArrayList<String> devAppServerCommand = new ArrayList<>();
-    setupInitialCommands(devAppServerCommand);
+    setupInitialCommands(devAppServerCommand, false);
 
     //devAppServerCommand.add("run");
     File appDirectory = new File(appDir);

@@ -95,7 +95,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
 
   protected abstract ArrayList<String> getCommand(String appDir) throws MojoExecutionException;
 
-  protected ArrayList<String> setupInitialCommands(ArrayList<String> commands) throws MojoExecutionException {
+  protected ArrayList<String> setupInitialCommands(ArrayList<String> commands, boolean deploy) throws MojoExecutionException {
     String pythonLocation = "python"; //default in the path for Linux
     boolean isWindows = System.getProperty("os.name").contains("Windows");
     if (isWindows) {
@@ -144,22 +144,32 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       throw new MojoExecutionException("Install the correct Cloud SDK components");
     }
     
-    commands.add(gcloud_directory + "/bin/dev_appserver.py");
-
-    if (gcloud_project != null) {
-       commands.add("-A");
-       commands.add(getAppId());
+    if (deploy) {
+      commands.add(gcloud_directory + "/lib/googlecloudsdk/gcloud/gcloud.py");
     } else {
-      String appId =  getAppId();
-      if (appId != null) {
-       commands.add("-A");
-       commands.add(getAppId());
+      commands.add(gcloud_directory + "/bin/dev_appserver.py");
+
+    }
+    String projectId = gcloud_project;
+    if (projectId == null) {
+      projectId = getAppId();
+    }
+    if (projectId != null) {
+      if (deploy) {
+        commands.add("--project=" + gcloud_project);
+      } else {
+        commands.add("-A");
+        commands.add(projectId);
       }
     }
     if (verbosity != null) {
       commands.add("--verbosity=" + verbosity);
     }
-
+    
+    if (deploy) {
+      commands.add("preview");
+      commands.add("app");
+    }
     return commands;
   }
 

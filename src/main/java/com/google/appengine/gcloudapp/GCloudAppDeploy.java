@@ -154,7 +154,7 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
     getLog().info("Running gcloud app deploy...");
 
     ArrayList<String> devAppServerCommand = new ArrayList<>();
-    setupInitialCommands(devAppServerCommand);
+    setupInitialCommands(devAppServerCommand, true);
 
     devAppServerCommand.add("deploy");
 
