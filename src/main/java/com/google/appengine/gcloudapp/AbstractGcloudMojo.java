@@ -85,6 +85,13 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
    */
   protected String gcloud_project;
 
+  /**
+   * Quiet mode, if true does not ask to perform the action.
+   *
+   * @parameter expression="${gcloud.quiet}" default-value="true"
+   */
+  protected boolean quiet = true;
+  
   protected AppEngineWebXml appengineWebXml = null;
 
   /**
@@ -97,7 +104,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
   protected abstract ArrayList<String> getCommand(String appDir) throws MojoExecutionException;
 
   protected ArrayList<String> setupInitialCommands(ArrayList<String> commands, boolean deploy) throws MojoExecutionException {
-    String pythonLocation = "python"; //default in the path for Linux
+  String pythonLocation = "python"; //default in the path for Linux
     boolean isWindows = System.getProperty("os.name").contains("Windows");
     if (isWindows) {
       pythonLocation = System.getenv("CLOUDSDK_PYTHON");
@@ -147,6 +154,9 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     
     if (deploy) {
       commands.add(gcloud_directory + "/lib/googlecloudsdk/gcloud/gcloud.py");
+      if (quiet) {
+        commands.add("--quiet");
+      }
     } else {
       commands.add(gcloud_directory + "/bin/dev_appserver.py");
 
@@ -256,7 +266,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       //export DOCKER_CERT_PATH=/Users/ludo/.boot2docker/certs/boot2docker-vm
       //export DOCKER_TLS_VERIFY=1
       //export DOCKER_HOST=tcp://192.168.59.103:2376
-
+      
       final Process devServerProcess = processBuilder.start();
 
       final CountDownLatch waitStartedLatch = new CountDownLatch(1);
