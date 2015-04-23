@@ -51,8 +51,7 @@ following into the `plugins` section in the project `pom.xml` file:
     <plugin>
        <groupId>com.google.appengine</groupId>
        <artifactId>gcloud-maven-plugin</artifactId>
-       <version>0.9.56.v20150415a</version>
-    </plugin>
+       <version>0.9.57.v20150423</version>
 
 Important: The Google Cloud SDK Maven goals work only with version 1.9.17 or above.
 

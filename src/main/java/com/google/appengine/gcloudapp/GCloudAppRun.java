@@ -287,9 +287,9 @@ public class GCloudAppRun extends AbstractGcloudMojo {
     getLog().info("Running gcloud app run...");
 
     ArrayList<String> devAppServerCommand = new ArrayList<>();
-    setupInitialCommands(devAppServerCommand);
+    setupInitialCommands(devAppServerCommand, false);
 
-    devAppServerCommand.add("run");
+    //devAppServerCommand.add("run");
     File appDirectory = new File(appDir);
     File f = new File(appDirectory, "WEB-INF/appengine-web.xml");
     if (!f.exists()) { // EAR project possibly, add all modules one by one:
@@ -326,103 +326,114 @@ public class GCloudAppRun extends AbstractGcloudMojo {
     setupExtraCommands(devAppServerCommand);
 
     // Add in additional options for starting the DevAppServer
-    if (admin_host != null) {
-      devAppServerCommand.add("--admin-host=" + admin_host);
+
+    if (host != null) {
+      String[] parts = host.split(":");
+      devAppServerCommand.add("--host");
+      devAppServerCommand.add(parts[0]);
+      devAppServerCommand.add("--port");
+      devAppServerCommand.add(parts[1]);
     }
     if (api_host != null) {
-      devAppServerCommand.add("--api-host=" + api_host);
+      String[] parts = host.split(":");
+      devAppServerCommand.add("--api_host");
+      devAppServerCommand.add(parts[0]);
+      devAppServerCommand.add("--api_port");
+      devAppServerCommand.add(parts[1]);
+    }
+    if (admin_host != null) {
+      String[] parts = host.split(":");
+      devAppServerCommand.add("--admin_host");
+      devAppServerCommand.add(parts[0]);
+      devAppServerCommand.add("--admin_port");
+      devAppServerCommand.add(parts[1]);
     }
 
     if (storage_path != null) {
-      devAppServerCommand.add("--storage-path=" + storage_path);
-    }
-    if (host != null) {
-      devAppServerCommand.add("--host=" + host);
-    }
-    if (admin_host != null) {
-      devAppServerCommand.add("--admin-host=" + admin_host);
-    }
-    if (storage_path != null) {
-      devAppServerCommand.add("--storage-path=" + storage_path);
+      devAppServerCommand.add("--storage_path=" + storage_path);
     }
     if (log_level != null) {
-      devAppServerCommand.add("--log-level=" + log_level);
+      devAppServerCommand.add("--log_level=" + log_level);
     }
     if (logs_path != null) {
-      devAppServerCommand.add("--logs-path=" + logs_path);
+      devAppServerCommand.add("--logs_path=" + logs_path);
     }
     if (auth_domain != null) {
-      devAppServerCommand.add("--auth-domain=" + auth_domain);
+      devAppServerCommand.add("--auth_domain=" + auth_domain);
     }
     if (max_module_instances != null) {
-      devAppServerCommand.add("--max-module-instances=" + max_module_instances);
+      devAppServerCommand.add("--max_module_instances=" + max_module_instances);
     }
     if (appidentity_email_address != null) {
-      devAppServerCommand.add("--appidentity-email-address=" + appidentity_email_address);
+      devAppServerCommand.add("--appidentity_email_address=" + appidentity_email_address);
     }
 
     if (appidentity_private_key_path != null) {
-      devAppServerCommand.add("--appidentity-private-key-path=" + appidentity_private_key_path);
+      devAppServerCommand.add("--appidentity_private_key_path=" + appidentity_private_key_path);
     }
     if (blobstore_path != null) {
-      devAppServerCommand.add("--blobstore-path=" + blobstore_path);
+      devAppServerCommand.add("--blobstore_path=" + blobstore_path);
     }
     if (datastore_path != null) {
-      devAppServerCommand.add("--datastore-path=" + datastore_path);
+      devAppServerCommand.add("--datastore_path=" + datastore_path);
     }
 
     if (clear_datastore) {
-      devAppServerCommand.add("--clear-datastore");
+      devAppServerCommand.add("--clear_datastore");
     }
     if (allow_skipped_files) {
-      devAppServerCommand.add("--allow-skipped-files");
+      devAppServerCommand.add("--allow_skipped_files");
     }
     if (enable_mvm_logs) {
-      devAppServerCommand.add("--enable-mvm-logs");
+      devAppServerCommand.add("--enable_mvm_logs");
     }
     if (enable_sendmail) {
-      devAppServerCommand.add("--enable-sendmail");
+      devAppServerCommand.add("--enable_sendmail");
     }
     if (use_mtime_file_watcher) {
-      devAppServerCommand.add("--use-mtime-file-watcher");
+      devAppServerCommand.add("--use_mtime_file_watcher");
     }
     if ((jvm_flag != null) && !jvm_flag.isEmpty()) {
       for (String opt : jvm_flag) {
-        devAppServerCommand.add("--jvm-flag=" + opt);
+        devAppServerCommand.add("--jvm_flag=" + opt);
       }
     }
     if (default_gcs_bucket_name != null) {
-      devAppServerCommand.add("--default-gcs-bucket-name=" + default_gcs_bucket_name);
+      devAppServerCommand.add("--default_gcs_bucket_name=" + default_gcs_bucket_name);
     }
     if (enable_cloud_datastore) {
-      devAppServerCommand.add("--enable-cloud-datastore");
+      devAppServerCommand.add("--enable_cloud_datastore");
     }
     if (datastore_consistency_policy != null) {
-      devAppServerCommand.add("--datastore-consistency-policy=" + datastore_consistency_policy);
+      devAppServerCommand.add("--datastore_consistency_policy=" + datastore_consistency_policy);
     }
     if (php_executable_path != null) {
-      devAppServerCommand.add("--php-executable-path=" + php_executable_path);
+      devAppServerCommand.add("--php_executable_path=" + php_executable_path);
     }
     if (python_startup_script != null) {
-      devAppServerCommand.add("--python-startup-script=" + python_startup_script);
+      devAppServerCommand.add("--python_startup_script=" + python_startup_script);
     }
-    if (require_indexes) {
-      devAppServerCommand.add("--require-indexes");
+    if (require_indexes) { 
+      devAppServerCommand.add("--require_indexes");
     }
     if (show_mail_body) {
-      devAppServerCommand.add("--show-mail-body");
+      devAppServerCommand.add("--show_mail_body");
     }
     if (smtp_allow_tls) {
-      devAppServerCommand.add("--smtp-allow-tls");
+      devAppServerCommand.add("--smt_allow_tls");
     }
     if (smtp_host != null) {
-      devAppServerCommand.add("--smtp-host=" + smtp_host);
+      String[] parts = host.split(":");
+      devAppServerCommand.add("--smtp_host");
+      devAppServerCommand.add(parts[0]);
+      devAppServerCommand.add("--smtp_port");
+      devAppServerCommand.add(parts[1]);
     }
     if (smtp_password != null) {
-      devAppServerCommand.add("--smtp-password=" + smtp_password);
+      devAppServerCommand.add("--smtp_password=" + smtp_password);
     }
     if (smtp_user != null) {
-      devAppServerCommand.add("--smtp-user=" + smtp_user);
+      devAppServerCommand.add("--smtp_user=" + smtp_user);
     }
     return devAppServerCommand;
   }

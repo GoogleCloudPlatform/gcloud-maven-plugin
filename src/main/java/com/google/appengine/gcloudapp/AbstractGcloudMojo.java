@@ -16,6 +16,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -84,6 +85,13 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
    */
   protected String gcloud_project;
 
+  /**
+   * Quiet mode, if true does not ask to perform the action.
+   *
+   * @parameter expression="${gcloud.quiet}" default-value="true"
+   */
+  protected boolean quiet = true;
+  
   protected AppEngineWebXml appengineWebXml = null;
 
   /**
@@ -95,8 +103,8 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
 
   protected abstract ArrayList<String> getCommand(String appDir) throws MojoExecutionException;
 
-  protected ArrayList<String> setupInitialCommands(ArrayList<String> commands) throws MojoExecutionException {
-    String pythonLocation = "python"; //default in the path for Linux
+  protected ArrayList<String> setupInitialCommands(ArrayList<String> commands, boolean deploy) throws MojoExecutionException {
+  String pythonLocation = "python"; //default in the path for Linux
     boolean isWindows = System.getProperty("os.name").contains("Windows");
     if (isWindows) {
       pythonLocation = System.getenv("CLOUDSDK_PYTHON");
@@ -136,22 +144,43 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       throw new MojoExecutionException("Unkown Google Cloud SDK location.");
     }
 
-    commands.add(gcloud_directory + "/lib/googlecloudsdk/gcloud/gcloud.py");
+    script = new File(s, "/bin/dev_appserver.py");
 
-    if (gcloud_project != null) {
-      commands.add("--project=" + gcloud_project);
+    if (!script.exists()) {
+      getLog().error("Cannot find the /bin/dev_appserver.py script");
+      getLog().info("You might want to run the command: gcloud components update gae-python");
+      throw new MojoExecutionException("Install the correct Cloud SDK components");
+    }
+    
+    if (deploy) {
+      commands.add(gcloud_directory + "/lib/googlecloudsdk/gcloud/gcloud.py");
+      if (quiet) {
+        commands.add("--quiet");
+      }
     } else {
-      String appId =  getAppId();
-      if (appId != null) {
-       commands.add("--project=" + getAppId());
+      commands.add(gcloud_directory + "/bin/dev_appserver.py");
+
+    }
+    String projectId = gcloud_project;
+    if (projectId == null) {
+      projectId = getAppId();
+    }
+    if (projectId != null) {
+      if (deploy) {
+        commands.add("--project=" + gcloud_project);
+      } else {
+        commands.add("-A");
+        commands.add(projectId);
       }
     }
     if (verbosity != null) {
       commands.add("--verbosity=" + verbosity);
     }
-
-    commands.add("preview");
-    commands.add("app");
+    
+    if (deploy) {
+      commands.add("preview");
+      commands.add("app");
+    }
     return commands;
   }
 
@@ -167,7 +196,19 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
 
   protected void startCommand(File appDirFile, ArrayList<String> devAppServerCommand, WaitDirective waitDirective) throws MojoExecutionException {
     getLog().info("Running " + Joiner.on(" ").join(devAppServerCommand));
-
+     
+    if (!new File(appDirFile, "Dockerfile").exists()) {
+      PrintWriter out;
+      try {
+        out = new PrintWriter(new File(appDirFile, "Dockerfile"));
+        out.println("FROM gcr.io/google_appengine/java-compat");
+        out.println("ADD . /app");
+        out.close();
+      } catch (FileNotFoundException ex) {
+          throw new MojoExecutionException("Error: creating default Dockerfile " + ex);
+      }
+    }
+    
     Thread stdOutThread;
     Thread stdErrThread;
     try {
@@ -225,7 +266,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       //export DOCKER_CERT_PATH=/Users/ludo/.boot2docker/certs/boot2docker-vm
       //export DOCKER_TLS_VERIFY=1
       //export DOCKER_HOST=tcp://192.168.59.103:2376
-
+      
       final Process devServerProcess = processBuilder.start();
 
       final CountDownLatch waitStartedLatch = new CountDownLatch(1);

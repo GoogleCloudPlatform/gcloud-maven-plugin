@@ -154,7 +154,7 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
     getLog().info("Running gcloud app deploy...");
 
     ArrayList<String> devAppServerCommand = new ArrayList<>();
-    setupInitialCommands(devAppServerCommand);
+    setupInitialCommands(devAppServerCommand, true);
 
     devAppServerCommand.add("deploy");
 
@@ -163,12 +163,12 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
       File ear = new File(appDir);
       for (File w : ear.listFiles()) {
         if (new File(w, "WEB-INF/appengine-web.xml").exists()) {
-          devAppServerCommand.add(w.getAbsolutePath());
+          devAppServerCommand.add(w.getAbsolutePath()+"/app.yaml");
         }
       }
     } else {
       // Point to our application
-      devAppServerCommand.add(appDir);
+      devAppServerCommand.add(appDir +"/app.yaml");
     }
     setupExtraCommands(devAppServerCommand);
 

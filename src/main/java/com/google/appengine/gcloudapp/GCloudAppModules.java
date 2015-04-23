@@ -48,7 +48,7 @@ public abstract class GCloudAppModules extends AbstractGcloudMojo {
     getLog().info("Running gcloud app modules...");
 
     ArrayList<String> devAppServerCommand = new ArrayList<>();
-    setupInitialCommands(devAppServerCommand);
+    setupInitialCommands(devAppServerCommand, true);
 
     devAppServerCommand.add("modules");
 
