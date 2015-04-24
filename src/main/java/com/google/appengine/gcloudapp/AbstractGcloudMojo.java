@@ -167,7 +167,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     }
     if (projectId != null) {
       if (deploy) {
-        commands.add("--project=" + gcloud_project);
+        commands.add("--project=" + projectId);
       } else {
         commands.add("-A");
         commands.add(projectId);
