@@ -5,6 +5,7 @@ package com.google.appengine.gcloudapp;
 
 
 import com.google.appengine.SdkResolver;
+import com.google.appengine.tools.admin.AppCfg;
 import com.google.apphosting.utils.config.AppEngineApplicationXml;
 import com.google.apphosting.utils.config.AppEngineApplicationXmlReader;
 import com.google.apphosting.utils.config.AppEngineWebXml;
@@ -100,6 +101,14 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
    * @parameter expression="${gcloud.application_directory}"
    */
   protected String application_directory;
+  
+  /**
+   * Non Docker mode (Experimental, will disappear soon).
+   *
+   * @parameter expression="${gcloud.non_docker_mode}" default-value="false"
+   */
+  protected boolean non_docker_mode = false;
+  
 
   protected abstract ArrayList<String> getCommand(String appDir) throws MojoExecutionException;
 
@@ -132,13 +141,22 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
         }
       } else {
         gcloud_directory = System.getProperty("user.home") + "/google-cloud-sdk";
+        if (!new File(gcloud_directory).exists()) {
+          // try devshell VM:
+          gcloud_directory = "/google/google-cloud-sdk";
+          if (!new File(gcloud_directory).exists()) {
+            // try bitnani Jenkins VM:
+            gcloud_directory = "/usr/local/share/google/google-cloud-sdk";
+          }
+        }
       }
     }
     File s = new File(gcloud_directory);
     File script = new File(s, "/lib/googlecloudsdk/gcloud/gcloud.py");
 
     if (error || !script.exists()) {
-      getLog().error("Cannot determine the location of the Google Cloud SDK.");
+      getLog().error("Cannot determine the location of the Google Cloud SDK:");
+      getLog().error("The script '" + script.getAbsolutePath() + "' does not exist.");
       getLog().error("You can set it via <gcloud_directory> </gcloud_directory> in the pom.xml");
       getLog().info("If you need to install the Google Cloud SDK, follow the instructions located at https://cloud.google.com/appengine/docs/java/managed-vms");
       throw new MojoExecutionException("Unkown Google Cloud SDK location.");
@@ -147,7 +165,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     script = new File(s, "/bin/dev_appserver.py");
 
     if (!script.exists()) {
-      getLog().error("Cannot find the /bin/dev_appserver.py script");
+      getLog().error("Cannot find the script: " + script.getAbsolutePath());
       getLog().info("You might want to run the command: gcloud components update gae-python");
       throw new MojoExecutionException("Install the correct Cloud SDK components");
     }
@@ -229,7 +247,13 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       if (!userDefined) {
         if ("ENV_or_default".equals(docker_host)) {
           if (env_docker_host == null) {
-            env_docker_host = "tcp://192.168.59.103:2376";
+            if (env.get("DEVSHELL_CLIENT_PORT") != null) {
+              // we know we have a good chance to be in an old Google devshell:
+              env_docker_host = "unix:///var/run/docker.sock";
+            } else {
+              // we assume boot2doker environment (Windows, Mac, and some Linux)
+              env_docker_host = "tcp://192.168.59.103:2376";
+            }
           }
         } else {
           env_docker_host = docker_host;
@@ -266,6 +290,9 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       //export DOCKER_CERT_PATH=/Users/ludo/.boot2docker/certs/boot2docker-vm
       //export DOCKER_TLS_VERIFY=1
       //export DOCKER_HOST=tcp://192.168.59.103:2376
+      if (non_docker_mode) {
+        env.put ("GAE_LOCAL_VM_RUNTIME", "true");
+      }
       
       final Process devServerProcess = processBuilder.start();
 
@@ -433,5 +460,20 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     } catch (IOException e) {
       throw new MojoExecutionException("Could not open SDK zip archive.", e);
     }
+  }
+  
+  protected void executeAppCfgStagingCommand(String appDir, String destDir,
+          ArrayList<String> arguments)
+          throws Exception {
+
+    resolveAndSetSdkRoot();
+    if (getAppEngineWebXml().getBetaSettings().containsKey("java_quickstart")) {
+      arguments.add("--enable_quickstart");
+    }
+    arguments.add("stage");
+    arguments.add(appDir);
+    arguments.add(destDir);
+    getLog().info("Running " + Joiner.on(" ").join(arguments));
+    AppCfg.main(arguments.toArray(new String[arguments.size()]));
   }
 }
