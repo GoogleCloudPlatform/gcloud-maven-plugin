@@ -5,6 +5,7 @@ package com.google.appengine.gcloudapp;
 
 import com.google.appengine.repackaged.com.google.api.client.util.Throwables;
 import com.google.appengine.repackaged.com.google.common.io.ByteStreams;
+import com.google.appengine.repackaged.com.google.common.io.Files;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
@@ -277,9 +278,28 @@ public class GCloudAppRun extends AbstractGcloudMojo {
     //Just before starting, just to make sure, shut down any running devserver on this port.
     stopDevAppServer();
 
-    ArrayList<String> devAppServerCommand = getCommand(application_directory);
-          startCommand(appDirFile, devAppServerCommand, WaitDirective.WAIT_SERVER_STOPPED);
-        }
+    try {
+      File temp = Files.createTempDir();
+      getLog().info("Creating staging directory in: " + temp.getAbsolutePath());
+      ArrayList<String> arguments = new ArrayList<>();
+      executeAppCfgStagingCommand(application_directory, temp.getAbsolutePath(),
+              arguments);
+
+      File[] yamlFiles = new File(temp, "/WEB-INF/appengine-generated").listFiles();
+      for (File f : yamlFiles) {
+        Files.copy(f, new File(application_directory, f.getName()));
+      }
+      File qs = new File(temp, "/WEB-INF/quickstart-web.xml");
+      if (qs.exists()) {
+        Files.copy(qs, new File(application_directory, "/WEB-INF/quickstart-web.xml"));
+      }
+      ArrayList<String> devAppServerCommand = getCommand(application_directory);
+      startCommand(appDirFile, devAppServerCommand, WaitDirective.WAIT_SERVER_STOPPED);
+    } catch (Exception ex) {
+      getLog().error(ex);
+      throw new MojoExecutionException("Execution error: " + ex);
+    }
+  }
 
   @Override
   protected ArrayList<String> getCommand(String appDir) throws MojoExecutionException {

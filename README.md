@@ -51,7 +51,7 @@ following into the `plugins` section in the project `pom.xml` file:
     <plugin>
        <groupId>com.google.appengine</groupId>
        <artifactId>gcloud-maven-plugin</artifactId>
-       <version>0.9.57.v20150423</version>
+       <version>0.9.58.v20150502</version>
 
 Important: The Google Cloud SDK Maven goals work only with version 1.9.17 or above.
 
@@ -134,7 +134,6 @@ These are the Cloud SDK App Engine development server goals:
 | `datastore_consistency_policy` | The policy to apply when deciding whether a datastore write should appear in global queries (default is "time")
 | `datastore_path` | Path to a file used to store datastore contents (defaults to a file in `storage_path` if not set)
 | `default_gcs_bucket_name`| Default Google Cloud Storage bucket name
-| `enable_mvm_logs`| Enable logs collection and display in local Dev Admin Console for Managed VM modules. This will start extra log Docker containers.
 | `enable_sendmail`| Use the "sendmail" tool to transmit e-mail sent using the Mail API (ignored if `smtp_host` is set)
 | `host`|The host and port on which to start the local web server (in the format host:port)
 | `jvm_flag`| Additional arguments to pass to the java command when launching an instance of the app. May be specified more than once. Example: `<jvm_flag><param>-Xmx1024m</param> <param>-Xms256m</param></jvm_flag>` Note: This is not for Java Managed VMs applications. Please use a Dockerfile for that.
@@ -159,10 +158,9 @@ The following example shows how to use some of these settings:
       <plugin>
         <groupId>com.google.appengine</groupId>
         <artifactId>gcloud-maven-plugin</artifactId>
-        <version>1.9.17</version>
+        <version>>0.9.58.v20150502</version>
         <configuration>
           <gcloud_directory>/usr/foo/private/google-cloud-sdk</gcloud_directory>
-          <enable_mvm_logs>true</enable_mvm_logs>
           <verbosity>debug</verbosity>
           <version>specific_version</version>
           <set_default>true</set_default>

@@ -131,17 +131,11 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
     File temp = Files.createTempDir();
     getLog().info("Creating staging directory in: " + temp.getAbsolutePath());
     try {
-      executeAppCfgStagingCommand(appDir, temp.getAbsolutePath());
-
-      // TODO(ludo) remove with the next release as appcfg will do that step:
-      File[] yamlFiles = new File(temp, "/WEB-INF/appengine-generated").listFiles();
-      for (File f : yamlFiles) {
-        Files.copy(f, new File(temp, f.getName()));
-      }
+      ArrayList<String> arguments = collectAppCfgParameters();
+      executeAppCfgStagingCommand(appDir, temp.getAbsolutePath(), arguments);
     } catch (Exception ex) {
       getLog().error(ex);
       throw new MojoExecutionException("Staging error " + ex);
-
     }
 
     ArrayList<String> devAppServerCommand = getCommand(temp.getAbsolutePath());
@@ -268,20 +262,5 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
     }
 
     return arguments;
-  }
-
-  protected void executeAppCfgStagingCommand( String appDir, String destDir)
-      throws Exception {
-    
-    resolveAndSetSdkRoot();
-    ArrayList<String> arguments = collectAppCfgParameters();
-
-    arguments.add("stage");
-    arguments.add(appDir);
-    arguments.add(destDir);
-    getLog().info("Running " + Joiner.on(" ").join(arguments));
-
-    AppCfg.main(arguments.toArray(new String[arguments.size()]));
-
   }
 }
