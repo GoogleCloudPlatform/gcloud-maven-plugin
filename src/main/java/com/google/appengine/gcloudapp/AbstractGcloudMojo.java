@@ -406,6 +406,8 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       Ini.Section section = ini.get("core");
       String project = section.get("project");
       if (project != null) {
+         getLog().info("Getting project name: " + project +
+                 " from gcloud settings.");
         return project;
       }
     } catch (IOException ioe) {
