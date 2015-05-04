@@ -417,21 +417,27 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     }
 
     try { // Check for Cloud SDK properties:
-      org.ini4j.Ini ini = new org.ini4j.Ini();
       File cloudSDKProperties = new File(System.getProperty("user.home")
               + "/.config/gcloud/properties");
       if (!cloudSDKProperties.exists()) {
-        cloudSDKProperties = new File(System.getenv("CLOUDSDK_CONFIG"));
+        String env = System.getenv("CLOUDSDK_CONFIG");
+        if (env != null) {
+          cloudSDKProperties = new File(env, "properties");
+        }
       }
-      ini.load(new FileReader(cloudSDKProperties));
-      Ini.Section section = ini.get("core");
-      String project = section.get("project");
-      if (project != null) {
-        getLog().info("Getting project name: " + project
-                + " from gcloud settings.");
-        return project;
+      if (cloudSDKProperties.exists()) {
+        org.ini4j.Ini ini = new org.ini4j.Ini();
+        ini.load(new FileReader(cloudSDKProperties));
+        Ini.Section section = ini.get("core");
+        String project = section.get("project");
+        if (project != null) {
+          getLog().info("Getting project name: " + project
+                  + " from gcloud settings.");
+          return project;
+        }
       }
-      project = getProjectIdfromMetaData();
+      // now try the metadata server location:
+      String project = getProjectIdfromMetaData();
       if (project != null) {
         getLog().info("Getting project name: " + project
                 + " from the metadata server.");
