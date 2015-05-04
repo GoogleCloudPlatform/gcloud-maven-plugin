@@ -3,13 +3,9 @@
  */
 package com.google.appengine.gcloudapp;
 
-import com.google.appengine.tools.admin.AppCfg;
-import com.google.common.base.Joiner;
 import com.google.common.io.Files;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
@@ -32,13 +28,6 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
    */
   private String server;
 
-  /**
-   * version The version of the app that will be created or replaced by this
-   * deployment.
-   *
-   * @parameter expression="${gcloud.version}"
-   */
-  private String version;
 
   /**
    * env-vars ENV_VARS Environment variable overrides for your app.
@@ -141,6 +130,29 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
     ArrayList<String> devAppServerCommand = getCommand(temp.getAbsolutePath());
     startCommand(appDirFile, devAppServerCommand, WaitDirective.WAIT_SERVER_STOPPED);
   }
+  
+  /**
+   * Add extra config files like dos, dispatch, index or queue
+   * to the deployment payload.
+   * 
+   **/
+    private void addOtherConfigFiles(ArrayList<String> command, String appDir) {
+    if (new File(appDir + "/cron.yaml").exists()) {
+      command.add(appDir + "/cron.yaml");
+    }
+    if (new File(appDir + "/queue.yaml").exists()) {
+      command.add(appDir + "/queue.yaml");
+    }
+    if (new File(appDir + "/dispatch.yaml").exists()) {
+      command.add(appDir + "/dispatch.yaml");
+    }
+    if (new File(appDir + "/index.yaml").exists()) {
+      command.add(appDir + "/index.yaml");
+    }
+    if (new File(appDir + "/dos.yaml").exists()) {
+      command.add(appDir + "/dos.yaml");
+    }              
+  }
 
   @Override
   protected ArrayList<String> getCommand(String appDir) throws MojoExecutionException {
@@ -157,12 +169,14 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
       File ear = new File(appDir);
       for (File w : ear.listFiles()) {
         if (new File(w, "WEB-INF/appengine-web.xml").exists()) {
-          devAppServerCommand.add(w.getAbsolutePath()+"/app.yaml");
+          devAppServerCommand.add(w.getAbsolutePath()+ "/app.yaml");
+          addOtherConfigFiles(devAppServerCommand, w.getAbsolutePath());
         }
       }
     } else {
       // Point to our application
-      devAppServerCommand.add(appDir +"/app.yaml");
+      devAppServerCommand.add(appDir + "/app.yaml");
+      addOtherConfigFiles(devAppServerCommand, appDir);
     }
     setupExtraCommands(devAppServerCommand);
 
@@ -211,7 +225,7 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
   }
   
   
-   protected ArrayList<String> collectAppCfgParameters() {
+   protected ArrayList<String> collectAppCfgParameters() throws MojoExecutionException {
     ArrayList<String> arguments = new ArrayList<>();
 
     if (server != null && !server.isEmpty()) {
@@ -220,10 +234,10 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
     }
 
  
-//    if (appId != null && !appId.isEmpty()) {
-//      arguments.add("-A");
-//      arguments.add(appId);
-//    }
+     if (getAppId() != null) {
+       arguments.add("-A");
+       arguments.add(getAppId());
+     }
 
     if (version != null && !version.isEmpty()) {
       arguments.add("-V");
