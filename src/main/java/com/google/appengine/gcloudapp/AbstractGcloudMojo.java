@@ -13,6 +13,7 @@ import com.google.apphosting.utils.config.AppEngineWebXmlReader;
 import com.google.apphosting.utils.config.EarHelper;
 import com.google.common.base.Joiner;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -29,6 +30,7 @@ import org.apache.maven.project.MavenProject;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.repository.RemoteRepository;
+import org.ini4j.Ini;
 
 /**
  *
@@ -86,6 +88,14 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
    */
   protected String gcloud_project;
 
+ /**
+   * version The version of the app that will be created or replaced by this
+   * deployment.
+   *
+   * @parameter expression="${gcloud.version}"
+   */
+  protected String version;
+  
   /**
    * Quiet mode, if true does not ask to perform the action.
    *
@@ -384,6 +394,26 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     if (gcloud_project != null) {
       return gcloud_project;
     }
+
+    try { // Check for Cloud SDK properties:
+      org.ini4j.Ini ini = new org.ini4j.Ini();
+      File cloudSDKProperties = new File(System.getProperty("user.home")
+              + "/.config/gcloud/properties");
+      if (!cloudSDKProperties.exists()) {
+        cloudSDKProperties = new File(System.getenv("CLOUDSDK_CONFIG"));
+      }
+      ini.load(new FileReader(cloudSDKProperties));
+      Ini.Section section = ini.get("core");
+      String project = section.get("project");
+      if (project != null) {
+         getLog().info("Getting project name: " + project +
+                 " from gcloud settings.");
+        return project;
+      }
+    } catch (IOException ioe) {
+      // nothing for now. Trying to read appengine-web.xml.
+    }
+    
     String appDir = getApplicationDirectory();
     if (EarHelper.isEar(appDir)) { // EAR project
       AppEngineApplicationXmlReader reader
@@ -469,6 +499,14 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     resolveAndSetSdkRoot();
     if (getAppEngineWebXml().getBetaSettings().containsKey("java_quickstart")) {
       arguments.add("--enable_quickstart");
+    }
+    if (getAppId() != null) {
+      arguments.add("-A");
+      arguments.add(getAppId());
+    }
+    if (version != null && !version.isEmpty()) {
+      arguments.add("-V");
+      arguments.add(version);
     }
     arguments.add("stage");
     arguments.add(appDir);

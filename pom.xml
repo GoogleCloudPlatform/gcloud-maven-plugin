@@ -4,7 +4,7 @@
   <groupId>com.google.appengine</groupId>
   <artifactId>gcloud-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
-  <version>0.9.59.v20150502-SNAPSHOT</version>
+  <version>0.9.59.v20150503-SNAPSHOT</version>
   <name>A Maven Plugin using the Cloud SDK for running and deploying appengine applications</name>
   <description>
     The App Engine maven plugin which can be used to interact with
@@ -139,6 +139,11 @@
       <artifactId>maven-invoker</artifactId>
       <version>2.1.1</version>
       <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.ini4j</groupId>
+      <artifactId>ini4j</artifactId>
+      <version>0.5.4</version>
     </dependency>
   </dependencies>
 
