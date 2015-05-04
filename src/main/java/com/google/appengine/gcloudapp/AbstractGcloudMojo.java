@@ -194,10 +194,8 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       commands.add(gcloud_directory + "/bin/dev_appserver.py");
 
     }
-    String projectId = gcloud_project;
-    if (projectId == null) {
-      projectId = getAppId();
-    }
+    String projectId = getAppId();
+
     if (projectId != null) {
       if (deploy) {
         commands.add("--project=" + projectId);
