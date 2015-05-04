@@ -293,6 +293,11 @@ public class GCloudAppRun extends AbstractGcloudMojo {
       if (qs.exists()) {
         Files.copy(qs, new File(application_directory, "/WEB-INF/quickstart-web.xml"));
       }
+      // Delete the xml as we have now the index.yaml equivalent
+      File index = new File(application_directory, "/WEB-INF/datastore-indexes.xml");
+      if (index.exists()) {
+        index.delete();
+      }
       ArrayList<String> devAppServerCommand = getCommand(application_directory);
       startCommand(appDirFile, devAppServerCommand, WaitDirective.WAIT_SERVER_STOPPED);
     } catch (Exception ex) {

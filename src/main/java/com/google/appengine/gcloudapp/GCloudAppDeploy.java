@@ -234,9 +234,10 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
     }
 
  
-     if (getAppId() != null) {
+     String appId = getAppId();
+     if (appId != null) {
        arguments.add("-A");
-       arguments.add(getAppId());
+       arguments.add(appId);
      }
 
     if (version != null && !version.isEmpty()) {

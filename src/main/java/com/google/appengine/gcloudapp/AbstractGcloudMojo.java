@@ -11,14 +11,19 @@ import com.google.apphosting.utils.config.AppEngineApplicationXmlReader;
 import com.google.apphosting.utils.config.AppEngineWebXml;
 import com.google.apphosting.utils.config.AppEngineWebXmlReader;
 import com.google.apphosting.utils.config.EarHelper;
+import static com.google.common.base.Charsets.UTF_8;
 import com.google.common.base.Joiner;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -189,10 +194,8 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       commands.add(gcloud_directory + "/bin/dev_appserver.py");
 
     }
-    String projectId = gcloud_project;
-    if (projectId == null) {
-      projectId = getAppId();
-    }
+    String projectId = getAppId();
+
     if (projectId != null) {
       if (deploy) {
         commands.add("--project=" + projectId);
@@ -389,6 +392,22 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     return application_directory;
   }
 
+  protected String getProjectIdfromMetaData() {
+    try {
+      URL url = new URL("http://metadata/computeMetadata/v1/project/project-id");
+      URLConnection connection = url.openConnection();
+      connection.setRequestProperty("X-Google-Metadata-Request", "True");
+      try (BufferedReader reader
+              = new BufferedReader(new InputStreamReader(
+                      connection.getInputStream(), UTF_8))) {
+        return reader.readLine();
+      }
+    } catch (IOException ignore) {
+      // return null if can't determine
+      return null;
+    }
+  }
+
   protected String getAppId() throws MojoExecutionException {
 
     if (gcloud_project != null) {
@@ -396,18 +415,30 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     }
 
     try { // Check for Cloud SDK properties:
-      org.ini4j.Ini ini = new org.ini4j.Ini();
       File cloudSDKProperties = new File(System.getProperty("user.home")
               + "/.config/gcloud/properties");
       if (!cloudSDKProperties.exists()) {
-        cloudSDKProperties = new File(System.getenv("CLOUDSDK_CONFIG"));
+        String env = System.getenv("CLOUDSDK_CONFIG");
+        if (env != null) {
+          cloudSDKProperties = new File(env, "properties");
+        }
       }
-      ini.load(new FileReader(cloudSDKProperties));
-      Ini.Section section = ini.get("core");
-      String project = section.get("project");
+      if (cloudSDKProperties.exists()) {
+        org.ini4j.Ini ini = new org.ini4j.Ini();
+        ini.load(new FileReader(cloudSDKProperties));
+        Ini.Section section = ini.get("core");
+        String project = section.get("project");
+        if (project != null) {
+          getLog().info("Getting project name: " + project
+                  + " from gcloud settings.");
+          return project;
+        }
+      }
+      // now try the metadata server location:
+      String project = getProjectIdfromMetaData();
       if (project != null) {
-         getLog().info("Getting project name: " + project +
-                 " from gcloud settings.");
+        getLog().info("Getting project name: " + project
+                + " from the metadata server.");
         return project;
       }
     } catch (IOException ioe) {
@@ -500,9 +531,10 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     if (getAppEngineWebXml().getBetaSettings().containsKey("java_quickstart")) {
       arguments.add("--enable_quickstart");
     }
-    if (getAppId() != null) {
+    String appId = getAppId();
+    if (appId != null) {
       arguments.add("-A");
-      arguments.add(getAppId());
+      arguments.add(appId);
     }
     if (version != null && !version.isEmpty()) {
       arguments.add("-V");
