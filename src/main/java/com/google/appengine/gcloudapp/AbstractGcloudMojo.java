@@ -415,8 +415,14 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     }
 
     try { // Check for Cloud SDK properties:
-      File cloudSDKProperties = new File(System.getProperty("user.home")
-              + "/.config/gcloud/properties");
+      String userHome;
+      if (System.getProperty("os.name").contains("Windows")) {
+        userHome = System.getenv("APPDATA");
+      } else {
+        userHome = System.getProperty("user.home") + "/.config";
+      }
+      File cloudSDKProperties = new File(userHome
+              + "/gcloud/properties");
       if (!cloudSDKProperties.exists()) {
         String env = System.getenv("CLOUDSDK_CONFIG");
         if (env != null) {
