@@ -4,7 +4,7 @@
 
 
 [Apache Maven](http://maven.apache.org/) is a software project management and comprehension tool.  It
-is capable of building WAR files for deployment into App Engine. The App Engine
+is capable of building WAR files for deployment into [App Engine](https://cloud.google.com/appengine/). The App Engine
 team provides both a plugin and Maven Archetypes for the purpose of speeding up
 development.
 
