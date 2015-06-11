@@ -256,6 +256,17 @@ public class GCloudAppRun extends AbstractGcloudMojo {
    */
   private String smtp_user;
 
+  /**
+   * Specify an entrypoint for custom runtime modules. This is required when
+   * such modules are present. Include "{port}" in the string (without quotes)
+   * to pass the port number in as an argument. For instance:
+   * --custom_entrypoint="gunicorn -b localhost:{port} mymodule:application"
+   *
+   * @parameter expression="${gcloud.custom_entrypoint}"
+   */
+  
+  
+  private String custom_entrypoint;
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
@@ -459,6 +470,9 @@ public class GCloudAppRun extends AbstractGcloudMojo {
     }
     if (smtp_user != null) {
       devAppServerCommand.add("--smtp_user=" + smtp_user);
+    }
+    if (custom_entrypoint != null) {
+      devAppServerCommand.add("--custom_entrypoint=" + custom_entrypoint);
     }
     return devAppServerCommand;
   }
