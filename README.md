@@ -51,7 +51,7 @@ following into the `plugins` section in the project `pom.xml` file:
     <plugin>
        <groupId>com.google.appengine</groupId>
        <artifactId>gcloud-maven-plugin</artifactId>
-       <version>0.9.58.v20150505</version>
+       <version>0.9.65.v20150618</version>
 
 Important: The Google Cloud SDK Maven goals work only with version 1.9.17 or above.
 
@@ -150,6 +150,7 @@ These are the Cloud SDK App Engine development server goals:
 | `smtp_user`| Username to use when connecting to the SMTP server specified with `smtp_host`
 | `storage_path`| The default location for storing application data. Can be overridden for specific kinds of data using `datastore_path`, `blobstore-path`, and/or `logs_path`
 | `use_mtime_file_watcher`| Use mtime polling for detecting source code changes - useful if modifying code from a remote machine using a distributed file system
+| `custom_entrypoint`| Specify an entrypoint for custom runtime modules. This is required when such modules are present. Include "{port}" in the string (without quotes) to pass the port number in as an argument. For instance: `--custom_entrypoint="gunicorn -b localhost:{port} mymodule:application"`
 
 
 
@@ -158,7 +159,7 @@ The following example shows how to use some of these settings:
       <plugin>
         <groupId>com.google.appengine</groupId>
         <artifactId>gcloud-maven-plugin</artifactId>
-        <version>>0.9.58.v20150505</version>
+        <version>>0.9.65.v20150618</version>
         <configuration>
           <gcloud_directory>/usr/foo/private/google-cloud-sdk</gcloud_directory>
           <verbosity>debug</verbosity>
@@ -187,11 +188,12 @@ Available parameters, corresponding to [gcloud app deploy command line flags](ht
 |`env_vars`|Environment variable overrides for your app.
 |`force`|Force deploying, overriding any previous in-progress deployments to this version.
 |`jar_splitting_excludes` | When `enable-jar-splitting` is specified and jar_splitting_excludes specifies a comma-separated list of suffixes, a file in a jar whose name ends with one of the suffixes will not be included in the split jar fragments
-|`no_symlinks`|Do not use symbolic links when making the temporary (staging) directory used in uploading Java apps
-|`retain_upload_dir`|Do not delete temporary (staging) directory used in uploading Java apps
-|`server` |The App Engine server to connect to. You will not typically need to change this value.
-|`set_default`|Set the deployed version to be the default serving version.
-|`version`|The version of the app that will be created or replaced by this deployment.
+|`no_symlinks`| Do not use symbolic links when making the temporary (staging) directory used in uploading Java apps
+|`retain_upload_dir`| Do not delete temporary (staging) directory used in uploading Java apps
+|`server` | The App Engine server to connect to. You will not typically need to change this value.
+|`set_default`| Set the deployed version to be the default serving version.
+|`version`| The version of the app that will be created or replaced by this deployment.
+|`remote`| Use this option if you are deploying using a remote docker host.
 
 #### Application management goals
 
@@ -223,7 +225,7 @@ For example:
       # To start the development server with debug flag:
       $ mvn gcloud:run -Dgcloud.verbosity=debug
       # To start the development server listening to 0.0.0.0 so it can be accessed outside of localhost:
-      $mvn gcloud:run -Dgcloud.host=0.0.0.0:8081
+      $ mvn gcloud:run -Dgcloud.host=0.0.0.0:8081
       # To specify a non default Cloud SDK installation directory:
-      mvn gcloud:run -Dgcloud.gcloud_directory=YOUR_OWN_SPECIFIC_INSTALLATION_PATH
+      $ mvn gcloud:run -Dgcloud.gcloud_directory=YOUR_OWN_SPECIFIC_INSTALLATION_PATH
     

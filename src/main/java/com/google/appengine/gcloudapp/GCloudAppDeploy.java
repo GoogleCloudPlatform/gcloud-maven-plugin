@@ -44,6 +44,14 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
    * @parameter expression="${gcloud.force}"
    */
   private boolean force;
+
+  /**
+   * Use this option if you are deploying using a remote docker host.
+   *
+   * @parameter expression="${gcloud.remote}"
+   */
+  private boolean remote;
+  
   /**
    * Set the encoding to be used when compiling Java source files (default
    * "UTF-8")
@@ -192,6 +200,9 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
     } 
     if (force) {
       devAppServerCommand.add("--force");
+    }
+    if (remote) {
+      devAppServerCommand.add("--remote");
     }
 /*    if (delete_jsps) {
       devAppServerCommand.add("--delete-jsps");

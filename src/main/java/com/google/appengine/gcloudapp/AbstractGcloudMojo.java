@@ -183,14 +183,6 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       getLog().info("If you need to install the Google Cloud SDK, follow the instructions located at https://cloud.google.com/appengine/docs/java/managed-vms");
       throw new MojoExecutionException("Unkown Google Cloud SDK location.");
     }
-
-    script = new File(s, "/bin/dev_appserver.py");
-
-    if (!script.exists()) {
-      getLog().error("Cannot find the script: " + script.getAbsolutePath());
-      getLog().info("You might want to run the command: gcloud components update gae-python");
-      throw new MojoExecutionException("Install the correct Cloud SDK components");
-    }
     
     if (deploy) {
       commands.add(gcloud_directory + "/lib/googlecloudsdk/gcloud/gcloud.py");
@@ -198,7 +190,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
         commands.add("--quiet");
       }
     } else {
-      commands.add(gcloud_directory + "/bin/dev_appserver.py");
+      commands.add(gcloud_directory + "/platform/google_appengine/dev_appserver.py");
 
     }
     String projectId = getAppId();
@@ -279,7 +271,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
           env_docker_host = docker_host;
         }
         env.put("DOCKER_HOST", env_docker_host);
-
+        env.put("PYTHONPATH", gcloud_directory + "/platform/google_appengine/lib/docker");
         // we handle TLS extra variables only when we are tcp:
         if (env_docker_host.startsWith("tcp")) {
           if ("ENV_or_default".equals(docker_tls_verify)) {
