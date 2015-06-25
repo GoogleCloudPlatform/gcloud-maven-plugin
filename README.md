@@ -53,8 +53,6 @@ following into the `plugins` section in the project `pom.xml` file:
        <artifactId>gcloud-maven-plugin</artifactId>
        <version>0.9.65.v20150618</version>
 
-Important: The Google Cloud SDK Maven goals work only with version 1.9.17 or above.
-
 ## Compile and build your project using Maven
 
 To build an Java App Engine Web Application using Maven with its `pom.xml` file:
@@ -150,6 +148,7 @@ These are the Cloud SDK App Engine development server goals:
 | `smtp_user`| Username to use when connecting to the SMTP server specified with `smtp_host`
 | `storage_path`| The default location for storing application data. Can be overridden for specific kinds of data using `datastore_path`, `blobstore-path`, and/or `logs_path`
 | `use_mtime_file_watcher`| Use mtime polling for detecting source code changes - useful if modifying code from a remote machine using a distributed file system
+| `non_docker_mode` | Boolean to control the local run with Docker or not. Default is currently true.
 | `custom_entrypoint`| Specify an entrypoint for custom runtime modules. This is required when such modules are present. Include "{port}" in the string (without quotes) to pass the port number in as an argument. For instance: `--custom_entrypoint="gunicorn -b localhost:{port} mymodule:application"`
 
 
