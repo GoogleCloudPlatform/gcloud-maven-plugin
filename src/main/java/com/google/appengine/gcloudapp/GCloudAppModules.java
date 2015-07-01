@@ -34,7 +34,11 @@ public abstract class GCloudAppModules extends AbstractGcloudMojo {
 
   protected abstract String getSubCommand();
 
-  @Override
+   public GCloudAppModules() {
+     this.deployCommand = true;
+  }
+   
+   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
     getLog().info("");
 
@@ -48,7 +52,7 @@ public abstract class GCloudAppModules extends AbstractGcloudMojo {
     getLog().info("Running gcloud app modules...");
 
     ArrayList<String> devAppServerCommand = new ArrayList<>();
-    setupInitialCommands(devAppServerCommand, true);
+    setupInitialCommands(devAppServerCommand);
 
     devAppServerCommand.add("modules");
 

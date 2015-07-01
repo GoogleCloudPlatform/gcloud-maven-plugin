@@ -124,10 +124,23 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
    */
   protected boolean non_docker_mode = false;
   
+  /**
+   * Use this option if you are deploying using a remote docker host.
+   *
+   * @parameter expression="${gcloud.remote}"
+   */
+  protected boolean remote;
 
+  /**
+   * Tell if the command will be for run or deploy. Default is false: command is
+   * for `gcloud run`.
+   *
+   */
+  protected boolean deployCommand = false;
+  
   protected abstract ArrayList<String> getCommand(String appDir) throws MojoExecutionException;
 
-  protected ArrayList<String> setupInitialCommands(ArrayList<String> commands, boolean deploy) throws MojoExecutionException {
+  protected ArrayList<String> setupInitialCommands(ArrayList<String> commands) throws MojoExecutionException {
   String pythonLocation = "python"; //default in the path for Linux
     boolean isWindows = System.getProperty("os.name").contains("Windows");
     if (isWindows) {
@@ -184,7 +197,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       throw new MojoExecutionException("Unkown Google Cloud SDK location.");
     }
     
-    if (deploy) {
+    if (deployCommand) {
       commands.add(gcloud_directory + "/lib/googlecloudsdk/gcloud/gcloud.py");
       if (quiet) {
         commands.add("--quiet");
@@ -196,7 +209,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     String projectId = getAppId();
 
     if (projectId != null) {
-      if (deploy) {
+      if (deployCommand) {
         commands.add("--project=" + projectId);
       } else {
         commands.add("-A");
@@ -207,7 +220,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       commands.add("--verbosity=" + verbosity);
     }
     
-    if (deploy) {
+    if (deployCommand) {
       commands.add("preview");
       commands.add("app");
     }
@@ -256,7 +269,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
               || (docker_host_tls_verify != null)
               || (docker_host_cert_path != null);
 
-      if (!userDefined) {
+     if (!userDefined) {
         if ("ENV_or_default".equals(docker_host)) {
           if (env_docker_host == null) {
             if (env.get("DEVSHELL_CLIENT_PORT") != null) {
@@ -281,23 +294,26 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
           } else {
             env.put("DOCKER_TLS_VERIFY", docker_tls_verify);
           }
-
-          if ("ENV_or_default".equals(docker_cert_path)) {
-            if (env.get("DOCKER_CERT_PATH") == null) {
-              env.put("DOCKER_CERT_PATH",
-                      System.getProperty("user.home")
-                      + File.separator
-                      + ".boot2docker"
-                      + File.separator
-                      + "certs"
-                      + File.separator
-                      + "boot2docker-vm"
-              );
-            }
-          } else {
-            env.put("DOCKER_CERT_PATH", docker_cert_path);
-          }
-        }
+         // do not set the cert path if we do a dockerless deploy command:
+         boolean dockerless = deployCommand && remote;
+         if (!dockerless) {
+           if ("ENV_or_default".equals(docker_cert_path)) {
+             if (env.get("DOCKER_CERT_PATH") == null) {
+               env.put("DOCKER_CERT_PATH",
+                       System.getProperty("user.home")
+                       + File.separator
+                       + ".boot2docker"
+                       + File.separator
+                       + "certs"
+                       + File.separator
+                       + "boot2docker-vm"
+               );
+             }
+           } else {
+             env.put("DOCKER_CERT_PATH", docker_cert_path);
+           }
+         }
+       }
       }
       //export DOCKER_CERT_PATH=/Users/ludo/.boot2docker/certs/boot2docker-vm
       //export DOCKER_TLS_VERIFY=1
@@ -305,7 +321,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       if (non_docker_mode) {
         env.put ("GAE_LOCAL_VM_RUNTIME", "true");
       }
-      
+          
       final Process devServerProcess = processBuilder.start();
 
       final CountDownLatch waitStartedLatch = new CountDownLatch(1);
@@ -361,8 +377,8 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
         devServerProcess.waitFor();
         int status = devServerProcess.exitValue();
         if (status != 0) {
-          getLog().error("Error: gcloud app xxx exit code is: " + status);
-          throw new MojoExecutionException("Error: gcloud app xxx exit code is: " + status);
+          getLog().error("Error: gcloud app command with exit code : " + status);
+          throw new MojoExecutionException("Error: gcloud app command exit code is: " + status);
         }
       } else if (waitDirective == WaitDirective.WAIT_SERVER_STARTED) {
         waitStartedLatch.await();
@@ -548,7 +564,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     arguments.add("stage");
     arguments.add(appDir);
     arguments.add(destDir);
-    getLog().info("Running " + Joiner.on(" ").join(arguments));
+    getLog().info("Running appcfg " + Joiner.on(" ").join(arguments));
     AppCfg.main(arguments.toArray(new String[arguments.size()]));
   }
 }

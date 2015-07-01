@@ -44,13 +44,6 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
    * @parameter expression="${gcloud.force}"
    */
   private boolean force;
-
-  /**
-   * Use this option if you are deploying using a remote docker host.
-   *
-   * @parameter expression="${gcloud.remote}"
-   */
-  private boolean remote;
   
   /**
    * Set the encoding to be used when compiling Java source files (default
@@ -112,10 +105,13 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
    * @parameter expression="${gcloud.set_default}"
    */
   private boolean set_default;
+  
+  public GCloudAppDeploy() {
+     this.deployCommand = true;
+  }
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
-    getLog().info("");
     String appDir = maven_project.getBuild().getDirectory() + "/" + maven_project.getBuild().getFinalName();
     File appDirFile = new File(appDir);
     if (!appDirFile.exists()) {
@@ -168,7 +164,7 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
     getLog().info("Running gcloud app deploy...");
 
     ArrayList<String> devAppServerCommand = new ArrayList<>();
-    setupInitialCommands(devAppServerCommand, true);
+    setupInitialCommands(devAppServerCommand);
 
     devAppServerCommand.add("deploy");
 

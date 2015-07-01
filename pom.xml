@@ -4,7 +4,7 @@
   <groupId>com.google.appengine</groupId>
   <artifactId>gcloud-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
-  <version>0.9.66.v20150618-SNAPSHOT</version>
+  <version>0.9.67.v20150701-SNAPSHOT</version>
   <name>A Maven Plugin using the Cloud SDK for running and deploying appengine applications</name>
   <description>
     The App Engine maven plugin which can be used to interact with
@@ -16,7 +16,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <appengine.target.version>1.9.22</appengine.target.version>
+    <appengine.target.version>1.9.23</appengine.target.version>
     <datanucleus.version>3.2.0-m1</datanucleus.version>
   </properties>
 
