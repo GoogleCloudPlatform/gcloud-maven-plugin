@@ -5,7 +5,6 @@ package com.google.appengine.gcloudapp;
 
 import com.google.appengine.repackaged.com.google.api.client.util.Throwables;
 import com.google.appengine.repackaged.com.google.common.io.ByteStreams;
-import com.google.appengine.repackaged.com.google.common.io.Files;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
@@ -290,25 +289,6 @@ public class GCloudAppRun extends AbstractGcloudMojo {
     stopDevAppServer();
 
     try {
-      File temp = Files.createTempDir();
-      getLog().info("Creating staging directory in: " + temp.getAbsolutePath());
-      ArrayList<String> arguments = new ArrayList<>();
-      executeAppCfgStagingCommand(application_directory, temp.getAbsolutePath(),
-              arguments);
-
-      File[] yamlFiles = new File(temp, "/WEB-INF/appengine-generated").listFiles();
-      for (File f : yamlFiles) {
-        Files.copy(f, new File(application_directory, f.getName()));
-      }
-      File qs = new File(temp, "/WEB-INF/quickstart-web.xml");
-      if (qs.exists()) {
-        Files.copy(qs, new File(application_directory, "/WEB-INF/quickstart-web.xml"));
-      }
-      // Delete the xml as we have now the index.yaml equivalent
-      File index = new File(application_directory, "/WEB-INF/datastore-indexes.xml");
-      if (index.exists()) {
-        index.delete();
-      }
       ArrayList<String> devAppServerCommand = getCommand(application_directory);
       startCommand(appDirFile, devAppServerCommand, WaitDirective.WAIT_SERVER_STOPPED);
     } catch (Exception ex) {
@@ -331,23 +311,27 @@ public class GCloudAppRun extends AbstractGcloudMojo {
     if (!f.exists()) { // EAR project possibly, add all modules one by one:
       f = new File(appDirectory, "app.yaml");
       if (f.exists()) {
+          executeAppCfgStagingCommand(appDir);
           devAppServerCommand.add(f.getAbsolutePath());
       } else {
         boolean oneMod = false;
         for (File w : appDirectory.listFiles()) {
           if (new File(w, "WEB-INF/appengine-web.xml").exists()) {
+            executeAppCfgStagingCommand(w.getAbsolutePath());
             devAppServerCommand.add(w.getAbsolutePath());
             oneMod = true;
           }
         }
         if (!oneMod) {
-          devAppServerCommand.add(appDirectory.getAbsolutePath());
+         executeAppCfgStagingCommand(application_directory);
+         devAppServerCommand.add(appDirectory.getAbsolutePath());
 
         }
       }
 
     } else {
       // Point to our application
+      executeAppCfgStagingCommand(application_directory);
       devAppServerCommand.add(appDirectory.getAbsolutePath());
     }
 

@@ -121,16 +121,8 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
       throw new MojoExecutionException("The application directory is not a directory : " + appDir);
     }
 
-    File temp = Files.createTempDir();
-    getLog().info("Creating staging directory in: " + temp.getAbsolutePath());
-    try {
-      ArrayList<String> arguments = collectAppCfgParameters();
-      executeAppCfgStagingCommand(appDir, temp.getAbsolutePath(), arguments);
-    } catch (Exception ex) {
-      getLog().error(ex);
-      throw new MojoExecutionException("Staging error " + ex);
-    }
-
+    File temp = executeAppCfgStagingCommand(appDir);
+    
     ArrayList<String> devAppServerCommand = getCommand(temp.getAbsolutePath());
     startCommand(appDirFile, devAppServerCommand, WaitDirective.WAIT_SERVER_STOPPED);
   }

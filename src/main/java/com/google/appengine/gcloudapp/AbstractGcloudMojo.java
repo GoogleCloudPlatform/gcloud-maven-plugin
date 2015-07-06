@@ -5,6 +5,8 @@ package com.google.appengine.gcloudapp;
 
 
 import com.google.appengine.SdkResolver;
+import com.google.appengine.Utils;
+import com.google.appengine.repackaged.com.google.common.io.Files;
 import com.google.appengine.tools.admin.AppCfg;
 import com.google.apphosting.utils.config.AppEngineApplicationXml;
 import com.google.apphosting.utils.config.AppEngineApplicationXmlReader;
@@ -108,8 +110,6 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
    */
   protected boolean quiet = true;
   
-  protected AppEngineWebXml appengineWebXml = null;
-
   /**
    * The location of the appengine application to run.
    *
@@ -141,55 +141,18 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
   protected abstract ArrayList<String> getCommand(String appDir) throws MojoExecutionException;
 
   protected ArrayList<String> setupInitialCommands(ArrayList<String> commands) throws MojoExecutionException {
-  String pythonLocation = "python"; //default in the path for Linux
-    boolean isWindows = System.getProperty("os.name").contains("Windows");
-    if (isWindows) {
-      pythonLocation = System.getenv("CLOUDSDK_PYTHON");
-      if (pythonLocation == null) {
-        getLog().info("CLOUDSDK_PYTHON env variable is not defined. Choosing a default python.exe interpreter.");
-        getLog().info("If this does not work, please set CLOUDSDK_PYTHON to a correct Python interpreter location.");
-
-        pythonLocation = "python.exe";
-      }
-    } else {
-      String possibleLinuxPythonLocation = System.getenv("CLOUDSDK_PYTHON");
-      if (possibleLinuxPythonLocation != null) {
-        getLog().info("Found a python interpreter specified via CLOUDSDK_PYTHON at: " + possibleLinuxPythonLocation);
-        pythonLocation = possibleLinuxPythonLocation;
-      }
-    }
+    String pythonLocation = Utils.getPythonExecutableLocation();
 
     commands.add(pythonLocation);
     commands.add("-S");
 
-    boolean error = false;
     if (gcloud_directory == null) {
-      if (isWindows) {
-        String programFiles = System.getenv("ProgramFiles");
-        if (programFiles == null) {
-          programFiles = System.getenv("ProgramFiles(x86)");
-        }
-        if (programFiles == null) {
-          error = true;
-        } else {
-          gcloud_directory = programFiles + "\\Google\\Cloud SDK\\google-cloud-sdk";
-        }
-      } else {
-        gcloud_directory = System.getProperty("user.home") + "/google-cloud-sdk";
-        if (!new File(gcloud_directory).exists()) {
-          // try devshell VM:
-          gcloud_directory = "/google/google-cloud-sdk";
-          if (!new File(gcloud_directory).exists()) {
-            // try bitnani Jenkins VM:
-            gcloud_directory = "/usr/local/share/google/google-cloud-sdk";
-          }
-        }
-      }
+      gcloud_directory = Utils.getCloudSDKLocation();
     }
     File s = new File(gcloud_directory);
     File script = new File(s, "/lib/googlecloudsdk/gcloud/gcloud.py");
 
-    if (error || !script.exists()) {
+    if (!script.exists()) {
       getLog().error("Cannot determine the location of the Google Cloud SDK:");
       getLog().error("The script '" + script.getAbsolutePath() + "' does not exist.");
       getLog().error("You can set it via <gcloud_directory> </gcloud_directory> in the pom.xml");
@@ -202,9 +165,15 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       if (quiet) {
         commands.add("--quiet");
       }
+      if (verbosity != null) {
+        commands.add("--verbosity=" + verbosity);
+      }
     } else {
       commands.add(gcloud_directory + "/platform/google_appengine/dev_appserver.py");
-
+      commands.add("--skip_sdk_update_check");
+      if (verbosity != null) {
+        commands.add("--dev_appserver_log_level=" + verbosity);
+      }
     }
     String projectId = getAppId();
 
@@ -216,10 +185,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
         commands.add(projectId);
       }
     }
-    if (verbosity != null) {
-      commands.add("--verbosity=" + verbosity);
-    }
-    
+   
     if (deployCommand) {
       commands.add("preview");
       commands.add("app");
@@ -284,7 +250,6 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
           env_docker_host = docker_host;
         }
         env.put("DOCKER_HOST", env_docker_host);
-        env.put("PYTHONPATH", gcloud_directory + "/platform/google_appengine/lib/docker");
         // we handle TLS extra variables only when we are tcp:
         if (env_docker_host.startsWith("tcp")) {
           if ("ENV_or_default".equals(docker_tls_verify)) {
@@ -319,9 +284,11 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       //export DOCKER_TLS_VERIFY=1
       //export DOCKER_HOST=tcp://192.168.59.103:2376
       if (non_docker_mode) {
-        env.put ("GAE_LOCAL_VM_RUNTIME", "true");
+        env.put ("GAE_LOCAL_VM_RUNTIME", "1");
       }
-          
+      // for the docker library path:
+      env.put("PYTHONPATH", gcloud_directory + "/platform/google_appengine/lib/docker");
+      
       final Process devServerProcess = processBuilder.start();
 
       final CountDownLatch waitStartedLatch = new CountDownLatch(1);
@@ -330,7 +297,8 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       stdOutThread = new Thread("standard-out-redirection-devappserver") {
         @Override
         public void run() {
-          try {
+         boolean serverStartedOK = false;
+         try {
             long healthCount = 0;
             while (stdOut.hasNextLine() && !Thread.interrupted()) {
               String line = stdOut.nextLine();
@@ -341,12 +309,26 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
                   getLog().info(line);
                 }
                 healthCount++;
+              } else if (line.contains("Dev App Server is now running")) {
+                // App Engine V1
+                waitStartedLatch.countDown();
+                serverStartedOK = true;
+
+              } else if (line.contains("INFO:oejs.Server:main: Started")) {
+                // App Engine V2
+                waitStartedLatch.countDown();
+                serverStartedOK = true;
+
               } else {
                 getLog().info(line);
               }
             }
           } finally {
-            waitStartedLatch.countDown();
+           waitStartedLatch.countDown();
+           if (!serverStartedOK) {
+             throw new RuntimeException("The Java Dev Server has stopped.");
+            
+           }
           }
         }
       };
@@ -381,7 +363,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
           throw new MojoExecutionException("Error: gcloud app command exit code is: " + status);
         }
       } else if (waitDirective == WaitDirective.WAIT_SERVER_STARTED) {
-        waitStartedLatch.await();
+        waitStartedLatch.await();        
         getLog().info("");
         getLog().info("App Engine Dev Server started in Async mode and running.");
         getLog().info("you can stop it with this command: mvn gcloud:run_stop");
@@ -436,13 +418,12 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       } else {
         userHome = System.getProperty("user.home") + "/.config";
       }
-      File cloudSDKProperties = new File(userHome
-              + "/gcloud/properties");
-      if (!cloudSDKProperties.exists()) {
-        String env = System.getenv("CLOUDSDK_CONFIG");
-        if (env != null) {
-          cloudSDKProperties = new File(env, "properties");
-        }
+      //Default value: 
+      File cloudSDKProperties = new File(userHome + "/gcloud/properties");
+      // But can be overriden: take this one if it is:
+      String env = System.getenv("CLOUDSDK_CONFIG");
+      if (env != null) {
+        cloudSDKProperties = new File(env, "properties");
       }
       if (cloudSDKProperties.exists()) {
         org.ini4j.Ini ini = new org.ini4j.Ini();
@@ -476,7 +457,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
 
     }
     if (new File(appDir, "WEB-INF/appengine-web.xml").exists()) {
-      return getAppEngineWebXml().getAppId();
+      return getAppEngineWebXml(appDir).getAppId();
     } else {
       return null;
     }
@@ -490,14 +471,12 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     }
   }
 
-  protected AppEngineWebXml getAppEngineWebXml() throws MojoExecutionException {
-    if (appengineWebXml == null) {
-      AppEngineWebXmlReader reader = new AppEngineWebXmlReader(getApplicationDirectory());
-      appengineWebXml = reader.readAppEngineWebXml();
-    }
+  protected AppEngineWebXml getAppEngineWebXml(String webAppDir) throws MojoExecutionException {
+    AppEngineWebXmlReader reader = new AppEngineWebXmlReader(webAppDir);
+    AppEngineWebXml appengineWebXml = reader.readAppEngineWebXml();
     return appengineWebXml;
   }
-  
+
   
   /**
    * The entry point to Aether, i.e. the component doing all the work.
@@ -544,14 +523,30 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     }
   }
   
-  protected void executeAppCfgStagingCommand(String appDir, String destDir,
-          ArrayList<String> arguments)
-          throws Exception {
+  protected File executeAppCfgStagingCommand(String appDir)
+          throws MojoExecutionException {
 
-    resolveAndSetSdkRoot();
-    if (getAppEngineWebXml().getBetaSettings().containsKey("java_quickstart")) {
+   ArrayList<String> arguments = new ArrayList<>();
+   File destinationDir = Files.createTempDir();
+   getLog().info("Creating staging directory in: " + destinationDir.getAbsolutePath());
+   resolveAndSetSdkRoot();
+    if (getAppEngineWebXml(appDir).getBetaSettings().containsKey("java_quickstart")) {
       arguments.add("--enable_quickstart");
     }
+    arguments.add("--disable_update_check");
+    File  appDirFile= new File(appDir);
+    if (!new File(appDirFile, "WEB-INF/web.xml").exists()) {
+      PrintWriter out;
+      try {
+        out = new PrintWriter(new File(appDirFile, "WEB-INF/web.xml"));
+        out.println("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+        out.println("<web-app version=\"3.1\" xmlns=\"http://xmlns.jcp.org/xml/ns/javaee\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd\"></web-app>");
+        out.close();
+      } catch (FileNotFoundException ex) {
+          throw new MojoExecutionException("Error: creating default web.xml " + ex);
+      }
+    }
+
     String appId = getAppId();
     if (appId != null) {
       arguments.add("-A");
@@ -563,8 +558,31 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     }
     arguments.add("stage");
     arguments.add(appDir);
-    arguments.add(destDir);
+    arguments.add(destinationDir.getAbsolutePath());
     getLog().info("Running appcfg " + Joiner.on(" ").join(arguments));
     AppCfg.main(arguments.toArray(new String[arguments.size()]));
+   
+    File[] yamlFiles = new File(destinationDir, "/WEB-INF/appengine-generated").listFiles();
+    for (File f : yamlFiles) {
+     try {
+       Files.copy(f, new File(appDir, f.getName()));
+     } catch (IOException ex) {
+          throw new MojoExecutionException("Error: copying yaml file " + ex);
+     }
+    }
+    File qs = new File(destinationDir, "/WEB-INF/quickstart-web.xml");
+    if (qs.exists()) {
+     try {
+       Files.copy(qs, new File(appDir, "/WEB-INF/quickstart-web.xml"));
+     } catch (IOException ex) {
+          throw new MojoExecutionException("Error: copying WEB-INF/quickstart-web.xml" + ex);
+     }
+    }
+    // Delete the xml as we have now the index.yaml equivalent
+    File index = new File(appDir, "/WEB-INF/datastore-indexes.xml");
+    if (index.exists()) {
+      index.delete();
+    }
+    return destinationDir;
   }
 }

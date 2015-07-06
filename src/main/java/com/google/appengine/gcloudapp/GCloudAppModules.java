@@ -66,7 +66,7 @@ public abstract class GCloudAppModules extends AbstractGcloudMojo {
       }
     } else {
       // get module name and module version
-      AppEngineWebXml xmlContent = getAppEngineWebXml();
+      AppEngineWebXml xmlContent = getAppEngineWebXml(appDir);
       String module = xmlContent.getModule();
       String localVersion = xmlContent.getMajorVersionId();
       devAppServerCommand.add(subCommand);
