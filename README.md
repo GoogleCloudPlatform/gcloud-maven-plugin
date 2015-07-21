@@ -19,9 +19,13 @@ goals will not download it automatically on build. Make sure you install an
 up-to-date version (Beta or later) that has the App Engine Managed VM components
 installed. 
 
-1. You must use Java 7.  If you don't have Java 7, [Download](http://www.java.com/en/download/manual.jsp) and install it. For App Engine Managed VMs images, it is possible to use Java 8 with some customization.
+2. Install the app and app-engine-java  components:
 
-2. Set your `JAVA_HOME` environment variable. If you are a `bash` user, the
+        gcloud components update app app-engine-java
+
+3. You must use Java 7.  If you don't have Java 7, [Download](http://www.java.com/en/download/manual.jsp) and install it. For App Engine Managed VMs images, it is possible to use Java 8 with some customization.
+
+4. Set your `JAVA_HOME` environment variable. If you are a `bash` user, the
 following considerations apply:
     
     * For a typical Linux installation, add a line similar to the following to
