@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+        <action>
+            <actionName>CUSTOM-test</actionName>
+            <displayName>test</displayName>
+            <goals>
+                <goal>test</goal>
+            </goals>
+        </action>
+        <action>
+            <actionName>CUSTOM-invoker:integration-test</actionName>
+            <displayName>invoker:integration-test</displayName>
+            <goals>
+                <goal>invoker:integration-test</goal>
+            </goals>
+        </action>
+    </actions>
