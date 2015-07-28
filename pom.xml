@@ -304,7 +304,33 @@
             <localCheckout>true</localCheckout>
           </configuration>
         </plugin>
-
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-invoker-plugin</artifactId>
+          <version>1.10</version>
+          <configuration>
+            <projectsDirectory>src/it</projectsDirectory>
+            <pomIncludes>
+              <pomInclude>*/pom.xml</pomInclude>
+            </pomIncludes>
+            <postBuildHookScript>verify</postBuildHookScript>
+            <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
+            <goals>
+              <goal>gcloud:deploy</goal>
+            </goals>
+            <settingsFile>src/it/settings.xml</settingsFile>
+            <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
+            <cloneClean>true</cloneClean>
+          </configuration>
+          <executions>
+            <execution>
+              <id>integration-test</id>
+              <goals>
+                <goal>install</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
       </plugins>
     </pluginManagement>
   </build>
