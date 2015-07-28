@@ -325,7 +325,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
             }
           } finally {
            waitStartedLatch.countDown();
-           if (!serverStartedOK) {
+           if ((!serverStartedOK) && (!deployCommand)) {
              throw new RuntimeException("The Java Dev Server has stopped.");
             
            }
@@ -513,7 +513,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
   protected List<RemoteRepository> pluginRepos;
 
   protected void resolveAndSetSdkRoot() throws MojoExecutionException {
-
+  
     File sdkBaseDir = SdkResolver.getSdk(maven_project, repoSystem, repoSession, pluginRepos, projectRepos);
 
     try {
@@ -530,6 +530,8 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
    File destinationDir = Files.createTempDir();
    getLog().info("Creating staging directory in: " + destinationDir.getAbsolutePath());
    resolveAndSetSdkRoot();
+  // System.setProperty("appengine.sdk.root", gcloud_directory +"/platform/google_appengine/google/appengine/tools/java");
+
     if (getAppEngineWebXml(appDir).getBetaSettings().containsKey("java_quickstart")) {
       arguments.add("--enable_quickstart");
     }
