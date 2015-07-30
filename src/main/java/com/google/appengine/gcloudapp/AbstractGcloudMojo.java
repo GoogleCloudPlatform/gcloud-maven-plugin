@@ -153,13 +153,12 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     File script = new File(s, "/lib/googlecloudsdk/gcloud/gcloud.py");
 
     if (!script.exists()) {
-      getLog().error("Cannot determine the location of the Google Cloud SDK:");
-      getLog().error("The script '" + script.getAbsolutePath() + "' does not exist.");
-      getLog().error("You can set it via <gcloud_directory> </gcloud_directory> in the pom.xml");
-      getLog().info("If you need to install the Google Cloud SDK, follow the instructions located at https://cloud.google.com/appengine/docs/java/managed-vms");
-      throw new MojoExecutionException("Unkown Google Cloud SDK location.");
+      getLog().error("Cannot determine the default location of the Google Cloud SDK.");
+      getLog().error("If you need to install the Google Cloud SDK, follow the instructions located at https://cloud.google.com/appengine/docs/java/managed-vms");
+      getLog().error("You can then set it via <gcloud_directory> </gcloud_directory> in the pom.xml");
+      throw new MojoExecutionException("Unkown Google Cloud SDK location:" + gcloud_directory);
     }
-    
+
     if (deployCommand) {
       commands.add(gcloud_directory + "/lib/googlecloudsdk/gcloud/gcloud.py");
       if (quiet) {
@@ -169,6 +168,12 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
         commands.add("--verbosity=" + verbosity);
       }
     } else {
+      File devServer = new File(gcloud_directory + "/platform/google_appengine/dev_appserver.py");
+      // Check if we need to install the app-engine-java component!
+      if (!devServer.exists()) {
+        installJavaAppEngineComponent(pythonLocation);
+      }
+ 
       commands.add(gcloud_directory + "/platform/google_appengine/dev_appserver.py");
       commands.add("--skip_sdk_update_check");
       if (verbosity != null) {
@@ -586,5 +591,43 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       index.delete();
     }
     return destinationDir;
+  }
+  
+  /**
+   * Executes the gcloud components update app-engine-java command to install
+   * the extra component needed for the Maven plugin.
+   * @param pythonLocation
+   * @throws MojoExecutionException 
+   */
+  private void installJavaAppEngineComponent(String pythonLocation ) throws MojoExecutionException {
+    ArrayList<String> installCommand = new ArrayList<>();
+    installCommand.add(pythonLocation);
+    installCommand.add("-S");
+    installCommand.add(gcloud_directory + "/lib/googlecloudsdk/gcloud/gcloud.py");
+    installCommand.add("components");
+    installCommand.add("update");
+    installCommand.add("app-engine-java");
+    installCommand.add("--quiet");
+    ProcessBuilder pb = new ProcessBuilder(installCommand);
+    getLog().info("Installing the Cloud SDK app-engine-java component");
+    getLog().info("Please, be patient, it takes a while on slow network...");
+
+    try {
+      Process process = pb.start();
+      final Scanner stdOut = new Scanner(process.getInputStream());
+      new Thread("standard-out-redirection") {
+        @Override
+        public void run() {
+          while (stdOut.hasNextLine() && !Thread.interrupted()) {
+            getLog().info(stdOut.nextLine());
+          }
+        }
+      };
+      process.waitFor();
+      getLog().info("Cloud SDK app-engine-java component installed.");
+
+    } catch (IOException | InterruptedException ex) {
+      throw new MojoExecutionException("Error: cannot execute gcloud command " + ex);
+    }
   }
 }
