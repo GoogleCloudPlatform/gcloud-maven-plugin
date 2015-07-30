@@ -19,9 +19,9 @@ goals will not download it automatically on build. Make sure you install an
 up-to-date version (Beta or later) that has the App Engine Managed VM components
 installed. 
 
-2. Install the app and app-engine-java  components:
+2. Install the Cloud SDK app-engine-java component:
 
-        gcloud components update app app-engine-java
+        gcloud components update app-engine-java
 
 3. You must use Java 7.  If you don't have Java 7, [Download](http://www.java.com/en/download/manual.jsp) and install it. For App Engine Managed VMs images, it is possible to use Java 8 with some customization.
 
@@ -33,19 +33,19 @@ your `.bashrc` file:
 
             export JAVA_HOME=/usr/local/tools/java/jdk1.7.0_45.jdk
 
-   * If you use Mac OSX and the default Terminal app, your shell session
+   * If you use Mac OS X and the default Terminal app, your shell session
 doesn't load `.bashrc` by default. So you may need to add a line similar to the
 following to your `.bash_profile`:
 
             [ -r ~/.bashrc ] && source ~/.bashrc
 
-   * If you use Mac OSX but don't use the default terminal app, for example, you use a
+   * If you use Mac OS X but don't use the default terminal app, for example, you use a
 terminal management app such as tmux,  you may need to add a line similar to the
 following line to your `.bashrc` file:
 
-            export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_45.jdk/Contents/Home
+            export JAVA_HOME=$(/usr/libexec/java_home -v1.7)
 
-5. If you want to start with a Java Managed VM sample code and tutorial, you can ue the github project: [https://github.com/GoogleCloudPlatform/appengine-java-vm-guestbook-extras](https://github.com/GoogleCloudPlatform/appengine-java-vm-guestbook-extras)
+5. If you want to start with a Java Managed VM sample code and tutorial, you can use the GitHub project: [https://github.com/GoogleCloudPlatform/appengine-java-vm-guestbook-extras](https://github.com/GoogleCloudPlatform/appengine-java-vm-guestbook-extras)
 
 ### Adding the Cloud SDK App Engine Maven plugin to an existing Maven project
 
@@ -55,7 +55,7 @@ following into the `plugins` section in the project `pom.xml` file:
     <plugin>
        <groupId>com.google.appengine</groupId>
        <artifactId>gcloud-maven-plugin</artifactId>
-       <version>0.9.68.v20150707</version>
+       <version>2.0.9.69.v20150729</version>
 
 ## Compile and build your project using Maven
 
@@ -162,7 +162,7 @@ The following example shows how to use some of these settings:
       <plugin>
         <groupId>com.google.appengine</groupId>
         <artifactId>gcloud-maven-plugin</artifactId>
-        <version>>0.9.68.v20150707</version>
+        <version>>2.0.9.69.v20150729</version>
         <configuration>
           <gcloud_directory>/usr/foo/private/google-cloud-sdk</gcloud_directory>
           <verbosity>debug</verbosity>
@@ -170,6 +170,7 @@ The following example shows how to use some of these settings:
           <set_default>true</set_default>
           <log_level>info</log_level>
           <max_module_instances>2</max_module_instances>
+        </configuration>
       </plugin>
 
 
@@ -222,7 +223,7 @@ Goal | Description
 
 #### Configuration elements override via the command line interface
 
-Instead of editing the pom.xml with the desired configuration, all the configuration parameters can be overridden in the mvn command line, following the simple pattern `-Dgcloud.PARAM_NAME=PARAM_VALUE`.
+Instead of editing the pom.xml with the desired configuration, all the configuration parameters can be defined in the mvn command line, following the simple pattern `-Dgcloud.PARAM_NAME=PARAM_VALUE`.
 For example:
 
       # To start the development server with debug flag:
@@ -231,4 +232,9 @@ For example:
       $ mvn gcloud:run -Dgcloud.host=0.0.0.0:8081
       # To specify a non default Cloud SDK installation directory:
       $ mvn gcloud:run -Dgcloud.gcloud_directory=YOUR_OWN_SPECIFIC_INSTALLATION_PATH
-    
+
+Note: The configuration parameters cannot be overriden, due to this [Maven bug](https://issues.apache.org/jira/browse/MNG-4979).
+
+#### Enterprise Archive (EAR) support
+
+You can use the Cloud SDK Maven plugin on App Engine projects of type war and ear.
