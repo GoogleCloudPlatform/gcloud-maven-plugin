@@ -51,7 +51,7 @@
       <plugin>
         <groupId>com.google.appengine</groupId>
         <artifactId>gcloud-maven-plugin</artifactId>
-        <version>0.9.68.v20150707-SNAPSHOT</version>
+        <version>0.9.71.v20150707-SNAPSHOT</version>
         <configuration>
           <set_default>true</set_default>
           <gcloud_project>maven-plugin-test-app</gcloud_project>
