@@ -7,7 +7,7 @@ set it as the default version and run a script () that pings the servlet.
 
 ## Usage
 
-mvn clean invoker:integration-test
+mvn clean install invoker:integration-test
 
 
 The build log will be in the target directory: /target/it/gcloud-maven-plugin-test-app/build.log
