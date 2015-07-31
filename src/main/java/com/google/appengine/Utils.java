@@ -59,9 +59,15 @@ public class Utils {
     return gcloudDir;
   }
   
+  /**
+   * Checks if either CLOUDSDK_PYTHON_SITEPACKAGES or VIRTUAL_ENV is defined.
+   * 
+   * <p> If either variable is defined, we shall not disable import of module
+   * 'site.
+   * 
+   * @return true if it is OK to disable import of module 'site' (python -S)  
+   */
   public static boolean canDisableImportOfPythonModuleSite() {
-    // If either CLOUDSDK_PYTHON_SITEPACKAGES or VIRTUAL_ENV is defined
-    // we shall NOT disable import of module 'site'.
     String sitePackages = System.getenv("CLOUDSDK_PYTHON_SITEPACKAGES");
     String virtualEnv = System.getenv("VIRTUAL_ENV");
     boolean noSiteDefined = sitePackages == null || sitePackages.isEmpty();
