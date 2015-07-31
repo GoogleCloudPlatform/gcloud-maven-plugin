@@ -144,7 +144,9 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     String pythonLocation = Utils.getPythonExecutableLocation();
 
     commands.add(pythonLocation);
-    commands.add("-S");
+    if (Utils.canDisableImportOfPythonModuleSite()) {
+      commands.add("-S");
+    }
 
     if (gcloud_directory == null) {
       gcloud_directory = Utils.getCloudSDKLocation();
@@ -602,7 +604,9 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
   private void installJavaAppEngineComponent(String pythonLocation ) throws MojoExecutionException {
     ArrayList<String> installCommand = new ArrayList<>();
     installCommand.add(pythonLocation);
-    installCommand.add("-S");
+    if (Utils.canDisableImportOfPythonModuleSite()) {
+      installCommand.add("-S");
+    }
     installCommand.add(gcloud_directory + "/lib/googlecloudsdk/gcloud/gcloud.py");
     installCommand.add("components");
     installCommand.add("update");
