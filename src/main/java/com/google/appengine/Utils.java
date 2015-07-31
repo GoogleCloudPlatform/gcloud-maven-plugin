@@ -58,5 +58,18 @@ public class Utils {
     }
     return gcloudDir;
   }
+  
+  public static boolean canDisableImportOfPythonModuleSite() {
+    // If either CLOUDSDK_PYTHON_SITEPACKAGES or VIRTUAL_ENV is defined
+    // we shall NOT disable import of module 'site'.
+    String sitePackages = System.getenv("CLOUDSDK_PYTHON_SITEPACKAGES");
+    String virtualEnv = System.getenv("VIRTUAL_ENV");
+    boolean noSiteDefined = sitePackages == null || sitePackages.isEmpty();
+    boolean noVirtEnvDefined = virtualEnv == null || virtualEnv.isEmpty();
+    if (noSiteDefined && noVirtEnvDefined) {
+      return true;
+    }
+    return false;
+  }
 
 }
