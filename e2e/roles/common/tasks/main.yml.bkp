@@ -1,0 +1,124 @@
+---
+
+- name: Install required packages
+  apt: name={{ item }} state=installed update_cache=yes
+  with_items:
+        - openjdk-7-jdk
+        - unzip
+        - curl
+        - git
+        - expect
+        - bsh
+  sudo: yes
+
+- name: Install openjdk-7-jdk
+  apt: name=openjdk-7-jdk state=present update_cache=yes
+  sudo: yes
+
+- name: Install unzip
+  apt: name=unzip state=present
+  sudo: yes
+
+- name: Install curl
+  apt: name=curl state=present
+  sudo: yes
+
+- name: Install git
+  apt: name=git state=present
+  sudo: yes
+
+- name: Remove gcloud installation
+  file: path=/usr/lib/google-cloud-sdk state=absent
+  sudo: yes
+
+- name: Remove gcloud
+  file: path=/usr/bin/gcloud state=absent
+  sudo: yes
+
+#- name: Remove gcloud .config
+#  file: path=~/.config state=absent
+
+- name: Download maven 3
+  get_url:
+        url: http://mirror.metrocast.net/apache/maven/maven-3/3.3.3/binaries/apache-maven-3.3.3-bin.zip
+        dest: /tmp/apache-maven-3.3.3-bin.zip
+  sudo: yes
+
+- name: Create maven dir
+  file: path=/opt/apache-maven-3.3.3 state=directory mode=0755
+  sudo: yes
+
+- name: Unzip maven
+  unarchive: src=/tmp/apache-maven-3.3.3-bin.zip dest=/opt copy=no mode=0755
+  sudo: yes
+
+- name: Install maven_env.sh
+  template: src=maven_env.sh dest=/etc/profile.d/maven_env.sh mode=0644
+  sudo: yes
+
+- name: Maven version
+  command: "{{maven_home}}/bin/mvn -v"
+
+- name: Delete github maven plugin directory
+  file: path=~/gcloud-maven-plugin state=absent 
+
+- name: Git clone gcloud-maven-plugin
+  git: repo=https://github.com/GoogleCloudPlatform/gcloud-maven-plugin.git dest=~/gcloud-maven-plugin
+
+- name: Build and install maven plugin from head
+  command: "{{maven_home}}/bin/mvn clean install"
+  args:
+        chdir: ~/gcloud-maven-plugin
+
+- name: Delete gcloud installation directory
+  file: path=~/google-cloud-sdk state=absent
+
+- name: Download gcloud sdk
+  get_url:
+        url: https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.zip
+        dest: /tmp/google-cloud-sdk.zip
+
+- name: Unzip cloud sdk
+  unarchive: src=/tmp/google-cloud-sdk.zip dest=~/ copy=no mode=0755
+
+- name: Install gcloud sdk
+  command: >
+        ./install.sh 
+        --usage-reporting false 
+        --rc-path BOGUS 
+        --command-completion false 
+        --path-update false 
+        --disable-installation-options
+        chdir=~/google-cloud-sdk
+
+- name: gcloud version
+  command: ~/google-cloud-sdk/bin/gcloud --version
+
+- name: Update gcloud components
+  command: ~/google-cloud-sdk/bin/gcloud components update app preview app-engine-java -q
+  args:
+        chdir: ~
+
+#- name: Copy service account key
+#  copy: src={{service_account_key}} dest=~/{{service_account_key}} mode=0600
+
+#- name: Process gcloud_setup script
+#  template: src=gcloud_setup.sh dest=~/gcloud_setup.sh mode=0740
+
+#- name: Provision service account
+#  shell: ./gcloud_setup.sh chdir=~
+#  environment:
+#        CLOUDSDK_PYTHON_SITEPACKAGES: 1
+
+#- name: Set project id, activate service account, and login
+#  command: chdir=~ {{item}}
+#  with_items:
+#j       - ~/google-cloud-sdk/bin/gcloud config set project {{project_id}}
+#       - ~/google-cloud-sdk/bin/gcloud auth activate-service-account {{service_account_email}} 
+#                --key-file ~/{{service_account_key}} --project {{project_id}}
+#    #   - ~/google-cloud-sdk/bin/gcloud auth login {{service_account_email}} --no-launch-browser
+#  environment:
+#        CLOUDSDK_PYTHON_SITEPACKAGES: 1
+
+- name: Unzip maven app
+  unarchive: src=gcloud-maven-plugin-test-app.tar.gz dest=~/ 
