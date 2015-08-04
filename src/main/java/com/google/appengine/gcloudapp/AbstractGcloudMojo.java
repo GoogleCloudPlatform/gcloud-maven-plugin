@@ -292,10 +292,12 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       //export DOCKER_HOST=tcp://192.168.59.103:2376
       if (non_docker_mode) {
         env.put ("GAE_LOCAL_VM_RUNTIME", "1");
+      } else {
+        env.put ("GAE_LOCAL_VM_RUNTIME", "0");
       }
       // for the docker library path:
       env.put("PYTHONPATH", gcloud_directory + "/platform/google_appengine/lib/docker");
-      
+
       final Process devServerProcess = processBuilder.start();
 
       final CountDownLatch waitStartedLatch = new CountDownLatch(1);
@@ -594,7 +596,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     }
     return destinationDir;
   }
-  
+
   /**
    * Executes the gcloud components update app-engine-java command to install
    * the extra component needed for the Maven plugin.
