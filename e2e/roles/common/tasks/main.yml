@@ -1,0 +1,12 @@
+---
+
+- name: Install required packages
+  apt: name={{ item }} state=installed update_cache=yes
+  with_items:
+        - openjdk-7-jdk
+        - unzip
+        - curl
+        - git
+        - expect
+        - bsh
+  sudo: yes

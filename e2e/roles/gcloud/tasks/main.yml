@@ -1,0 +1,36 @@
+---
+
+- name: Remove VM's default gcloud installation
+  file: path={{ item }} state=absent
+  with_items:
+        - /usr/lib/google-cloud-sdk
+        - /usr/bin/gcloud
+  sudo: yes
+
+- name: Delete previous gcloud sdk installation directory
+  file: path=~/google-cloud-sdk state=absent
+
+- name: Download gcloud sdk
+  get_url:
+        url: https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.zip
+        dest: /tmp/google-cloud-sdk.zip
+
+- name: Unzip cloud sdk
+  unarchive: src=/tmp/google-cloud-sdk.zip dest=~/ copy=no mode=0755
+
+- name: Install gcloud sdk
+  command: >
+        ./install.sh 
+        --usage-reporting false 
+        --rc-path BOGUS 
+        --command-completion false 
+        --path-update false 
+        --disable-installation-options
+        chdir=~/google-cloud-sdk
+
+- name: Copy gcloud_env.sh environment
+  copy: src=gcloud_env.sh dest=/etc/profile.d/gcloud_env.sh mode=0644
+  sudo: yes
+
+- name: Update gcloud components
+  command: ~/google-cloud-sdk/bin/gcloud components update app preview app-engine-java -q chdir=~

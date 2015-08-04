@@ -1,0 +1,2 @@
+java_home: /usr/lib/jvm/java-7-openjdk-amd64
+maven_home: /opt/apache-maven-3.3.3

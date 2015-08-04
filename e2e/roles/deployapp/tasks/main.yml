@@ -1,0 +1,20 @@
+---
+
+- name: Replace project in pom.xml
+  replace: 
+        dest=~/gcloud-maven-plugin/src/it/gcloud-maven-plugin-test-app/pom.xml 
+        regexp='<gcloud_project>.*?</gcloud_project>'
+
+- name: Remove google_compute keys 
+  file: path={{ item }} state=absent
+  with_items:
+        - ~/.ssh/google_compute_engine
+        - ~/.ssh/google_compute_engine.pub
+
+- name: Generate google_compute_engine key
+  shell: ssh-keygen -f ~/.ssh/google_compute_engine -P ''
+
+- name: Deploy
+  shell: "{{ maven_home }}/bin/mvn gcloud:deploy -Dgcloud.remote=true -Dgcloud.version=e2e chdir=~/gcloud-maven-plugin/src/it/gcloud-maven-plugin-test-app"
+  environment:
+        CLOUDSDK_PYTHON_SITEPACKAGES: 1
