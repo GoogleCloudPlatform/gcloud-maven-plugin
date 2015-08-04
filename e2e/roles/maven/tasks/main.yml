@@ -1,0 +1,31 @@
+---
+
+- name: Download maven 3
+  get_url:
+        url: http://mirror.metrocast.net/apache/maven/maven-3/3.3.3/binaries/apache-maven-3.3.3-bin.zip
+        dest: /tmp/apache-maven-3.3.3-bin.zip
+  sudo: yes
+
+- name: Create maven dir
+  file: path=/opt/apache-maven-3.3.3 state=directory mode=0755
+  sudo: yes
+
+- name: Unzip maven
+  unarchive: src=/tmp/apache-maven-3.3.3-bin.zip dest=/opt copy=no mode=0755
+  sudo: yes
+
+- name: Install maven_env.sh
+  template: src=maven_env.sh dest=/etc/profile.d/maven_env.sh mode=0644
+  sudo: yes
+
+- name: Delete github maven plugin directory
+  file: path=~/gcloud-maven-plugin state=absent 
+
+- name: Git clone gcloud-maven-plugin
+  git: repo=https://github.com/GoogleCloudPlatform/gcloud-maven-plugin.git dest=~/gcloud-maven-plugin
+
+- name: Build and install maven plugin from head
+  command: "{{maven_home}}/bin/mvn clean install"
+  args:
+        chdir: ~/gcloud-maven-plugin 
+
