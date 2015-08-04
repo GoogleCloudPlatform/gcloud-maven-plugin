@@ -476,6 +476,7 @@ public class GCloudAppRun extends AbstractGcloudMojo {
       connection.setRequestMethod("GET");
       //     connection.getOutputStream().write(110);
       ByteStreams.toByteArray(connection.getInputStream());
+      connection.setReadTimeout(4000);
 //      connection.getOutputStream().flush();
 //      connection.getOutputStream().close();
 //      connection.getInputStream().close();
