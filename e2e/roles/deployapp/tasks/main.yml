@@ -16,5 +16,3 @@
 
 - name: Deploy
   shell: "{{ maven_home }}/bin/mvn gcloud:deploy -Dgcloud.remote=true -Dgcloud.version=e2e chdir=~/gcloud-maven-plugin/src/it/gcloud-maven-plugin-test-app"
-  environment:
-        CLOUDSDK_PYTHON_SITEPACKAGES: 1

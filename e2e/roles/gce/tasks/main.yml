@@ -1,0 +1,24 @@
+---
+- name: Setup gce.ini
+  local_action: template src=gce.ini dest=scripts/gce.ini mode=0766
+
+- name: Setup gce.py
+  local_action: copy src=gce.py dest=scripts/gce.py mode=0766
+
+- name: Get host IP address
+  local_action: shell ./scripts/gce.py --host deploy-vm
+  register: gce
+
+- set_fact: gce_public_ip="{{ (gce.stdout | from_json).gce_public_ip }}"
+
+- name: Wait for SSH to come up
+  local_action: wait_for host={{ gce_public_ip }} port=22 delay=20 timeout=120
+
+- name: Add host to groupname 'compute'
+  local_action: add_host hostname={{ gce_public_ip }} groupname=compute
+
+- name: Fix .ssh/known_hosts
+  local_action: command  ssh-keygen -f "~/.ssh/known_hosts" -R {{ gce_public_ip }} 
+
+- name: Add ip to the known_host file
+  local_action: shell ssh-keyscan -H "{{ gce_public_ip }}" >> ~/.ssh/known_hosts
