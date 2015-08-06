@@ -1,6 +1,7 @@
 sudo: false
 language: python
 python: '2.7'
+
 addons:
   apt:
     packages:
@@ -15,6 +16,21 @@ install:
 - export CLOUDSDK_PYTHON_SITEPACKAGES=1
 - curl https://sdk.cloud.google.com | bash
 - "~/google-cloud-sdk/bin/gcloud config set project maven-end-to-end"
+- "~/google-cloud-sdk/bin/gcloud auth activate-service-account $SERVICE_ACCOUNT_EMAIL --key-file e2e/keys/pkey.pem"
+- "~/google-cloud-sdk/bin/gcloud info"
 
 script:
 - ansible-playbook --version
+- cd e2e && ansible-playbook -v -i hosts -u $ANSIBLE_USER site.yml --private-key keys/gcloud_custom_key
+
+env:
+  global:
+  - secure: fhFtqaIZSwHfbuJG3UUR3wsvID8bF6D4k89Mr0dV41iaR3QcMh2RbSFrNkAtCnIVQ9EKYx+F9b2Iwy6XwtifQLlU23KLEEnU7KWdQAXhRXE2UHSiozV/55wQHmiKW5lOqpq840btKIm46em+Hv3EhXdv3Rpl4Tr5A2QNUwgLqfA=
+  - secure: UvAm2IDd5WFVl8uMKw3DNC4fT/gweCSx0uVaI8xKxHGv0PIzuHd/eVGqlj84nslPXRaihjQqL1zFYY3KZi8aIlTMd11G1fYycVokiLb9lZuDYkkxJAZPmayBh6926p+Jbo4I1lN5CUlsNstnWt1BILhsAxru4+K0Y2faOrBLY6g=
+
+before_install:
+- openssl aes-256-cbc -K $encrypted_acc13760d6ef_key -iv $encrypted_acc13760d6ef_iv
+  -in e2e/keys/secrets.tar.enc -out e2e/keys/secrets.tar -d
+- tar xvf e2e/keys/secrets.tar -C e2e/keys
+- chmod 600 e2e/keys/gcloud_custom_key
+- chmod 600 e2e/keys/pkey.pem
