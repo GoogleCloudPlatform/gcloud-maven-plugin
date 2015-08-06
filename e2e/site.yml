@@ -1,10 +1,16 @@
 ---
 # Install java7, maven 3, and run e2e. 
 #
+- hosts: localhost
+  gather_facts: no
+  roles:
+    - { role: gce, tags: ['gce'] }
+
+
 - hosts: compute
   environment:
-        JAVA_HOME: "{{java_home}}"
-        MAVEN_HOME: "{{maven_home}}"
+        JAVA_HOME: "{{ java_home }}"
+        MAVEN_HOME: "{{ maven_home }}"
   roles:
     - { role: common, tags: ['common'] }
     - { role: maven, tags: ['maven'] }
