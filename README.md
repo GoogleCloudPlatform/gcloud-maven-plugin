@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/GoogleCloudPlatform/gcloud-maven-plugin.svg?branch=master)](https://travis-ci.org/GoogleCloudPlatform/gcloud-maven-plugin)
-
 
 # Cloud SDK App Engine Apache Maven Plugin
 
