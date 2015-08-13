@@ -1,6 +1,6 @@
-End to End test uses Ansible playbooks to accoumplish the following:
-* Grab and build the lastest gcloud-maven-plugin code from Github
-* Grab and install the lastest released gcloud sdk
+End to End test uses Ansible playbooks to accomplish the following:
+* Grab and build the latest gcloud-maven-plugin code from Github
+* Grab and install the latest released gcloud sdk
 * Deploy a sample application via 'mvn gcloud:deploy'
 
 #### Prerequisites
