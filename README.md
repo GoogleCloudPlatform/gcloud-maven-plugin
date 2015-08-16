@@ -17,7 +17,7 @@ To use Maven with Managed VMs, you need to do the following:
 1. Install the [Google Cloud SDK](https://cloud.google.com/sdk/) on your machine. The new Maven plugin
 goals will not download it automatically on build. Make sure you install an
 up-to-date version (Beta or later) that has the App Engine Managed VM components
-installed. 
+installed.
 
 2. Install the Cloud SDK app-engine-java component:
 
@@ -27,7 +27,7 @@ installed.
 
 4. Set your `JAVA_HOME` environment variable. If you are a `bash` user, the
 following considerations apply:
-    
+
     * For a typical Linux installation, add a line similar to the following to
 your `.bashrc` file:
 
@@ -47,6 +47,11 @@ following line to your `.bashrc` file:
 
 5. If you want to start with a Java Managed VM sample code and tutorial, you can use the GitHub project: [https://github.com/GoogleCloudPlatform/appengine-java-vm-guestbook-extras](https://github.com/GoogleCloudPlatform/appengine-java-vm-guestbook-extras)
 
+6. The Maven plugin relies on configuration done by the cloud SDK. For example, the project name
+you want to use for a deployment step can be defined with:
+
+    gcloud config set project <your project name>
+
 ### Adding the Cloud SDK App Engine Maven plugin to an existing Maven project
 
 To add the Cloud SDK Google App Engine Maven plugin to an existing Maven project, add the
@@ -55,7 +60,7 @@ following into the `plugins` section in the project `pom.xml` file:
     <plugin>
        <groupId>com.google.appengine</groupId>
        <artifactId>gcloud-maven-plugin</artifactId>
-       <version>2.0.9.71.v20150729</version>
+       <version>2.0.9.74.v20150814</version>
 
 ## Compile and build your project using Maven
 
@@ -162,7 +167,7 @@ The following example shows how to use some of these settings:
       <plugin>
         <groupId>com.google.appengine</groupId>
         <artifactId>gcloud-maven-plugin</artifactId>
-        <version>>2.0.9.71.v20150729</version>
+        <version>>2.0.9.74.v20150814</version>
         <configuration>
           <gcloud_directory>/usr/foo/private/google-cloud-sdk</gcloud_directory>
           <verbosity>debug</verbosity>
@@ -197,7 +202,8 @@ Available parameters, corresponding to [gcloud app deploy command line flags](ht
 |`server` | The App Engine server to connect to. You will not typically need to change this value.
 |`set_default`| Set the deployed version to be the default serving version.
 |`version`| The version of the app that will be created or replaced by this deployment.
-|`remote`| Use this option if you are deploying using a remote docker host.
+|`remote`| [Deprecated, use docker_build] Use this option if you are deploying using a remote docker host.
+|`docker_build`| Perform a hosted (`remote`) or `local` Docker build. To perform a local build, you must have your local docker environment configured correctly.
 
 #### Application management goals
 
@@ -232,6 +238,8 @@ For example:
       $ mvn gcloud:run -Dgcloud.host=0.0.0.0:8081
       # To specify a non default Cloud SDK installation directory:
       $ mvn gcloud:run -Dgcloud.gcloud_directory=YOUR_OWN_SPECIFIC_INSTALLATION_PATH
+      # To specify the project ID and version at deployment time:
+      $ mvn gcloud:deploy -Dgcloud.gcloud_project=myproject  -Dgcloud.version=myversion
 
 Note: The configuration parameters cannot be overriden, due to this [Maven bug](https://issues.apache.org/jira/browse/MNG-4979).
 

@@ -102,28 +102,28 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
    * @parameter expression="${gcloud.version}"
    */
   protected String version;
-  
+
   /**
    * Quiet mode, if true does not ask to perform the action.
    *
    * @parameter expression="${gcloud.quiet}" default-value="true"
    */
   protected boolean quiet = true;
-  
+
   /**
    * The location of the appengine application to run.
    *
    * @parameter expression="${gcloud.application_directory}"
    */
   protected String application_directory;
-  
+
   /**
    * Non Docker mode (Experimental, will disappear soon).
    *
    * @parameter expression="${gcloud.non_docker_mode}" default-value="false"
    */
   protected boolean non_docker_mode = false;
-  
+
   /**
    * Use this option if you are deploying using a remote docker host.
    *
@@ -132,12 +132,21 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
   protected boolean remote;
 
   /**
+   * Perform a hosted (´remote´) or local Docker build.
+   * To perform a local build, you must have your local docker environment
+   * configured correctly.
+   *
+   * @parameter expression="${gcloud.docker_build}"
+   */
+  protected String docker_build;
+
+ /**
    * Tell if the command will be for run or deploy. Default is false: command is
    * for `gcloud run`.
    *
    */
   protected boolean deployCommand = false;
-  
+
   protected abstract ArrayList<String> getCommand(String appDir) throws MojoExecutionException;
 
   protected ArrayList<String> setupInitialCommands(ArrayList<String> commands) throws MojoExecutionException {
@@ -169,34 +178,33 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       if (verbosity != null) {
         commands.add("--verbosity=" + verbosity);
       }
-    } else {
+      if (gcloud_project != null) {
+        commands.add("--project=" + gcloud_project);
+      }
+      commands.add("preview");
+      commands.add("app");
+
+    } else { // run command
       File devServer = new File(gcloud_directory + "/platform/google_appengine/dev_appserver.py");
       // Check if we need to install the app-engine-java component!
       if (!devServer.exists()) {
         installJavaAppEngineComponent(pythonLocation);
       }
- 
+
       commands.add(gcloud_directory + "/platform/google_appengine/dev_appserver.py");
-      commands.add("--skip_sdk_update_check");
+      commands.add("--skip_sdk_update_check=true");
       if (verbosity != null) {
         commands.add("--dev_appserver_log_level=" + verbosity);
       }
-    }
-    String projectId = getAppId();
-
-    if (projectId != null) {
-      if (deployCommand) {
-        commands.add("--project=" + projectId);
+      if (gcloud_project != null) {
+        commands.add("-A");
+        commands.add(gcloud_project);
       } else {
         commands.add("-A");
-        commands.add(projectId);
+        commands.add("app"); // local sdk default project name 
       }
     }
-   
-    if (deployCommand) {
-      commands.add("preview");
-      commands.add("app");
-    }
+ 
     return commands;
   }
 
@@ -212,7 +220,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
 
   protected void startCommand(File appDirFile, ArrayList<String> devAppServerCommand, WaitDirective waitDirective) throws MojoExecutionException {
     getLog().info("Running " + Joiner.on(" ").join(devAppServerCommand));
-     
+
     if (!new File(appDirFile, "Dockerfile").exists()) {
       PrintWriter out;
       try {
@@ -224,7 +232,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
           throw new MojoExecutionException("Error: creating default Dockerfile " + ex);
       }
     }
-    
+
     Thread stdOutThread;
     Thread stdErrThread;
     try {
@@ -336,7 +344,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
            waitStartedLatch.countDown();
            if ((!serverStartedOK) && (!deployCommand)) {
              throw new RuntimeException("The Java Dev Server has stopped.");
-            
+
            }
           }
         }
@@ -372,7 +380,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
           throw new MojoExecutionException("Error: gcloud app command exit code is: " + status);
         }
       } else if (waitDirective == WaitDirective.WAIT_SERVER_STARTED) {
-        waitStartedLatch.await();        
+        waitStartedLatch.await();
         getLog().info("");
         getLog().info("App Engine Dev Server started in Async mode and running.");
         getLog().info("you can stop it with this command: mvn gcloud:run_stop");
@@ -427,7 +435,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       } else {
         userHome = System.getProperty("user.home") + "/.config";
       }
-      //Default value: 
+      //Default value:
       File cloudSDKProperties = new File(userHome + "/gcloud/properties");
       // But can be overriden: take this one if it is:
       String env = System.getenv("CLOUDSDK_CONFIG");
@@ -455,7 +463,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     } catch (IOException ioe) {
       // nothing for now. Trying to read appengine-web.xml.
     }
-    
+
     String appDir = getApplicationDirectory();
     if (EarHelper.isEar(appDir)) { // EAR project
       AppEngineApplicationXmlReader reader
@@ -486,7 +494,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     return appengineWebXml;
   }
 
-  
+
   /**
    * The entry point to Aether, i.e. the component doing all the work.
    *
@@ -522,7 +530,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
   protected List<RemoteRepository> pluginRepos;
 
   protected void resolveAndSetSdkRoot() throws MojoExecutionException {
-  
+
     File sdkBaseDir = SdkResolver.getSdk(maven_project, repoSystem, repoSession, pluginRepos, projectRepos);
 
     try {
@@ -531,7 +539,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       throw new MojoExecutionException("Could not open SDK zip archive.", e);
     }
   }
-  
+
   protected File executeAppCfgStagingCommand(String appDir)
           throws MojoExecutionException {
 
@@ -558,11 +566,9 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       }
     }
 
-    String appId = getAppId();
-    if (appId != null) {
-      arguments.add("-A");
-      arguments.add(appId);
-    }
+    arguments.add("-A");
+    arguments.add("notused");
+
     if (version != null && !version.isEmpty()) {
       arguments.add("-V");
       arguments.add(version);
@@ -572,7 +578,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     arguments.add(destinationDir.getAbsolutePath());
     getLog().info("Running appcfg " + Joiner.on(" ").join(arguments));
     AppCfg.main(arguments.toArray(new String[arguments.size()]));
-   
+
     File[] yamlFiles = new File(destinationDir, "/WEB-INF/appengine-generated").listFiles();
     for (File f : yamlFiles) {
      try {
@@ -601,7 +607,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
    * Executes the gcloud components update app-engine-java command to install
    * the extra component needed for the Maven plugin.
    * @param pythonLocation
-   * @throws MojoExecutionException 
+   * @throws MojoExecutionException
    */
   private void installJavaAppEngineComponent(String pythonLocation ) throws MojoExecutionException {
     ArrayList<String> installCommand = new ArrayList<>();

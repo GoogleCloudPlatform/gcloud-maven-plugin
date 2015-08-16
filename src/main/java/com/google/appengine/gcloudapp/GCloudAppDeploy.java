@@ -44,7 +44,7 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
    * @parameter expression="${gcloud.force}"
    */
   private boolean force;
-  
+
   /**
    * Set the encoding to be used when compiling Java source files (default
    * "UTF-8")
@@ -105,7 +105,7 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
    * @parameter expression="${gcloud.set_default}"
    */
   private boolean set_default;
-  
+
   public GCloudAppDeploy() {
      this.deployCommand = true;
   }
@@ -122,15 +122,15 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
     }
 
     File temp = executeAppCfgStagingCommand(appDir);
-    
+
     ArrayList<String> devAppServerCommand = getCommand(temp.getAbsolutePath());
     startCommand(appDirFile, devAppServerCommand, WaitDirective.WAIT_SERVER_STOPPED);
   }
-  
+
   /**
    * Add extra config files like dos, dispatch, index or queue
    * to the deployment payload.
-   * 
+   *
    **/
     private void addOtherConfigFiles(ArrayList<String> command, String appDir) {
     if (new File(appDir + "/cron.yaml").exists()) {
@@ -147,7 +147,7 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
     }
     if (new File(appDir + "/dos.yaml").exists()) {
       command.add(appDir + "/dos.yaml");
-    }              
+    }
   }
 
   @Override
@@ -185,11 +185,14 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
     }
     if (server != null) {
       devAppServerCommand.add("--server=" + server);
-    } 
+    }
     if (force) {
       devAppServerCommand.add("--force");
     }
-    if (remote) {
+    if (docker_build != null) {
+       devAppServerCommand.add("--docker-build=" + docker_build);
+
+    } else if (remote) {
       devAppServerCommand.add("--remote");
     }
 /*    if (delete_jsps) {
@@ -222,8 +225,8 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
     }
     return devAppServerCommand;
   }
-  
-  
+
+
    protected ArrayList<String> collectAppCfgParameters() throws MojoExecutionException {
     ArrayList<String> arguments = new ArrayList<>();
 
@@ -232,11 +235,10 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
       arguments.add(server);
     }
 
- 
-     String appId = getAppId();
-     if (appId != null) {
+
+     if (gcloud_project != null) {
        arguments.add("-A");
-       arguments.add(appId);
+       arguments.add(gcloud_project);
      }
 
     if (version != null && !version.isEmpty()) {
