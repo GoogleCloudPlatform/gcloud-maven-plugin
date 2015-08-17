@@ -16,5 +16,5 @@ The test assumes that you have:
 
 #### Ansible roles
 * ansible-playbook -i hosts --list-tasks site.yml
-** 'gce' play will obtain the IP address of your 'deploy-vm' and will populate dynamic host group 'compute'
-** 'compute' play will perform the end to end test on 'deploy-vm'
+ * 'gce' play will obtain the IP address of your 'deploy-vm' and will populate dynamic host group 'compute'
+ * 'compute' play will perform the end to end test on 'deploy-vm'
