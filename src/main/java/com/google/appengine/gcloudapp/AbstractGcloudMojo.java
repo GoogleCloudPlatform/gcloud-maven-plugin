@@ -549,7 +549,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
    resolveAndSetSdkRoot();
   // System.setProperty("appengine.sdk.root", gcloud_directory +"/platform/google_appengine/google/appengine/tools/java");
 
-    if (getAppEngineWebXml(appDir).getBetaSettings().containsKey("java_quickstart")) {
+    if ("true".equals(getAppEngineWebXml(appDir).getBetaSettings().get("java_quickstart"))) {
       arguments.add("--enable_quickstart");
     }
     arguments.add("--disable_update_check");
