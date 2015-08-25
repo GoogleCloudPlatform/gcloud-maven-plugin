@@ -89,8 +89,6 @@ public abstract class GCloudAppModules extends AbstractGcloudMojo {
 
     if (server != null) {
       devAppServerCommand.add("--server=" + server);
-    } else if (server != null) {
-      devAppServerCommand.add("--server=" + server);
     }
 
     return devAppServerCommand;
