@@ -20,7 +20,7 @@ public abstract class GCloudAppModules extends AbstractGcloudMojo {
   /**
    * server The App Engine server to connect to.
    *
-   * @parameter property="server"
+   * @parameter property="gcloud.server"
    */
   private String server;
 
@@ -28,7 +28,7 @@ public abstract class GCloudAppModules extends AbstractGcloudMojo {
    * version The version of the app that will be created or replaced by this
    * deployment.
    *
-   * @parameter property="version"
+   * @parameter property="gcloud.version"
    */
   private String version;
 
