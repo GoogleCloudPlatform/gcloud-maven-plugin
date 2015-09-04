@@ -181,7 +181,8 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
       devAppServerCommand.add("--version=" + version);
     }
     if (env_vars != null) {
-      devAppServerCommand.add("--env-vars=" + env_vars);
+      // TODO(ludo) uncomment when the feature is working in Cloud SDK.
+      // devAppServerCommand.add("--env-vars=" + env_vars);
     }
     if (server != null) {
       devAppServerCommand.add("--server=" + server);
@@ -199,7 +200,7 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
       devAppServerCommand.add("--delete-jsps");
     }
     if (disable_jar_jsps) {
-      devAppServerCommand.add("--disable-jar-jsps");
+      devAppServerCommand.add("--disable-jar-js--envps");
     }
     if (enable_jar_classes) {
       devAppServerCommand.add("--enable-jar-classes");
