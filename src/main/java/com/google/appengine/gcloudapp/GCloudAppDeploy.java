@@ -196,30 +196,6 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
     } else if (remote) {
       devAppServerCommand.add("--remote");
     }
-/*    if (delete_jsps) {
-      devAppServerCommand.add("--delete-jsps");
-    }
-    if (disable_jar_jsps) {
-      devAppServerCommand.add("--disable-jar-js--envps");
-    }
-    if (enable_jar_classes) {
-      devAppServerCommand.add("--enable-jar-classes");
-    }
-    if (enable_jar_splitting) {
-      devAppServerCommand.add("--enable-jar-splitting");
-    }
-    if (compile_encoding != null) {
-      devAppServerCommand.add("--compile-encoding=" + compile_encoding);
-    }
-    if (retain_upload_dir) {
-      devAppServerCommand.add("--retain-upload-dir");
-    }
-    if (no_symlinks) {
-      devAppServerCommand.add("--no-symlinks");
-    }
-    if (jar_splitting_excludes != null) {
-      devAppServerCommand.add("--jar-splitting-excludes=" + jar_splitting_excludes);
-    }*/
 
     if (set_default) {
       devAppServerCommand.add("--set-default");
