@@ -105,7 +105,13 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
    * @parameter expression="${gcloud.set_default}"
    */
   private boolean set_default;
-
+/**
+   * Bucket used for Admin Deployment API.
+   *
+   * @parameter expression="${gcloud.bucket}"
+   */
+  protected String bucket; 
+  
   public GCloudAppDeploy() {
      this.deployCommand = true;
   }
@@ -196,7 +202,10 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
     } else if (remote) {
       devAppServerCommand.add("--remote");
     }
-
+    if (bucket!=null) {
+      devAppServerCommand.add("--bucket=" + bucket);
+    }
+    
     if (set_default) {
       devAppServerCommand.add("--set-default");
     }
