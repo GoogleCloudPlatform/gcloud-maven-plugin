@@ -118,7 +118,7 @@ These are the Cloud SDK App Engine development server goals:
 | ------- |-------------|
 | `gcloud:run` | Runs the Beta Cloud SDK App Engine development server for Managed VMs applications as well as non Managed VMs application.|
 | `gcloud:run_start` | Performs an asynchronous start for the devserver and then returns to the command line. When this goal runs, the behavior is the same as the `run` goal except that Maven continues processing goals and exits after the server is up and running.
-| `gcloud:stop` |  Stops the development server. Available only if you started the development server with `gcloud:start`.
+| `gcloud:run_stop` |  Stops the development server. Available only if you started the development server with `gcloud:run_start`.
 
   Available parameters for all gcloud:* goals:
 
@@ -213,11 +213,11 @@ table:
 Goal | Description
 ---- | -----------
 `gcloud:module_cancel_deployment` | Cancel (rollback) the current deployment. Useful when the deployment has been interrupted for some reason.
-`gcloud:module_delete` | Delete the module as defined in `appengine-web.xml`.
+`gcloud:module_delete` | Delete the module defined by the maven project.
 `gcloud:module_set_default` | Set as default the module.
 `gcloud:module_set_managed_by` | Configure the specified backend.
-`gcloud:module_start` | Start the module as defined in `appengine-web.xml`.
-`gcloud:module_stop` | Stop the module as defined in `appengine-web.xml`.
+`gcloud:module_start` | Start the module defined by the maven project.
+`gcloud:module_stop` | Stop the module defined by the maven project.
 
  Available parameters corresponding to [gcloud app modules command line flags](https://cloud.google.com/sdk/gcloud/reference/preview/app/modules):
 
