@@ -34,3 +34,6 @@
 
 - name: Update gcloud components
   command: ~/google-cloud-sdk/bin/gcloud components update app preview app-engine-java -q chdir=~
+
+- name: gcloud version
+  command: ~/google-cloud-sdk/bin/gcloud version chdir=~
