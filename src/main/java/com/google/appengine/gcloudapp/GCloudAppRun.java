@@ -310,8 +310,9 @@ public class GCloudAppRun extends AbstractGcloudMojo {
     File f = new File(appDirectory, "WEB-INF/appengine-web.xml");
     if (!f.exists()) { // EAR project possibly, add all modules one by one:
       f = new File(appDirectory, "app.yaml");
-      if (f.exists()) {
-          executeAppCfgStagingCommand(appDir);
+      boolean isAppYamlGenerated = new File (appDirectory, ".appyamlgenerated").exists();
+      if (f.exists() && !isAppYamlGenerated) {
+          //executeAppCfgStagingCommand(appDir);
           devAppServerCommand.add(f.getAbsolutePath());
       } else {
         boolean oneMod = false;
@@ -330,9 +331,16 @@ public class GCloudAppRun extends AbstractGcloudMojo {
       }
 
     } else {
-      // Point to our application
-      executeAppCfgStagingCommand(application_directory);
-      devAppServerCommand.add(appDirectory.getAbsolutePath());
+      f = new File(appDirectory, "app.yaml");
+      boolean isAppYamlGenerated = new File (appDirectory, ".appyamlgenerated").exists();
+      if (f.exists() && !isAppYamlGenerated) {
+        //executeAppCfgStagingCommand(appDir);
+        devAppServerCommand.add(f.getAbsolutePath());
+      } else {
+        // Point to our application
+        executeAppCfgStagingCommand(application_directory);
+      devAppServerCommand.add(appDirectory.getAbsolutePath()+"/app.yaml");
+      }
     }
 
     if ((modules != null) && !modules.isEmpty()) {
@@ -343,7 +351,6 @@ public class GCloudAppRun extends AbstractGcloudMojo {
       }
 
     }
-    setupExtraCommands(devAppServerCommand);
 
     // Add in additional options for starting the DevAppServer
 

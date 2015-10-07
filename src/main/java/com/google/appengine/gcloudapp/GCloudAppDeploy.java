@@ -3,7 +3,6 @@
  */
 package com.google.appengine.gcloudapp;
 
-import com.google.common.io.Files;
 import java.io.File;
 import java.util.ArrayList;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -105,15 +104,15 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
    * @parameter expression="${gcloud.set_default}"
    */
   private boolean set_default;
-/**
+ /**
    * Bucket used for Admin Deployment API.
    *
    * @parameter expression="${gcloud.bucket}"
    */
-  protected String bucket; 
-  
+  protected String bucket;  
+
   public GCloudAppDeploy() {
-     this.deployCommand = true;
+    this.deployCommand = true;
   }
 
   @Override
@@ -168,19 +167,18 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
 
     File f = new File(appDir, "WEB-INF/appengine-web.xml");
     if (!f.exists()) { // EAR project possibly, add all modules one by one:
-      File ear = new File(appDir);
-      for (File w : ear.listFiles()) {
-        if (new File(w, "WEB-INF/appengine-web.xml").exists()) {
-          devAppServerCommand.add(w.getAbsolutePath()+ "/app.yaml");
-          addOtherConfigFiles(devAppServerCommand, w.getAbsolutePath());
+        File ear = new File(appDir);
+        for (File w : ear.listFiles()) {
+          if (new File(w, "WEB-INF/appengine-web.xml").exists()) {
+            devAppServerCommand.add(w.getAbsolutePath() + "/app.yaml");
+            addOtherConfigFiles(devAppServerCommand, w.getAbsolutePath());
+          }
         }
-      }
     } else {
       // Point to our application
       devAppServerCommand.add(appDir + "/app.yaml");
       addOtherConfigFiles(devAppServerCommand, appDir);
     }
-    setupExtraCommands(devAppServerCommand);
 
     // Add in additional options for starting the DevAppServer
     if (version != null) {
@@ -201,7 +199,7 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
 
     } else if (remote) {
       devAppServerCommand.add("--remote");
-    }
+    } 
     if (bucket!=null) {
       devAppServerCommand.add("--bucket=" + bucket);
     }

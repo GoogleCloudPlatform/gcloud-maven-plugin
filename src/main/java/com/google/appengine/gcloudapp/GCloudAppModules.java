@@ -85,7 +85,6 @@ public abstract class GCloudAppModules extends AbstractGcloudMojo {
 
       }
     }
-    setupExtraCommands(devAppServerCommand);
 
     if (server != null) {
       devAppServerCommand.add("--server=" + server);

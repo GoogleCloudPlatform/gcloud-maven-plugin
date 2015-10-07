@@ -13,6 +13,7 @@ import com.google.apphosting.utils.config.AppEngineApplicationXmlReader;
 import com.google.apphosting.utils.config.AppEngineWebXml;
 import com.google.apphosting.utils.config.AppEngineWebXmlReader;
 import com.google.apphosting.utils.config.EarHelper;
+import com.google.common.base.Charsets;
 import static com.google.common.base.Charsets.UTF_8;
 import com.google.common.base.Joiner;
 import java.io.BufferedReader;
@@ -26,11 +27,15 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -120,9 +125,9 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
   /**
    * Non Docker mode (Experimental, will disappear soon).
    *
-   * @parameter expression="${gcloud.non_docker_mode}" default-value="false"
+   * @parameter expression="${gcloud.non_docker_mode}" default-value="true"
    */
-  protected boolean non_docker_mode = false;
+  protected boolean non_docker_mode = true;
 
   /**
    * Use this option if you are deploying using a remote docker host.
@@ -139,7 +144,15 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
    * @parameter expression="${gcloud.docker_build}"
    */
   protected String docker_build;
-
+  
+   /**
+   * The directory for the Staging phase. It has to be under target/ and is deleted
+   * at each run or deploy command.
+   *
+   * @parameter expression="${gcloud.staging_directory}" default-value="${project.build.directory}/appengine-staging"
+   */
+  protected String staging_directory;
+  
  /**
    * Tell if the command will be for run or deploy. Default is false: command is
    * for `gcloud run`.
@@ -208,10 +221,6 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     return commands;
   }
 
-  protected ArrayList<String> setupExtraCommands(ArrayList<String> commands) throws MojoExecutionException {
-    return commands;
-  }
-
   protected static enum WaitDirective {
 
     WAIT_SERVER_STARTED,
@@ -220,18 +229,6 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
 
   protected void startCommand(File appDirFile, ArrayList<String> devAppServerCommand, WaitDirective waitDirective) throws MojoExecutionException {
     getLog().info("Running " + Joiner.on(" ").join(devAppServerCommand));
-
-    if (!new File(appDirFile, "Dockerfile").exists()) {
-      PrintWriter out;
-      try {
-        out = new PrintWriter(new File(appDirFile, "Dockerfile"));
-        out.println("FROM gcr.io/google_appengine/java-compat");
-        out.println("ADD . /app");
-        out.close();
-      } catch (FileNotFoundException ex) {
-          throw new MojoExecutionException("Error: creating default Dockerfile " + ex);
-      }
-    }
 
     Thread stdOutThread;
     Thread stdErrThread;
@@ -257,10 +254,10 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
               // we know we have a good chance to be in an old Google devshell:
               env_docker_host = "unix:///var/run/docker.sock";
             } else {
-              // we assume boot2doker environment (Windows, Mac, and some Linux)
-              env_docker_host = "tcp://192.168.59.103:2376";
-            }
-          }
+                // we assume boot2doker environment (Windows, Mac, and some Linux)
+                  env_docker_host = "tcp://192.168.59.103:2376";
+                }
+              }
         } else {
           env_docker_host = docker_host;
         }
@@ -279,16 +276,16 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
          if (!dockerless) {
            if ("ENV_or_default".equals(docker_cert_path)) {
              if (env.get("DOCKER_CERT_PATH") == null) {
-               env.put("DOCKER_CERT_PATH",
-                       System.getProperty("user.home")
-                       + File.separator
-                       + ".boot2docker"
-                       + File.separator
-                       + "certs"
-                       + File.separator
-                       + "boot2docker-vm"
-               );
-             }
+                 env.put("DOCKER_CERT_PATH",
+                         System.getProperty("user.home")
+                         + File.separator
+                         + ".boot2docker"
+                         + File.separator
+                         + "certs"
+                         + File.separator
+                         + "boot2docker-vm"
+                 );
+               }
            } else {
              env.put("DOCKER_CERT_PATH", docker_cert_path);
            }
@@ -544,7 +541,17 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
           throws MojoExecutionException {
 
    ArrayList<String> arguments = new ArrayList<>();
-   File destinationDir = Files.createTempDir();
+  File destinationDir = new File(staging_directory);
+  if (!destinationDir.getParentFile().getAbsolutePath().equals(maven_project.getBuild().getDirectory())) {
+       throw new MojoExecutionException("Does not want to delete a directory no under the target directory" +staging_directory);
+   
+  }
+    try {
+      FileUtils.deleteDirectory(destinationDir);
+    } catch (IOException ex) {
+      throw new MojoExecutionException("Cannot delete staging directory.", ex);
+    }
+
    getLog().info("Creating staging directory in: " + destinationDir.getAbsolutePath());
    resolveAndSetSdkRoot();
   // System.setProperty("appengine.sdk.root", gcloud_directory +"/platform/google_appengine/google/appengine/tools/java");
@@ -565,7 +572,19 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
           throw new MojoExecutionException("Error: creating default web.xml " + ex);
       }
     }
-
+    if (!new File(appDirFile, ".appyamlgenerated").exists()) {
+      PrintWriter out;
+      try {
+        out = new PrintWriter(new File(appDirFile, ".appyamlgenerated"));
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        Date date = new Date();
+        System.out.println(dateFormat.format(date));
+        out.println("generated by the Maven Plugin on " + dateFormat.format(date));
+        out.close();
+      } catch (FileNotFoundException ex) {
+        throw new MojoExecutionException("Error: generating .appyamlgenerated " + ex);
+      }
+    }
     arguments.add("-A");
     arguments.add("notused");
 
@@ -578,7 +597,16 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     arguments.add(destinationDir.getAbsolutePath());
     getLog().info("Running appcfg " + Joiner.on(" ").join(arguments));
     AppCfg.main(arguments.toArray(new String[arguments.size()]));
-
+    // For now, treat custom as java7 so that the app run command works.
+    try {
+      File fileAppYaml = new File(destinationDir, "/app.yaml");
+      String content = Files.toString(fileAppYaml, Charsets.UTF_8);
+      content = content.replace("runtime: java7", "runtime: java");
+      Files.write(content, fileAppYaml, Charsets.UTF_8);
+    } catch (IOException ioe) {
+      System.out.println("Error " + ioe);
+    }
+    
     File[] yamlFiles = new File(destinationDir, "/WEB-INF/appengine-generated").listFiles();
     for (File f : yamlFiles) {
      try {

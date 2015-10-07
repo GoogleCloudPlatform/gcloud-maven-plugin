@@ -61,7 +61,7 @@ public class SdkResolver {
       return getSdk(newestVersion, repoSystem, repoSession, repos);
     }
 
-    return getSdk("1.9.26", repoSystem, repoSession, repos);
+    return getSdk("1.9.27", repoSystem, repoSession, repos);
   }
 
   private static String determineNewestVersion(RepositorySystem repoSystem, RepositorySystemSession repoSession, List<RemoteRepository>[] repos) throws MojoExecutionException {
