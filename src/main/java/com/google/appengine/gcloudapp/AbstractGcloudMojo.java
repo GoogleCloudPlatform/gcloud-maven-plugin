@@ -602,6 +602,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       File fileAppYaml = new File(destinationDir, "/app.yaml");
       String content = Files.toString(fileAppYaml, Charsets.UTF_8);
       content = content.replace("runtime: java7", "runtime: java");
+      content = content.replace("auto_id_policy: default", "");
       Files.write(content, fileAppYaml, Charsets.UTF_8);
     } catch (IOException ioe) {
       System.out.println("Error " + ioe);
