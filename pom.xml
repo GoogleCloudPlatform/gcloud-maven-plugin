@@ -26,7 +26,7 @@
 
   <scm>
     <connection>scm:git:https://github.com/ludoch/gcloud-maven-plugin.git</connection>
-    <tag>gcloud-maven-plugin-2.0.9.79.v20150923-SNAPSHOT</tag>
+    <tag>gcloud-maven-plugin-2.0.9.84.v20151021-SNAPSHOT</tag>
   </scm>
 
   <developers>
