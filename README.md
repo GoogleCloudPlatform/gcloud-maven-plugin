@@ -60,7 +60,7 @@ following into the `plugins` section in the project `pom.xml` file:
     <plugin>
        <groupId>com.google.appengine</groupId>
        <artifactId>gcloud-maven-plugin</artifactId>
-       <version>2.0.9.74.v20150814</version>
+       <version>2.0.9.83.v20151021</version>
 
 ## Compile and build your project using Maven
 
@@ -132,7 +132,7 @@ These are the Cloud SDK App Engine development server goals:
 | ------------|-------------|
 | `admin_host` | The host and port on which to start the admin server (in the format host:port)
 | `allow_skipped_files`| Make files specified in the app.yaml "skip_files" or "static" clauses readable by the application.
-| `api_host`| The host and port on which to start the API server for the dev server (in the format `host:port`). Not needed when using boot2docker.
+| `api_host`| The host and port on which to start the API server for the dev server (in the format `host:port`).
 | `appidentity_email_address`| Email address associated with a service account that has a downloadable key. May be None for no local application identity.
 | `appidentity_private_key_path`| Path to private key file associated with service account (.pem format). Must be set if `appidentity_email_address` is set.
 | `auth_domain`| Name of the authorization domain to use
@@ -157,7 +157,6 @@ These are the Cloud SDK App Engine development server goals:
 | `smtp_user`| Username to use when connecting to the SMTP server specified with `smtp_host`
 | `storage_path`| The default location for storing application data. Can be overridden for specific kinds of data using `datastore_path`, `blobstore-path`, and/or `logs_path`
 | `use_mtime_file_watcher`| Use mtime polling for detecting source code changes - useful if modifying code from a remote machine using a distributed file system
-| `non_docker_mode` | Boolean to control the local run with Docker or not. Default is currently true.
 | `custom_entrypoint`| Specify an entrypoint for custom runtime modules. This is required when such modules are present. Include "{port}" in the string (without quotes) to pass the port number in as an argument. For instance: `--custom_entrypoint="gunicorn -b localhost:{port} mymodule:application"`
 
 
@@ -167,7 +166,7 @@ The following example shows how to use some of these settings:
       <plugin>
         <groupId>com.google.appengine</groupId>
         <artifactId>gcloud-maven-plugin</artifactId>
-        <version>>2.0.9.74.v20150814</version>
+        <version>>2.0.9.83.v20151021</version>
         <configuration>
           <gcloud_directory>/usr/foo/private/google-cloud-sdk</gcloud_directory>
           <verbosity>debug</verbosity>
@@ -202,7 +201,6 @@ Available parameters, corresponding to [gcloud app deploy command line flags](ht
 |`server` | The App Engine server to connect to. You will not typically need to change this value.
 |`set_default`| Set the deployed version to be the default serving version.
 |`version`| The version of the app that will be created or replaced by this deployment.
-|`remote`| [Deprecated, use docker_build] Use this option if you are deploying using a remote docker host.
 |`docker_build`| Perform a hosted (`remote`) or `local` Docker build. To perform a local build, you must have your local docker environment configured correctly.
 
 #### Application management goals
