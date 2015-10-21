@@ -122,12 +122,6 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
    */
   protected String application_directory;
 
-  /**
-   * Non Docker mode (Experimental, will disappear soon).
-   *
-   * @parameter expression="${gcloud.non_docker_mode}" default-value="true"
-   */
-  protected boolean non_docker_mode = true;
 
   /**
    * Use this option if you are deploying using a remote docker host.
@@ -254,8 +248,8 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
               // we know we have a good chance to be in an old Google devshell:
               env_docker_host = "unix:///var/run/docker.sock";
             } else {
-                // we assume boot2doker environment (Windows, Mac, and some Linux)
-                  env_docker_host = "tcp://192.168.59.103:2376";
+                // we assume docker machine environment (Windows, Mac, and some Linux)
+                  env_docker_host = "tcp://192.168.99.100:2376";
                 }
               }
         } else {
@@ -279,11 +273,13 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
                  env.put("DOCKER_CERT_PATH",
                          System.getProperty("user.home")
                          + File.separator
-                         + ".boot2docker"
+                         + ".docker"
                          + File.separator
-                         + "certs"
+                         + "machine"
                          + File.separator
-                         + "boot2docker-vm"
+                         + "machines"   
+                         + File.separator
+                         + "default"                                  
                  );
                }
            } else {
@@ -295,11 +291,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       //export DOCKER_CERT_PATH=/Users/ludo/.boot2docker/certs/boot2docker-vm
       //export DOCKER_TLS_VERIFY=1
       //export DOCKER_HOST=tcp://192.168.59.103:2376
-      if (non_docker_mode) {
-        env.put ("GAE_LOCAL_VM_RUNTIME", "1");
-      } else {
-        env.put ("GAE_LOCAL_VM_RUNTIME", "0");
-      }
+
       // for the docker library path:
       env.put("PYTHONPATH", gcloud_directory + "/platform/google_appengine/lib/docker");
 
@@ -555,8 +547,8 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
    getLog().info("Creating staging directory in: " + destinationDir.getAbsolutePath());
    resolveAndSetSdkRoot();
   // System.setProperty("appengine.sdk.root", gcloud_directory +"/platform/google_appengine/google/appengine/tools/java");
-
-    if ("true".equals(getAppEngineWebXml(appDir).getBetaSettings().get("java_quickstart"))) {
+    AppEngineWebXml appengineWeb = getAppEngineWebXml(appDir);
+    if ("true".equals(appengineWeb.getBetaSettings().get("java_quickstart"))) {
       arguments.add("--enable_quickstart");
     }
     arguments.add("--disable_update_check");
@@ -601,7 +593,9 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     try {
       File fileAppYaml = new File(destinationDir, "/app.yaml");
       String content = Files.toString(fileAppYaml, Charsets.UTF_8);
-      content = content.replace("runtime: java7", "runtime: java");
+      if ("2".equals(appengineWeb.getEnv())) {
+        content = content.replace("runtime: java7", "runtime: java");
+      }
       content = content.replace("auto_id_policy: default", "");
       Files.write(content, fileAppYaml, Charsets.UTF_8);
     } catch (IOException ioe) {
