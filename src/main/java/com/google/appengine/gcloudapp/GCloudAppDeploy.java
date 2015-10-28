@@ -156,7 +156,7 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
     File dockerFile = new File(appengine_config_directory, "Dockerfile");
     if (dockerFile.exists()) {
       try {
-        Files.copy(dockerFile, new File(stagingDir, "Dockefile"));
+        Files.copy(dockerFile, new File(stagingDir, "Dockerfile"));
       } catch (IOException ex) {
         throw new MojoExecutionException("Error: copying Dockerfile" + ex);
       }

@@ -596,7 +596,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       if ("2".equals(appengineWeb.getEnv())) {
         content = content.replace("runtime: java7", "runtime: java");
       }
-      content = content.replace("auto_id_policy: default", "");
+    //  content = content.replace("auto_id_policy: default", "");
       Files.write(content, fileAppYaml, Charsets.UTF_8);
     } catch (IOException ioe) {
       System.out.println("Error " + ioe);
@@ -655,8 +655,8 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
         public void run() {
           while (stdOut.hasNextLine() && !Thread.interrupted()) {
             getLog().info(stdOut.nextLine());
-          }
-        }
+              }
+            }
       };
       process.waitFor();
       getLog().info("Cloud SDK app-engine-java component installed.");
