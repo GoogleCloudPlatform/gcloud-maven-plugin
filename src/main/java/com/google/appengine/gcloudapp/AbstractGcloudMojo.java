@@ -584,6 +584,12 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       arguments.add("-V");
       arguments.add(version);
     }
+    // Forcing Java runtime for env:2 only, otherwise it is Java7
+    if ("2".equals(appengineWeb.getEnv())) {
+      arguments.add("-R");
+      arguments.add("-r");
+      arguments.add("java");
+    }
     arguments.add("stage");
     arguments.add(appDir);
     arguments.add(destinationDir.getAbsolutePath());
