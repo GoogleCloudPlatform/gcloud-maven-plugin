@@ -163,7 +163,12 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
     }
 
     File targetDir = new File(maven_project.getBuild().getDirectory());
-    File artifactToDeploy = new File(targetDir, maven_project.getBuild().getFinalName() + "." + packaging);
+    File artifactToDeploy = new File(targetDir, maven_project.getBuild().getFinalName()
+            + "-jar-with-dependencies." + packaging);
+    if (!artifactToDeploy.exists()) {
+      artifactToDeploy = new File(targetDir, maven_project.getBuild().getFinalName()
+              + "." + packaging);
+    }
     if (artifactToDeploy.exists()) {
       try {
         Files.copy(artifactToDeploy, new File(stagingDir, artifactToDeploy.getName()));
