@@ -602,7 +602,6 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       if ("2".equals(appengineWeb.getEnv())) {
         content = content.replace("runtime: java7", "runtime: java");
       }
-    //  content = content.replace("auto_id_policy: default", "");
       Files.write(content, fileAppYaml, Charsets.UTF_8);
     } catch (IOException ioe) {
       System.out.println("Error " + ioe);
@@ -628,6 +627,19 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     File index = new File(appDir, "/WEB-INF/datastore-indexes.xml");
     if (index.exists()) {
       index.delete();
+    }
+    // For now, treat custom as java7 so that the app run command works.
+    try {
+      File fileAppYaml = new File(appDir, "/app.yaml");
+     String content = Files.toString(fileAppYaml, Charsets.UTF_8);
+      if ("2".equals(appengineWeb.getEnv())) {
+        content = content.replace("runtime: java", "runtime: java7");
+        content = content.replace("env: 2", "vm: true");
+      }
+    //  content = content.replace("auto_id_policy: default", "");
+      Files.write(content, fileAppYaml, Charsets.UTF_8);
+    } catch (IOException ioe) {
+      System.out.println("Error " + ioe);
     }
     return destinationDir;
   }
