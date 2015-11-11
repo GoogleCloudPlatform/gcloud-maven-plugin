@@ -60,7 +60,7 @@ following into the `plugins` section in the project `pom.xml` file:
     <plugin>
        <groupId>com.google.appengine</groupId>
        <artifactId>gcloud-maven-plugin</artifactId>
-       <version>2.0.9.85.v20151104</version>
+       <version>2.0.9.86.v20151111</version>
 
 ## Compile and build your project using Maven
 
@@ -143,7 +143,7 @@ These are the Cloud SDK App Engine development server goals:
 | `default_gcs_bucket_name`| Default Google Cloud Storage bucket name
 | `enable_sendmail`| Use the "sendmail" tool to transmit e-mail sent using the Mail API (ignored if `smtp_host` is set)
 | `host`|The host and port on which to start the local web server (in the format host:port)
-| `jvm_flag`| Additional arguments to pass to the java command when launching an instance of the app. May be specified more than once. Example: `<jvm_flag><param>-Xmx1024m</param> <param>-Xms256m</param></jvm_flag>` Note: This is not for Java Managed VMs applications. Please use a Dockerfile for that.
+| `jvm_flag`| Additional arguments to pass to the java command when launching an instance of the app. May be specified more than once. Example: `<jvm_flag><param>-Xmx1024m</param> <param>-Xms256m</param></jvm_flag>`.
 | `log_level`| The minimum verbosity of logs from your app that will be displayed in the terminal. (debug, info, warning, critical, error)  Defaults to current verbosity setting.
 | `logs_path`| Path to a file used to store request logs (defaults to a file in `storage_path` if not set)
 | `max_module_instances`| The maximum number of runtime instances that can be started for a particular module - the value can be an integer, in which case all modules are limited to that number of instances, or a comma-separated list of module:max_instances, e.g. `default:5,backend:3`
@@ -166,12 +166,12 @@ The following example shows how to use some of these settings:
       <plugin>
         <groupId>com.google.appengine</groupId>
         <artifactId>gcloud-maven-plugin</artifactId>
-        <version>>2.0.9.85.v20151104</version>
+        <version>>2.0.9.86.v20151111</version>
         <configuration>
           <gcloud_directory>/usr/foo/private/google-cloud-sdk</gcloud_directory>
           <verbosity>debug</verbosity>
           <version>specific_version</version>
-          <set_default>true</set_default>
+          <promote>true</promote>
           <log_level>info</log_level>
           <max_module_instances>2</max_module_instances>
         </configuration>
@@ -199,7 +199,7 @@ Available parameters, corresponding to [gcloud app deploy command line flags](ht
 |`no_symlinks`| Do not use symbolic links when making the temporary (staging) directory used in uploading Java apps
 |`retain_upload_dir`| Do not delete temporary (staging) directory used in uploading Java apps
 |`server` | The App Engine server to connect to. You will not typically need to change this value.
-|`set_default`| Set the deployed version to be the default serving version.
+|`promote`| Set the deployed version to be the default serving version.
 |`version`| The version of the app that will be created or replaced by this deployment.
 |`docker_build`| Perform a hosted (`remote`) or `local` Docker build. To perform a local build, you must have your local docker environment configured correctly.
 
