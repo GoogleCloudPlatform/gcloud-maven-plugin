@@ -172,8 +172,7 @@ public class GCloudAppRun extends AbstractGcloudMojo {
    * JVM_FLAG Additional arguments to pass to the java command when launching an
    * instance of the app. May be specified more than once. Example:
    * &lt;jvm_flag&gt; &lt;param&gt;-Xmx1024m&lt;/param&gt;
-   * &lt;param&gt;-Xms256m&lt;/param&gt; &lt;/jvm_flag&gt; Note: This is not for
-   * Java Managed VMs applications. Please use a Dockerfile for that.
+   * &lt;param&gt;-Xms256m&lt;/param&gt; &lt;/jvm_flag&gt;.
    *
    * @parameter
    */
