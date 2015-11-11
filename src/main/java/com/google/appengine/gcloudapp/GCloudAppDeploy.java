@@ -105,6 +105,14 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
    * @parameter expression="${gcloud.set_default}"
    */
   private boolean set_default;
+
+  /**
+   * Set the deployed version to be the default serving version.
+   *
+   * @parameter expression="${gcloud.promote}"
+   */
+  private boolean promote;
+
   /**
    * Bucket used for Admin Deployment API.
    *
@@ -304,8 +312,10 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
     }
 
     if (set_default) {
-      devAppServerCommand.add("--set-default");
-    }
+      devAppServerCommand.add("--promote");
+    } else if (promote) {
+      devAppServerCommand.add("--promote");
+    } 
     return devAppServerCommand;
   }
 
