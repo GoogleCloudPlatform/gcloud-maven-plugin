@@ -125,6 +125,7 @@ These are the Cloud SDK App Engine development server goals:
 | Parameter   |Description           |
 | ------------|-------------|
 | `gcloud_directory` | The location of the Cloud SDK to use from Maven. (Default is `~/google-cloud-sdk`)|
+| `gcloud_project` | The Cloud project you want to work with. (Default is the one set up in the Cloud SDK)|
 
   Available parameters, corresponding to [gcloud app run command line flags](https://cloud.google.com/sdk/gcloud/reference/preview/app/run):
 
