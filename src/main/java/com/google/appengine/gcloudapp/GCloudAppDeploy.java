@@ -196,7 +196,7 @@ public class GCloudAppDeploy extends AbstractGcloudMojo {
   public void execute() throws MojoExecutionException, MojoFailureException {
     String appDir = maven_project.getBuild().getDirectory() + "/" + maven_project.getBuild().getFinalName();
     File appDirFile = new File(appDir);
-    String aewebxml = maven_project.getBasedir() + "/src/main/webapp/WEB-INF/appengine-web.xml";
+    String aewebxml = appDir + "/WEB-INF/appengine-web.xml";
     String packaging = maven_project.getPackaging();
 
     // new Staging for pure jar or pure Jetty9 apps:
