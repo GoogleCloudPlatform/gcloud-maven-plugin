@@ -60,7 +60,7 @@ following into the `plugins` section in the project `pom.xml` file:
     <plugin>
        <groupId>com.google.appengine</groupId>
        <artifactId>gcloud-maven-plugin</artifactId>
-       <version>2.0.9.86.v20151113</version>
+       <version>2.0.9.87.v20151118</version>
 
 ## Compile and build your project using Maven
 
@@ -167,7 +167,7 @@ The following example shows how to use some of these settings:
       <plugin>
         <groupId>com.google.appengine</groupId>
         <artifactId>gcloud-maven-plugin</artifactId>
-        <version>>2.0.9.86.v20151113</version>
+        <version>>2.0.9.87.v20151118</version>
         <configuration>
           <gcloud_directory>/usr/foo/private/google-cloud-sdk</gcloud_directory>
           <verbosity>debug</verbosity>
@@ -202,7 +202,15 @@ Available parameters, corresponding to [gcloud app deploy command line flags](ht
 |`server` | The App Engine server to connect to. You will not typically need to change this value.
 |`promote`| Set the deployed version to be the default serving version.
 |`version`| The version of the app that will be created or replaced by this deployment.
-|`docker_build`| Perform a hosted (`remote`) or `local` Docker build. To perform a local build, you must have your local docker environment configured correctly.
+|`version`| The version of the app that will be created or replaced by this deployment.
+|`staging_directory`| Location of the staging directory. Default is `target/appengine-staging/`.
+
+You can create a staging directory of an App Engine Application via the goal `gcloud:stage`.
+
+        $ mvn gcloud:stage
+
+the resulting directory will be in the target/appengine-staging directory.
+
 
 #### Application management goals
 
