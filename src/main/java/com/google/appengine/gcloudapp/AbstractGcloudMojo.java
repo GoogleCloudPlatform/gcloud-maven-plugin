@@ -153,7 +153,15 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
    *
    */
   protected boolean deployCommand = false;
-
+  
+  /**
+   * Directory containing the App Engine app.yaml/Dockerfile files.
+   *
+   * @parameter expression="${gcloud.appengine_config_directory}"
+   * default-value="${project.basedir}/src/main/appengine"
+   */
+  protected String appengine_config_directory;
+  
   protected abstract ArrayList<String> getCommand(String appDir) throws MojoExecutionException;
 
   protected ArrayList<String> setupInitialCommands(ArrayList<String> commands) throws MojoExecutionException {

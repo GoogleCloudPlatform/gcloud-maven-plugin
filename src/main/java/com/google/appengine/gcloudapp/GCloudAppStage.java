@@ -103,15 +103,6 @@ public class GCloudAppStage extends AbstractGcloudMojo {
   protected String jar_splitting_excludes;
 
 
-
-  /**
-   * Directory containing the App Engine app.yaml/Dockerfile files.
-   *
-   * @parameter expression="${gcloud.appengine_config_directory}"
-   * default-value="${project.basedir}/src/main/appengine"
-   */
-  protected String appengine_config_directory;
-
   public GCloudAppStage() {
     this.deployCommand = true;
   }
