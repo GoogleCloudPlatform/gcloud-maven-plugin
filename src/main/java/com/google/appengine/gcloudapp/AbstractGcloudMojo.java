@@ -185,7 +185,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       getLog().error("Cannot determine the default location of the Google Cloud SDK.");
       getLog().error("If you need to install the Google Cloud SDK, follow the instructions located at https://cloud.google.com/appengine/docs/java/managed-vms");
       getLog().error("You can then set it via <gcloud_directory> </gcloud_directory> in the pom.xml");
-      throw new MojoExecutionException("Unkown Google Cloud SDK location:" + gcloud_directory);
+      throw new MojoExecutionException("Unknown Google Cloud SDK location: " + gcloud_directory);
     }
 
     if (deployCommand) {
