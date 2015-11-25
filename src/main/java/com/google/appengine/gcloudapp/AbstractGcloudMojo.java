@@ -179,6 +179,9 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     File script = new File(s, "/lib/googlecloudsdk/gcloud/gcloud.py");
 
     if (!script.exists()) {
+      script = new File(s, "/lib/gcloud.py");
+    }
+    if (!script.exists()) {
       getLog().error("Cannot determine the default location of the Google Cloud SDK.");
       getLog().error("If you need to install the Google Cloud SDK, follow the instructions located at https://cloud.google.com/appengine/docs/java/managed-vms");
       getLog().error("You can then set it via <gcloud_directory> </gcloud_directory> in the pom.xml");
@@ -186,7 +189,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     }
 
     if (deployCommand) {
-      commands.add(gcloud_directory + "/lib/googlecloudsdk/gcloud/gcloud.py");
+      commands.add(script.getAbsolutePath());
       if (quiet) {
         commands.add("--quiet");
       }
@@ -664,7 +667,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     if (Utils.canDisableImportOfPythonModuleSite()) {
       installCommand.add("-S");
     }
-    installCommand.add(gcloud_directory + "/lib/googlecloudsdk/gcloud/gcloud.py");
+    installCommand.add(gcloud_directory + "/lib/gcloud.py");
     installCommand.add("components");
     installCommand.add("update");
     installCommand.add("app-engine-java");
