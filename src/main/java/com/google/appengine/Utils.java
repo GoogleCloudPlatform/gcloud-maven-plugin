@@ -36,6 +36,13 @@ public class Utils {
     String gcloudDir;
     boolean isWindows = System.getProperty("os.name").contains("Windows");
     if (isWindows) {
+      String  relPath= "\\Google\\Cloud SDK\\google-cloud-sdk";
+      // first look for user installation under "LOCALAPPDATA"
+      String localSDK = System.getenv("LOCALAPPDATA") + relPath;
+      if (new File(localSDK).exists()) {
+        return localSDK;
+      }
+      // then look for globally installed Cloud SDK:
       String programFiles = System.getenv("ProgramFiles");
       if (programFiles == null) {
         programFiles = System.getenv("ProgramFiles(x86)");
@@ -43,7 +50,7 @@ public class Utils {
       if (programFiles == null) {
         gcloudDir = "cannotFindProgramFiles";
       } else {
-        gcloudDir = programFiles + "\\Google\\Cloud SDK\\google-cloud-sdk";
+        gcloudDir = programFiles + relPath;
       }
     } else {
       gcloudDir = System.getProperty("user.home") + "/google-cloud-sdk";
