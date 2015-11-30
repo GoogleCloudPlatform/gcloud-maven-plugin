@@ -564,17 +564,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     }
     arguments.add("--disable_update_check");
     File  appDirFile= new File(appDir);
-    if (!new File(appDirFile, "WEB-INF/web.xml").exists()) {
-      PrintWriter out;
-      try {
-        out = new PrintWriter(new File(appDirFile, "WEB-INF/web.xml"));
-        out.println("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-        out.println("<web-app version=\"3.1\" xmlns=\"http://xmlns.jcp.org/xml/ns/javaee\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd\"></web-app>");
-        out.close();
-      } catch (FileNotFoundException ex) {
-          throw new MojoExecutionException("Error: creating default web.xml " + ex);
-      }
-    }
+
     if (!new File(appDirFile, ".appyamlgenerated").exists()) {
       PrintWriter out;
       try {
