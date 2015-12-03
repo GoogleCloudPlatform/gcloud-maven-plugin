@@ -18,7 +18,7 @@
     </repository>
   </repositories>
   <properties>
-    <appengine.target.version>1.9.28</appengine.target.version>
+    <appengine.target.version>1.9.30</appengine.target.version>
     <target.cloudproject>maven-plugin-test-app</target.cloudproject>
   </properties>
 
