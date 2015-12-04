@@ -23,34 +23,14 @@ installed.
 
         gcloud components update app-engine-java
 
-3. You must use Java 7.  If you don't have Java 7, [Download](http://www.java.com/en/download/manual.jsp) and install it. For App Engine Managed VMs images, it is possible to use Java 8 with some customization.
 
-4. Set your `JAVA_HOME` environment variable. If you are a `bash` user, the
-following considerations apply:
+3. If you want to start with a Java Managed VM sample code and tutorial, you can use the GitHub project: [https://github.com/GoogleCloudPlatform/appengine-java-vm-guestbook-extras](https://github.com/GoogleCloudPlatform/appengine-java-vm-guestbook-extras)
 
-    * For a typical Linux installation, add a line similar to the following to
-your `.bashrc` file:
-
-            export JAVA_HOME=/usr/local/tools/java/jdk1.7.0_45.jdk
-
-   * If you use Mac OS X and the default Terminal app, your shell session
-doesn't load `.bashrc` by default. So you may need to add a line similar to the
-following to your `.bash_profile`:
-
-            [ -r ~/.bashrc ] && source ~/.bashrc
-
-   * If you use Mac OS X but don't use the default terminal app, for example, you use a
-terminal management app such as tmux,  you may need to add a line similar to the
-following line to your `.bashrc` file:
-
-            export JAVA_HOME=$(/usr/libexec/java_home -v1.7)
-
-5. If you want to start with a Java Managed VM sample code and tutorial, you can use the GitHub project: [https://github.com/GoogleCloudPlatform/appengine-java-vm-guestbook-extras](https://github.com/GoogleCloudPlatform/appengine-java-vm-guestbook-extras)
-
-6. The Maven plugin relies on configuration done by the cloud SDK. For example, the project name
+4. The Maven plugin relies on configuration done by the cloud SDK. For example, the project name
 you want to use for a deployment step can be defined with:
 
-    gcloud config set project <your project name>
+      gcloud auth login
+      gcloud config set project <your project name>
 
 ### Adding the Cloud SDK App Engine Maven plugin to an existing Maven project
 
@@ -102,6 +82,10 @@ example, to `myapp`) and invoking Maven as follows:
 
 4. Shut down the app and the development server by pressing **Control+C** in the
 Windows/Linux terminal window where you started it, or **CMD+C** on the Mac.
+
+5. You can stage the application,i.e create a directory under target/appengine-staging which is ready to be deploy by standard gcloud command with:
+
+        $ mvn gcloud:stage
 
 
 ### App Engine Maven plugin goals for the Cloud SDK
@@ -184,6 +168,12 @@ The following example shows how to use some of these settings:
 You can deploy an App Engine Application via the goal `gcloud:deploy`.
 
         $ mvn gcloud:deploy
+        
+If you want to just produced a deployable stage application directory ready to be used by the Cloud SDK commands, you can use the stage `gcloud:stage`:
+
+        $ mvn gcloud:stage
+the resulting directory will be in the target/appengine-staging directory.
+
 
 Available parameters, corresponding to [gcloud app deploy command line flags](https://cloud.google.com/sdk/gcloud/reference/preview/app/deploy):
 
@@ -205,11 +195,6 @@ Available parameters, corresponding to [gcloud app deploy command line flags](ht
 |`version`| The version of the app that will be created or replaced by this deployment.
 |`staging_directory`| Location of the staging directory. Default is `target/appengine-staging/`.
 
-You can create a staging directory of an App Engine Application via the goal `gcloud:stage`.
-
-        $ mvn gcloud:stage
-
-the resulting directory will be in the target/appengine-staging directory.
 
 
 #### Application management goals
