@@ -262,9 +262,19 @@ public class GCloudAppRun extends AbstractGcloudMojo {
    *
    * @parameter expression="${gcloud.custom_entrypoint}"
    */
-  
-  
+   
   private String custom_entrypoint;
+  
+   /**
+   * specify the default runtime you would like to use.
+     Valid runtimes are ['java', 'php55',
+     'python', 'custom', 'python-compat', 'java7',
+      'python27', 'go']. (default: )
+      * 
+   * @parameter expression="${gcloud.runtime}"
+   */ 
+  
+  private String runtime;
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
@@ -463,6 +473,9 @@ public class GCloudAppRun extends AbstractGcloudMojo {
     }
     if (custom_entrypoint != null) {
       devAppServerCommand.add("--custom_entrypoint=" + custom_entrypoint);
+    }
+    if (runtime != null) {
+      devAppServerCommand.add("--runtime=" + runtime);
     }
     return devAppServerCommand;
   }
