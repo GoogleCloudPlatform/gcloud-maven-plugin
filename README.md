@@ -143,6 +143,7 @@ These are the Cloud SDK App Engine development server goals:
 | `storage_path`| The default location for storing application data. Can be overridden for specific kinds of data using `datastore_path`, `blobstore-path`, and/or `logs_path`
 | `use_mtime_file_watcher`| Use mtime polling for detecting source code changes - useful if modifying code from a remote machine using a distributed file system
 | `custom_entrypoint`| Specify an entrypoint for custom runtime modules. This is required when such modules are present. Include "{port}" in the string (without quotes) to pass the port number in as an argument. For instance: `--custom_entrypoint="gunicorn -b localhost:{port} mymodule:application"`
+| `runtime`| Specify the default runtime you would like to use. Valid runtimes are ['java', 'php55', 'python', 'custom', 'python-compat', 'java7', 'python27', 'go'].
 
 
 
