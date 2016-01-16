@@ -371,14 +371,14 @@ public class GCloudAppRun extends AbstractGcloudMojo {
       devAppServerCommand.add(parts[1]);
     }
     if (api_host != null) {
-      String[] parts = host.split(":");
+      String[] parts = api_host.split(":");
       devAppServerCommand.add("--api_host");
       devAppServerCommand.add(parts[0]);
       devAppServerCommand.add("--api_port");
       devAppServerCommand.add(parts[1]);
     }
     if (admin_host != null) {
-      String[] parts = host.split(":");
+      String[] parts = admin_host.split(":");
       devAppServerCommand.add("--admin_host");
       devAppServerCommand.add(parts[0]);
       devAppServerCommand.add("--admin_port");
