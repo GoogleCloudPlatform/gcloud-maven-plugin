@@ -146,6 +146,94 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
    * @parameter expression="${gcloud.staging_directory}" default-value="${project.build.directory}/appengine-staging"
    */
   protected String staging_directory;
+
+   /**
+  * specify the default runtime you would like to use.
+     Valid runtimes are ['java', 'php55',
+     'python', 'custom', 'python-compat', 'java7',
+      'python27', 'go']. (default: )
+      * 
+   * @parameter expression="${gcloud.runtime}"
+   */ 
+  
+  protected String runtime; 
+ 
+    /**
+   * server The App Engine server to connect to.
+   *
+   * @parameter expression="${gcloud.server}"
+   */
+  protected String server;
+
+  /**
+   * env-vars ENV_VARS Environment variable overrides for your app.
+   *
+   * @parameter expression="${gcloud.env_vars}"
+   */
+  protected String env_vars;
+
+  /**
+   * force Force deploying, overriding any previous in-progress deployments to
+   * this version.
+   *
+   * @parameter expression="${gcloud.force}"
+   */
+  protected boolean force;
+
+  /**
+   * Set the encoding to be used when compiling Java source files (default
+   * "UTF-8")
+   *
+   * @parameter expression="${gcloud.compile_encoding}"
+   */
+  protected String compile_encoding;
+  /**
+   * Delete the JSP source files after compilation
+   *
+   * @parameter expression="${gcloud.delete_jsps}"
+   */
+  protected boolean delete_jsps;
+  /**
+   * Do not jar the classes generated from JSPs
+   *
+   * @parameter expression="${gcloud.disable_jar_jsps}"
+   */
+  protected boolean disable_jar_jsps;
+  /**
+   * Jar the WEB-INF/classes content
+   *
+   * @parameter expression="${gcloud.enable_jar_classes}"
+   */
+  protected boolean enable_jar_classes;
+  /**
+   * Split large jar files (> 32M) into smaller fragments
+   *
+   * @parameter expression="${gcloud.enable_jar_splitting}"
+   */
+  protected boolean enable_jar_splitting;
+  /**
+   * Do not use symbolic links when making the temporary (staging)
+   * gcloud_directory used in uploading Java apps
+   *
+   * @parameter expression="${gcloud.no_symlinks}"
+   */
+  protected boolean no_symlinks;
+  /**
+   * Do not delete temporary (staging) gcloud_directory used in uploading Java
+   * apps
+   *
+   * @parameter expression="${gcloud.retain_upload_dir}"
+   */
+  protected boolean retain_upload_dir;
+  /**
+   * When --enable-jar-splitting is specified and --jar-splitting-excludes
+   * specifies a comma-separated list of suffixes, a file in a jar whose name
+   * ends with one of the suffixes will not be included in the split jar
+   * fragments
+   *
+   * @parameter expression="${gcloud.jar_splitting_excludes}"
+   */
+  protected String jar_splitting_excludes;
   
  /**
    * Tell if the command will be for run or deploy. Default is false: command is
@@ -585,6 +673,49 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       arguments.add("-V");
       arguments.add(version);
     }
+    
+    if (server != null && !server.isEmpty()) {
+      arguments.add("-s");
+      arguments.add(server);
+    }
+
+    if (gcloud_project != null) {
+      arguments.add("-A");
+      arguments.add(gcloud_project);
+    }
+
+    if (enable_jar_splitting) {
+      arguments.add("--enable_jar_splitting");
+    }
+
+    if (jar_splitting_excludes != null && !jar_splitting_excludes.isEmpty()) {
+      arguments.add("--jar_splitting_excludes=" + jar_splitting_excludes);
+    }
+
+    if (retain_upload_dir) {
+      arguments.add("--retain_upload_dir");
+    }
+
+    if (compile_encoding != null) {
+      arguments.add("--compile-encoding=" + compile_encoding);
+    }
+
+    if (force) {
+      arguments.add("-f");
+    }
+
+    if (delete_jsps) {
+      arguments.add("--delete_jsps");
+    }
+
+    if (enable_jar_classes) {
+      arguments.add("--enable_jar_classes");
+    }
+    
+    if (runtime != null) {
+      arguments.add("--runtime=" + runtime);
+    }
+    
     // Forcing Java runtime for env:2 only, otherwise it is Java7
     if ("2".equals(appengineWeb.getEnv())) {
       arguments.add("-R");
