@@ -21,16 +21,9 @@ public class GCloudAppDeploy extends GCloudAppStage {
   /**
    * Set the deployed version to be the default serving version.
    *
-   * @parameter expression="${gcloud.set_default}"
-   */
-  private boolean set_default;
-
-  /**
-   * Set the deployed version to be the default serving version.
-   *
    * @parameter expression="${gcloud.promote}"
    */
-  private boolean promote;
+  private boolean promote = true;
 
   /**
    * Bucket used for Admin Deployment API.
@@ -112,10 +105,6 @@ public class GCloudAppDeploy extends GCloudAppStage {
     if (version != null) {
       devAppServerCommand.add("--version=" + version);
     }
-    if (env_vars != null) {
-      // TODO(ludo) uncomment when the feature is working in Cloud SDK.
-      // devAppServerCommand.add("--env-vars=" + env_vars);
-    }
     if (server != null) {
       devAppServerCommand.add("--server=" + server);
     }
@@ -132,10 +121,10 @@ public class GCloudAppDeploy extends GCloudAppStage {
       devAppServerCommand.add("--bucket=" + bucket);
     }
 
-    if (set_default) {
+    if (promote) {
       devAppServerCommand.add("--promote");
-    } else if (promote) {
-      devAppServerCommand.add("--promote");
+    } else {
+      devAppServerCommand.add("--no-promote");
     }
     return devAppServerCommand;
   }
