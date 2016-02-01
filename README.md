@@ -1,6 +1,4 @@
 
-[![Build Status](http://104.154.86.87:8080/buildStatus/icon?job=gcloud-maven-plugin-e2e-test)](http://104.154.86.87:8080/job/gcloud-maven-plugin-e2e-test/)
-
 # Cloud SDK App Engine Apache Maven Plugin
 
 [Apache Maven](http://maven.apache.org/) is a software project management and comprehension tool.  It
