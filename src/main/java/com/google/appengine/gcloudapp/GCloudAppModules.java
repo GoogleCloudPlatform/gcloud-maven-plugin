@@ -146,32 +146,17 @@ public abstract class GCloudAppModules extends AbstractGcloudMojo {
   }
 
   /**
-   * Cancel Deployment.
-   *
-   * @goal module_cancel_deployment
-   * @execute phase="package"
-   * @threadSafe false
-   */
-  static public class CancelDeployment extends GCloudAppModules {
-
-    @Override
-    protected String[] getSubCommand() {
-      return new String[]{"cancel-deployment"};
-    }
-  }
-
-  /**
    * set default.
    *
-   * @goal module_set_default
+   * @goal module_promote
    * @execute phase="package"
    * @threadSafe false
    */
-  static public class SetDefault extends GCloudAppModules {
+  static public class Promote extends GCloudAppModules {
 
     @Override
     protected String[] getSubCommand() {
-      return new String[]{"set-default"};
+      return new String[]{"promote"};
     }
   }
 
