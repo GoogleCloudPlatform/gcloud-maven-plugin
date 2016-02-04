@@ -50,7 +50,8 @@ public class GCloudAppStage extends AbstractGcloudMojo {
       try {
         out = new PrintWriter(new File(stagingDir, "app.yaml"));
         out.println("runtime: java");
-        out.println("env: 2");
+        // TODO(ludo) for now, we restrict to vm: true
+        out.println("vm: true");
         out.println("api_version: 1");
         out.println("threadsafe: True");
         out.println("handlers:");
