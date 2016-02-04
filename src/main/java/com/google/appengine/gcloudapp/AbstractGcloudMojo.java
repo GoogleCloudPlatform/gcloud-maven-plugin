@@ -36,9 +36,11 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import org.apache.commons.io.FileUtils;
+import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.repository.RemoteRepository;
@@ -164,13 +166,6 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
    * @parameter expression="${gcloud.server}"
    */
   protected String server;
-
-  /**
-   * env-vars ENV_VARS Environment variable overrides for your app.
-   *
-   * @parameter expression="${gcloud.env_vars}"
-   */
-  protected String env_vars;
 
   /**
    * force Force deploying, overriding any previous in-progress deployments to
@@ -627,10 +622,26 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       throw new MojoExecutionException("Could not open SDK zip archive.", e);
     }
   }
-
+  /**
+   * 
+   * @return the java version used the pom (target) and 1.7 if not present.
+   */
+  protected String getJavaVersion() {
+    String javaVersion = "1.7";
+    Plugin p = maven_project.getPlugin("org.apache.maven.plugins:maven-compiler-plugin");
+    if (p != null) {
+      Xpp3Dom config = (Xpp3Dom) p.getConfiguration();
+      Xpp3Dom domVersion = config.getChild("target");
+      if (domVersion != null) {
+        javaVersion = domVersion.getValue();
+      }
+    }
+    return javaVersion;
+  }
+          
   protected File executeAppCfgStagingCommand(String appDir)
           throws MojoExecutionException {
-
+    
    ArrayList<String> arguments = new ArrayList<>();
   File destinationDir = new File(staging_directory);
   if (!destinationDir.getParentFile().getAbsolutePath().equals(maven_project.getBuild().getDirectory())) {
@@ -715,9 +726,27 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     if (runtime != null) {
       arguments.add("--runtime=" + runtime);
     }
+    /* Complicated matrix...
+    vm:true java7 in pom ok   ->runtime:java7
+    vm:false java8 in pom  ok   ->error for now (unless override in runtime flag)
+    vm:true java8 in pm , generate a dockerfile and runtime:custom 
+    env:2 java 7in pom ->ok, runtime is java
+    env:2 java8 in pom ->ok runtime is java  
+    */
+     boolean isVm = appengineWeb.getUseVm();
+   boolean isStandard = ("1".equals(appengineWeb.getEnv())
+            || "std".equals(appengineWeb.getEnv())) && isVm==false;
+    boolean isFlex = "2".equals(appengineWeb.getEnv())
+            || "flex".equals(appengineWeb.getEnv());
     
-    // Forcing Java runtime for env:2 only, otherwise it is Java7
-    if ("2".equals(appengineWeb.getEnv())) {
+    //config error: vm false 
+    if (isStandard && getJavaVersion().equals("1.8")) {
+      throw new MojoExecutionException("For now, Standard GAE runtime only works with Java7, but the pom.xml is targetting 1.8");
+    }
+
+    // Forcing Java runtime for Flex or 1.8 , otherwise it is default Java7
+    // FYI: the 'java' runtime for Managed VMs is the real java8
+    if (isFlex || getJavaVersion().equals("1.8"))  {
       arguments.add("-R");
       arguments.add("-r");
       arguments.add("java");
@@ -731,10 +760,14 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     try {
       File fileAppYaml = new File(destinationDir, "/app.yaml");
       String content = Files.toString(fileAppYaml, Charsets.UTF_8);
-      if ("2".equals(appengineWeb.getEnv())) {
-        content = content.replace("runtime: java7", "runtime: java");
+      if (isVm && getJavaVersion().equals("1.8")) {
+        content = content.replace("runtime: java", "runtime: custom");
+        Files.write(content, fileAppYaml, Charsets.UTF_8);
+        File dockerFile = new File(destinationDir, "/Dockerfile");
+        if (!dockerFile.exists()) {
+          Files.write("FROM gcr.io/google_appengine/jetty9-compat\nADD . /app\n", dockerFile, Charsets.UTF_8);
+        }
       }
-      Files.write(content, fileAppYaml, Charsets.UTF_8);
     } catch (IOException ioe) {
       System.out.println("Error " + ioe);
     }
@@ -764,11 +797,10 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     try {
       File fileAppYaml = new File(appDir, "/app.yaml");
      String content = Files.toString(fileAppYaml, Charsets.UTF_8);
+     // TODO (ludo) remove when  1.9.32 is in the Cloud SDK.
       if ("2".equals(appengineWeb.getEnv())) {
         content = content.replace("runtime: java", "runtime: java7");
-        content = content.replace("env: 2", "vm: true");
       }
-    //  content = content.replace("auto_id_policy: default", "");
       Files.write(content, fileAppYaml, Charsets.UTF_8);
     } catch (IOException ioe) {
       System.out.println("Error " + ioe);
