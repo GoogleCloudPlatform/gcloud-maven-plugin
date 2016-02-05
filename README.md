@@ -42,7 +42,7 @@ following into the `plugins` section in the project `pom.xml` file:
 
 ## Compile and build your project using Maven
 
-To build an Java App Engine Web Application using Maven with its `pom.xml` file:
+To build a Java App Engine Web Application using Maven with its `pom.xml` file:
 
 1. Change directory to the main directory for your project, for example, `guestbook/`
 
