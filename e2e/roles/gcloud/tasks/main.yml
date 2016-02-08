@@ -5,6 +5,9 @@
   with_items:
         - /usr/lib/google-cloud-sdk
         - /usr/bin/gcloud
+        - /usr/bin/git-credential-gcloud.sh
+        - /usr/bin/bq
+        - /usr/bin/gsutil
   sudo: yes
 
 - name: Delete previous gcloud sdk installation directory
