@@ -25,10 +25,9 @@
   command: >
         ./install.sh 
         --usage-reporting false 
-        --rc-path BOGUS 
         --command-completion false 
         --path-update false 
-        --disable-installation-options
+        --quiet
         chdir=~/google-cloud-sdk
 
 - name: Copy gcloud_env.sh environment
