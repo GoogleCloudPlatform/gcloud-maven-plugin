@@ -15,7 +15,7 @@
   shell: ssh-keygen -f ~/.ssh/google_compute_engine -P ''
 
 - name: Deploy
-  shell: "{{ maven_home }}/bin/mvn gcloud:deploy -Dgcloud.version=e2e chdir=~/gcloud-maven-plugin/src/it/gcloud-maven-plugin-test-app"
+  shell: "{{ maven_home }}/bin/mvn gcloud:deploy -e -Dgcloud.version=e2e chdir=~/gcloud-maven-plugin/src/it/gcloud-maven-plugin-test-app"
   register: result
   until: not result|failed
   retries: 5
