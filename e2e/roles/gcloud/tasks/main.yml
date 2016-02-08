@@ -23,12 +23,11 @@
 
 - name: Install gcloud sdk
   command: >
-        ./install.sh 
+        /home/maven_user/google-cloud-sdk/install.sh 
         --usage-reporting false 
         --command-completion false 
         --path-update false 
         --quiet
-        chdir=~/google-cloud-sdk
 
 - name: Copy gcloud_env.sh environment
   copy: src=gcloud_env.sh dest=/etc/profile.d/gcloud_env.sh mode=0644
