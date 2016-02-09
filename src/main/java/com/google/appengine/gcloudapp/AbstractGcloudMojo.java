@@ -631,6 +631,9 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     Plugin p = maven_project.getPlugin("org.apache.maven.plugins:maven-compiler-plugin");
     if (p != null) {
       Xpp3Dom config = (Xpp3Dom) p.getConfiguration();
+      if (config == null) {
+        return javaVersion;
+      }
       Xpp3Dom domVersion = config.getChild("target");
       if (domVersion != null) {
         javaVersion = domVersion.getValue();
