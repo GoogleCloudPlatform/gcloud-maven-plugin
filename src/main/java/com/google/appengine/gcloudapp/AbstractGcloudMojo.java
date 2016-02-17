@@ -796,18 +796,6 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     if (index.exists()) {
       index.delete();
     }
-    // For now, treat custom as java7 so that the app run command works.
-    try {
-      File fileAppYaml = new File(appDir, "/app.yaml");
-     String content = Files.toString(fileAppYaml, Charsets.UTF_8);
-     // TODO (ludo) remove when  1.9.32 is in the Cloud SDK.
-      if ("2".equals(appengineWeb.getEnv())) {
-        content = content.replace("runtime: java", "runtime: java7");
-      }
-      Files.write(content, fileAppYaml, Charsets.UTF_8);
-    } catch (IOException ioe) {
-      System.out.println("Error " + ioe);
-    }
     return destinationDir;
   }
 
