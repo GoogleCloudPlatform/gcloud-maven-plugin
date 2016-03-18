@@ -740,7 +740,8 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
    boolean isStandard = ("1".equals(appengineWeb.getEnv())
             || "std".equals(appengineWeb.getEnv())) && isVm==false;
     boolean isFlex = "2".equals(appengineWeb.getEnv())
-            || "flex".equals(appengineWeb.getEnv());
+            || "flex".equals(appengineWeb.getEnv())
+            || "flexible".equals(appengineWeb.getEnv());
     
     //config error: vm false 
     if (isStandard && getJavaVersion().equals("1.8")) {
