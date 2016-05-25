@@ -191,7 +191,6 @@ Available parameters, corresponding to [gcloud app deploy command line flags](ht
 |`server` | The App Engine server to connect to. You will not typically need to change this value.
 |`promote`| Set the deployed version to be the default serving version.
 |`version`| The version of the app that will be created or replaced by this deployment.
-|`version`| The version of the app that will be created or replaced by this deployment.
 |`staging_directory`| Location of the staging directory. Default is `target/appengine-staging/`.
 
 
