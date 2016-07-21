@@ -282,7 +282,6 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       if (gcloud_project != null) {
         commands.add("--project=" + gcloud_project);
       }
-      commands.add("preview");
       commands.add("app");
 
     } else { // run command
@@ -750,11 +749,15 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
 
     // Forcing Java runtime for Flex or 1.8 , otherwise it is default Java7
     // FYI: the 'java' runtime for Managed VMs is the real java8
-    if (isFlex || getJavaVersion().equals("1.8"))  {
+    if (isFlex)  {
       arguments.add("-R");
       arguments.add("-r");
       arguments.add("java");
-    }
+    } else if (isVm && getJavaVersion().equals("1.8"))  {
+      arguments.add("-R");
+      arguments.add("-r");
+      arguments.add("java");
+    } 
     arguments.add("stage");
     arguments.add(appDir);
     arguments.add(destinationDir.getAbsolutePath());
