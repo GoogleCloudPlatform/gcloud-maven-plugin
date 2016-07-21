@@ -38,7 +38,7 @@ following into the `plugins` section in the project `pom.xml` file:
     <plugin>
        <groupId>com.google.appengine</groupId>
        <artifactId>gcloud-maven-plugin</artifactId>
-       <version>2.0.9.118.v20160720</version>
+       <version>2.0.9.118.v20160721</version>
 
 ## Compile and build your project using Maven
 
@@ -150,12 +150,11 @@ The following example shows how to use some of these settings:
       <plugin>
         <groupId>com.google.appengine</groupId>
         <artifactId>gcloud-maven-plugin</artifactId>
-        <version>>2.0.9.118.v20160720</version>
+        <version>>2.0.9.118.v20160721</version>
         <configuration>
           <gcloud_directory>/usr/foo/private/google-cloud-sdk</gcloud_directory>
           <verbosity>debug</verbosity>
           <version>specific_version</version>
-          <promote>true</promote>
           <log_level>info</log_level>
           <max_module_instances>2</max_module_instances>
         </configuration>
@@ -202,11 +201,10 @@ table:
 
 Goal | Description
 ---- | -----------
-`gcloud:module_delete` | Delete the module defined by the maven project.
-`gcloud:module_promote` | Promote the module to default module.
-`gcloud:module_set_managed_by` | Configure the specified backend.
-`gcloud:module_start` | Start the module defined by the maven project.
-`gcloud:module_stop` | Stop the module defined by the maven project.
+`gcloud:enable_debug` | Configure the specified service in debug mode.
+`gcloud:disable_debug` | Configure the specified service in non debug mode.
+`gcloud:service_start` | Start the service defined by the maven project.
+`gcloud:service_stop` | Stop the service defined by the maven project.
 
  Available parameters corresponding to [gcloud app modules command line flags](https://cloud.google.com/sdk/gcloud/reference/preview/app/modules):
 

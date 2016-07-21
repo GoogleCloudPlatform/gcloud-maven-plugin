@@ -52,7 +52,7 @@ public abstract class GCloudAppModules extends AbstractGcloudMojo {
 
     ArrayList<String> devAppServerCommand = createCommand(
             getApplicationDirectory(), getSubCommand());
-    startCommand(new File(getApplicationDirectory()), devAppServerCommand, WaitDirective.WAIT_SERVER_STOPPED);
+    throw new MojoExecutionException("Modules commands are removed. Please use enable_debug/disable_debug or service_start/service_stop goals.");
   }
 
   protected ArrayList<String> createCommand(String appDir, String[] subCommand) throws MojoExecutionException {
