@@ -101,7 +101,8 @@ public abstract class GCloudAppVersions extends AbstractGcloudMojo {
       devAppServerCommand.add(localVersion);
     } else {
       getLog().error(
-          "Warning: the Gcloud <version> Maven configuration is not defined, or <version> is not defined in appengine-web.xml");
+          "Warning: the Gcloud <version> Maven configuration is not defined, or <version> is not "
+              + "defined in appengine-web.xml");
 
     }
 
@@ -110,7 +111,7 @@ public abstract class GCloudAppVersions extends AbstractGcloudMojo {
 
   @Override
   protected ArrayList<String> getCommand(String appDir) throws MojoExecutionException {
-    return null; //not used
+    return null; // not used
   }
 
   /**
@@ -120,7 +121,7 @@ public abstract class GCloudAppVersions extends AbstractGcloudMojo {
    * @execute phase="package"
    * @threadSafe false
    */
-  static public class Start extends GCloudAppVersions {
+  public static class Start extends GCloudAppVersions {
 
     @Override
     protected String[] getSubCommand() {
@@ -135,7 +136,7 @@ public abstract class GCloudAppVersions extends AbstractGcloudMojo {
    * @execute phase="package"
    * @threadSafe false
    */
-  static public class Stop extends GCloudAppVersions {
+  public static class Stop extends GCloudAppVersions {
 
     @Override
     protected String[] getSubCommand() {

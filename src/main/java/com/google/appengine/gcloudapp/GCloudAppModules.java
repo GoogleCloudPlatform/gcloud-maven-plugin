@@ -51,7 +51,8 @@ public abstract class GCloudAppModules extends AbstractGcloudMojo {
     ArrayList<String> devAppServerCommand = createCommand(
         getApplicationDirectory(), getSubCommand());
     throw new MojoExecutionException(
-        "Modules commands are removed. Please use enable_debug/disable_debug or service_start/service_stop goals.");
+        "Modules commands are removed. Please use enable_debug/disable_debug or "
+            + "service_start/service_stop goals.");
   }
 
   protected ArrayList<String> createCommand(String appDir, String[] subCommand)
@@ -71,11 +72,7 @@ public abstract class GCloudAppModules extends AbstractGcloudMojo {
     if (appwebxml.exists()) {      // get module name and module version
       AppEngineWebXml xmlContent = getAppEngineWebXml(appDir);
       module = xmlContent.getModule();
-//      if (module == null) {
-//              module = xmlContent.getService();
-//      }
       localVersion = xmlContent.getMajorVersionId();
-
     } else if (appyaml.exists()) {
       try {
         YamlReader reader = new YamlReader(new FileReader(appyaml));
@@ -91,7 +88,6 @@ public abstract class GCloudAppModules extends AbstractGcloudMojo {
       } catch (IOException ex) {
         Logger.getLogger(GCloudAppModules.class.getName()).log(Level.SEVERE, null, ex);
       }
-
     } else { // EAR project possibly, add all modules one by one:
       File ear = new File(appDir);
       for (File w : ear.listFiles()) {
@@ -115,7 +111,8 @@ public abstract class GCloudAppModules extends AbstractGcloudMojo {
       devAppServerCommand.add("--version=" + localVersion);
     } else {
       getLog().error(
-          "Warning: the Gcloud <version> Maven configuration is not defined, or <version> is not defined in appengine-web.xml");
+          "Warning: the Gcloud <version> Maven configuration is not defined, or <version> is not "
+              + "defined in appengine-web.xml");
 
     }
 
@@ -138,7 +135,7 @@ public abstract class GCloudAppModules extends AbstractGcloudMojo {
    * @execute phase="package"
    * @threadSafe false
    */
-  static public class Delete extends GCloudAppModules {
+  public static class Delete extends GCloudAppModules {
 
     @Override
     protected String[] getSubCommand() {
@@ -153,7 +150,7 @@ public abstract class GCloudAppModules extends AbstractGcloudMojo {
    * @execute phase="package"
    * @threadSafe false
    */
-  static public class Promote extends GCloudAppModules {
+  public static class Promote extends GCloudAppModules {
 
     @Override
     protected String[] getSubCommand() {
@@ -168,7 +165,7 @@ public abstract class GCloudAppModules extends AbstractGcloudMojo {
    * @execute phase="package"
    * @threadSafe false
    */
-  static public class SetManaged extends GCloudAppModules {
+  public static class SetManaged extends GCloudAppModules {
 
     /**
      * This command sets the policy for the Managed VMs of the given modules and version. When your
@@ -201,7 +198,7 @@ public abstract class GCloudAppModules extends AbstractGcloudMojo {
    * @execute phase="package"
    * @threadSafe false
    */
-  static public class Start extends GCloudAppModules {
+  public static class Start extends GCloudAppModules {
 
     @Override
     protected String[] getSubCommand() {
@@ -216,7 +213,7 @@ public abstract class GCloudAppModules extends AbstractGcloudMojo {
    * @execute phase="package"
    * @threadSafe false
    */
-  static public class Stop extends GCloudAppModules {
+  public static class Stop extends GCloudAppModules {
 
     @Override
     protected String[] getSubCommand() {

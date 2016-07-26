@@ -41,14 +41,16 @@ public abstract class EndpointsMojo extends AbstractMojo {
   /**
    * The directory for the generated discovery file.
    *
-   * @parameter expression="${output_directory}" default-value="${project.build.directory}/generated-sources/appengine-endpoints"
+   * @parameter expression="${output_directory}"
+   *     default-value="${project.build.directory}/generated-sources/appengine-endpoints"
    */
   protected String output_directory;
 
   /**
    * The source location of the web.xml file.
    *
-   * @parameter expression="${webxml_source_path}" default-value="${basedir}/src/main/webapp/WEB-INF/web.xml"
+   * @parameter expression="${webxml_source_path}"
+   *     default-value="${basedir}/src/main/webapp/WEB-INF/web.xml"
    */
   private String webxml_source_path;
 
@@ -84,12 +86,12 @@ public abstract class EndpointsMojo extends AbstractMojo {
 
     String cp = Joiner.on(System.getProperty("path.separator")).join(jars);
     arguments.add("-cp");
-    arguments.add(project.getBuild().getOutputDirectory() +
-        System.getProperty("path.separator") + service_classes +
-        System.getProperty("path.separator") + cp);
+    arguments.add(project.getBuild().getOutputDirectory()
+        + System.getProperty("path.separator") + service_classes
+        + System.getProperty("path.separator") + cp);
   }
 
-  abstract protected ArrayList<String> collectParameters(String command);
+  protected abstract ArrayList<String> collectParameters(String command);
 
   protected void executeEndpointsCommand(String action, String extraParams[],
       String[] lastParam)

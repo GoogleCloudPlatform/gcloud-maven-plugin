@@ -3,7 +3,6 @@
  */
 package com.google.appengine.gcloudapp;
 
-
 import static com.google.common.base.Charsets.UTF_8;
 
 import com.google.appengine.SdkResolver;
@@ -229,7 +228,8 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
   /**
    * Directory containing the App Engine app.yaml/Dockerfile files.
    *
-   * @parameter expression="${gcloud.appengine_config_directory}" default-value="${project.basedir}/src/main/appengine"
+   * @parameter expression="${gcloud.appengine_config_directory} "
+   * default-value="${project.basedir}/src/main/appengine"
    */
   protected String appengine_config_directory;
 
@@ -256,7 +256,8 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     if (!script.exists()) {
       getLog().error("Cannot determine the default location of the Google Cloud SDK.");
       getLog().error(
-          "If you need to install the Google Cloud SDK, follow the instructions located at https://cloud.google.com/appengine/docs/java/managed-vms");
+          "If you need to install the Google Cloud SDK, follow the instructions located at "
+              + "https://cloud.google.com/appengine/docs/java/managed-vms");
       getLog()
           .error("You can then set it via <gcloud_directory> </gcloud_directory> in the pom.xml");
       throw new MojoExecutionException("Unknown Google Cloud SDK location: " + gcloud_directory);
@@ -300,7 +301,6 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
   }
 
   protected enum WaitDirective {
-
     WAIT_SERVER_STARTED,
     WAIT_SERVER_STOPPED
   }
@@ -373,9 +373,6 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
           }
         }
       }
-      //export DOCKER_CERT_PATH=/Users/ludo/.boot2docker/certs/boot2docker-vm
-      //export DOCKER_TLS_VERIFY=1
-      //export DOCKER_HOST=tcp://192.168.59.103:2376
 
       // for the docker library path:
       env.put("PYTHONPATH", gcloud_directory + "/platform/google_appengine/lib/docker");
@@ -512,9 +509,9 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       } else {
         userHome = System.getProperty("user.home") + "/.config";
       }
-      //Default value:
+      // Default value:
       File cloudSDKProperties = new File(userHome + "/gcloud/properties");
-      // But can be overriden: take this one if it is:
+      // But can be overridden: take this one if it is:
       String env = System.getenv("CLOUDSDK_CONFIG");
       if (env != null) {
         cloudSDKProperties = new File(env, "properties");
@@ -637,14 +634,12 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
 
   protected File executeAppCfgStagingCommand(String appDir)
       throws MojoExecutionException {
-
     ArrayList<String> arguments = new ArrayList<>();
     File destinationDir = new File(staging_directory);
     if (!destinationDir.getParentFile().getAbsolutePath()
         .equals(maven_project.getBuild().getDirectory())) {
       throw new MojoExecutionException(
           "Does not want to delete a directory no under the target directory" + staging_directory);
-
     }
     try {
       FileUtils.deleteDirectory(destinationDir);
@@ -654,7 +649,6 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
 
     getLog().info("Creating staging directory in: " + destinationDir.getAbsolutePath());
     resolveAndSetSdkRoot();
-    // System.setProperty("appengine.sdk.root", gcloud_directory +"/platform/google_appengine/google/appengine/tools/java");
     AppEngineWebXml appengineWeb = getAppEngineWebXml(appDir);
     if ("true".equals(appengineWeb.getBetaSettings().get("java_quickstart"))) {
       arguments.add("--enable_quickstart");
@@ -738,7 +732,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
         || "flex".equals(appengineWeb.getEnv())
         || "flexible".equals(appengineWeb.getEnv());
 
-    //config error: vm false 
+    // config error: vm false
     if (isStandard && getJavaVersion().equals("1.8")) {
       throw new MojoExecutionException(
           "For now, Standard GAE runtime only works with Java7, but the pom.xml is targetting 1.8");

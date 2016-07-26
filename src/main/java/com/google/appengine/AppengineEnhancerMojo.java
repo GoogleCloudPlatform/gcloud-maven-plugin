@@ -101,7 +101,8 @@ public class AppengineEnhancerMojo extends AbstractMojo {
       pluginDescriptor = plugin_manager.loadPlugin(plugin,
           project.getRemotePluginRepositories(),
           session.getRepositorySession());
-    } catch (PluginNotFoundException | PluginResolutionException | PluginDescriptorParsingException | InvalidPluginDescriptorException e) {
+    } catch (PluginNotFoundException | PluginResolutionException | PluginDescriptorParsingException
+        | InvalidPluginDescriptorException e) {
       throw new MojoExecutionException("Could not load the datanucleus plugin.", e);
     }
 
@@ -125,7 +126,8 @@ public class AppengineEnhancerMojo extends AbstractMojo {
 
     try {
       plugin_manager.executeMojo(session, exec);
-    } catch (MojoFailureException | MojoExecutionException | PluginConfigurationException | PluginManagerException e) {
+    } catch (MojoFailureException | MojoExecutionException | PluginConfigurationException
+        | PluginManagerException e) {
       throw new MojoExecutionException("Could not execute datanucleus enhancer.", e);
     }
   }

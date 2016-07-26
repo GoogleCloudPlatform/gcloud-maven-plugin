@@ -95,12 +95,12 @@ public class GCloudAppStage extends AbstractGcloudMojo {
           // https://github.com/jboss-dockerfiles/wildfly/issues/19
           // Smaller image is done outside of Docker.
           Set<PosixFilePermission> perms = new HashSet<>();
-          //add owners permission
+          // add owners permission
           perms.add(PosixFilePermission.OWNER_READ);
           perms.add(PosixFilePermission.OWNER_WRITE);
-          //add group permissions
+          // add group permissions
           perms.add(PosixFilePermission.GROUP_READ);
-          //add others permissions
+          // add others permissions
           perms.add(PosixFilePermission.OTHERS_READ);
 
           java.nio.file.Files.setPosixFilePermissions(stagingArtifact.toPath(), perms);

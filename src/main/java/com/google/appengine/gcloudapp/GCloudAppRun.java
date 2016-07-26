@@ -159,7 +159,8 @@ public class GCloudAppRun extends AbstractGcloudMojo {
   private boolean use_mtime_file_watcher;
   /**
    * JVM_FLAG Additional arguments to pass to the java command when launching an instance of the
-   * app. May be specified more than once. Example: &lt;jvm_flag&gt; &lt;param&gt;-Xmx1024m&lt;/param&gt;
+   * app. May be specified more than once. Example:
+   * &lt;jvm_flag&gt; &lt;param&gt;-Xmx1024m&lt;/param&gt;
    * &lt;param&gt;-Xms256m&lt;/param&gt; &lt;/jvm_flag&gt;.
    *
    * @parameter
@@ -271,7 +272,7 @@ public class GCloudAppRun extends AbstractGcloudMojo {
       throw new MojoExecutionException(
           "The application directory is not a directory : " + application_directory);
     }
-    //Just before starting, just to make sure, shut down any running devserver on this port.
+    // Just before starting, just to make sure, shut down any running devserver on this port.
     stopDevAppServer();
 
     try {
@@ -298,7 +299,6 @@ public class GCloudAppRun extends AbstractGcloudMojo {
       f = new File(appDirectory, "app.yaml");
       boolean isAppYamlGenerated = new File(appDirectory, ".appyamlgenerated").exists();
       if (f.exists() && !isAppYamlGenerated) {
-        //executeAppCfgStagingCommand(appDir);
         devAppServerCommand.add(f.getAbsolutePath());
       } else {
         boolean oneMod = false;
@@ -315,12 +315,10 @@ public class GCloudAppRun extends AbstractGcloudMojo {
 
         }
       }
-
     } else {
       f = new File(appDirectory, "app.yaml");
       boolean isAppYamlGenerated = new File(appDirectory, ".appyamlgenerated").exists();
       if (f.exists() && !isAppYamlGenerated) {
-        //executeAppCfgStagingCommand(appDir);
         devAppServerCommand.add(f.getAbsolutePath());
       } else {
         // Point to our application
@@ -333,13 +331,10 @@ public class GCloudAppRun extends AbstractGcloudMojo {
       for (String modDir : modules) {
         getLog().info("Running gcloud app run with extra module in " + modDir);
         devAppServerCommand.add(new File(modDir).getAbsolutePath());
-
       }
-
     }
 
     // Add in additional options for starting the DevAppServer
-
     if (host != null) {
       String[] parts = host.split(":");
       devAppServerCommand.add("--host");
@@ -380,7 +375,6 @@ public class GCloudAppRun extends AbstractGcloudMojo {
     if (appidentity_email_address != null) {
       devAppServerCommand.add("--appidentity_email_address=" + appidentity_email_address);
     }
-
     if (appidentity_private_key_path != null) {
       devAppServerCommand.add("--appidentity_private_key_path=" + appidentity_private_key_path);
     }
@@ -390,7 +384,6 @@ public class GCloudAppRun extends AbstractGcloudMojo {
     if (datastore_path != null) {
       devAppServerCommand.add("--datastore_path=" + datastore_path);
     }
-
     if (clear_datastore) {
       devAppServerCommand.add("--clear_datastore");
     }
@@ -470,14 +463,9 @@ public class GCloudAppRun extends AbstractGcloudMojo {
       connection.setDoOutput(true);
       connection.setDoInput(true);
       connection.setRequestMethod("GET");
-      //     connection.getOutputStream().write(110);
       ByteStreams.toByteArray(connection.getInputStream());
       connection.setReadTimeout(4000);
-//      connection.getOutputStream().flush();
-//      connection.getOutputStream().close();
-//      connection.getInputStream().close();
       connection.disconnect();
-
       getLog().info("Shutting down Cloud SDK Server on port " + 8000
           + " and waiting 4 seconds...");
       Thread.sleep(4000);
@@ -486,11 +474,11 @@ public class GCloudAppRun extends AbstractGcloudMojo {
           "URL malformed attempting to stop the devserver : " + e.getMessage());
     } catch (IOException e) {
       getLog().debug(
-          "Was not able to contact the devappserver to shut it down.  Most likely this is due to it simply not running anymore. ",
+          "Was not able to contact the devappserver to shut it down.  Most likely this is due to it"
+              + " simply not running anymore.",
           e);
     } catch (InterruptedException e) {
       Throwables.propagate(e);
     }
   }
-
 }

@@ -124,8 +124,8 @@ public class SdkResolver {
       sdkBaseDir.mkdirs();
     }
 
-    // While processing the zip archive, if we find an initial entry that is a directory, and all entries are a child
-    // of this directory, then we append this to the sdkBaseDir we return.
+    // While processing the zip archive, if we find an initial entry that is a directory, and all
+    // entries are a child of this directory, then we append this to the sdkBaseDir we return.
     String sdkBaseDirSuffix = null;
 
     try {
@@ -141,7 +141,7 @@ public class SdkResolver {
       if (firstEntry.isDirectory()) {
         sdkBaseDirSuffix = firstEntry.getName();
       } else {
-        //Reinitialize entries
+        // Reinitialize entries
         zipEntries = sdkZipArchive.entries();
       }
 
@@ -152,7 +152,8 @@ public class SdkResolver {
           File zipEntryDestination = new File(sdkBaseDir, zipEntry.getName());
 
           if (!zipEntry.getName().startsWith(sdkBaseDirSuffix)) {
-            //We found an entry that doesn't use this initial base directory, oh well, just set it to null.
+            // We found an entry that doesn't use this initial base directory, oh well, just set it
+            // to null.
             sdkBaseDirSuffix = null;
           }
 

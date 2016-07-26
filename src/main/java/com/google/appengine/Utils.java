@@ -11,20 +11,16 @@ import java.io.File;
 public class Utils {
 
   public static String getPythonExecutableLocation() {
-    String pythonLocation = "python"; //default in the path for Linux
+    String pythonLocation = "python"; // default in the path for Linux
     boolean isWindows = System.getProperty("os.name").contains("Windows");
     if (isWindows) {
       pythonLocation = System.getenv("CLOUDSDK_PYTHON");
       if (pythonLocation == null) {
-        //   getLog().info("CLOUDSDK_PYTHON env variable is not defined. Choosing a default python.exe interpreter.");
-        //   getLog().info("If this does not work, please set CLOUDSDK_PYTHON to a correct Python interpreter location.");
-
         pythonLocation = "python.exe";
       }
     } else {
       String possibleLinuxPythonLocation = System.getenv("CLOUDSDK_PYTHON");
       if (possibleLinuxPythonLocation != null) {
-        //  getLog().info("Found a python interpreter specified via CLOUDSDK_PYTHON at: " + possibleLinuxPythonLocation);
         pythonLocation = possibleLinuxPythonLocation;
       }
     }
@@ -79,5 +75,4 @@ public class Utils {
     boolean noVirtEnvDefined = virtualEnv == null || virtualEnv.isEmpty();
     return noSiteDefined && noVirtEnvDefined;
   }
-
 }
