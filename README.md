@@ -39,6 +39,7 @@ following into the `plugins` section in the project `pom.xml` file:
        <groupId>com.google.appengine</groupId>
        <artifactId>gcloud-maven-plugin</artifactId>
        <version>2.0.9.118.v20160721</version>
+    </plugin>
 
 ## Compile and build your project using Maven
 
