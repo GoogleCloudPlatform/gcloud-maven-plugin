@@ -4,6 +4,8 @@
 package com.google.appengine.gcloudapp;
 
 
+import static com.google.common.base.Charsets.UTF_8;
+
 import com.google.appengine.SdkResolver;
 import com.google.appengine.Utils;
 import com.google.appengine.repackaged.com.google.common.io.Files;
@@ -14,13 +16,12 @@ import com.google.apphosting.utils.config.AppEngineWebXml;
 import com.google.apphosting.utils.config.AppEngineWebXmlReader;
 import com.google.apphosting.utils.config.EarHelper;
 import com.google.common.base.Charsets;
-import static com.google.common.base.Charsets.UTF_8;
 import com.google.common.base.Joiner;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -47,7 +48,6 @@ import org.eclipse.aether.repository.RemoteRepository;
 import org.ini4j.Ini;
 
 /**
- *
  * @author ludo
  */
 public abstract class AbstractGcloudMojo extends AbstractMojo {
@@ -87,9 +87,8 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
   protected String docker_cert_path;
 
   /**
-   * Override the default verbosity for this command. This must be a standard
-   * logging verbosity level: [debug, info, warning, error, critical, none]
-   * (Default: [info]).
+   * Override the default verbosity for this command. This must be a standard logging verbosity
+   * level: [debug, info, warning, error, critical, none] (Default: [info]).
    *
    * @parameter expression="${gcloud.verbosity}"
    */
@@ -102,9 +101,8 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
    */
   protected String gcloud_project;
 
- /**
-   * version The version of the app that will be created or replaced by this
-   * deployment.
+  /**
+   * version The version of the app that will be created or replaced by this deployment.
    *
    * @parameter expression="${gcloud.version}"
    */
@@ -133,34 +131,31 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
   protected boolean remote;
 
   /**
-   * Perform a hosted (´remote´) or local Docker build.
-   * To perform a local build, you must have your local docker environment
-   * configured correctly.
+   * Perform a hosted (´remote´) or local Docker build. To perform a local build, you must have your
+   * local docker environment configured correctly.
    *
    * @parameter expression="${gcloud.docker_build}"
    */
   protected String docker_build;
-  
-   /**
-   * The directory for the Staging phase. It has to be under target/ and is deleted
-   * at each run or deploy command.
+
+  /**
+   * The directory for the Staging phase. It has to be under target/ and is deleted at each run or
+   * deploy command.
    *
    * @parameter expression="${gcloud.staging_directory}" default-value="${project.build.directory}/appengine-staging"
    */
   protected String staging_directory;
 
-   /**
-  * specify the default runtime you would like to use.
-     Valid runtimes are ['java', 'php55',
-     'python', 'custom', 'python-compat', 'java7',
-      'python27', 'go']. (default: )
-      * 
+  /**
+   * specify the default runtime you would like to use. Valid runtimes are ['java', 'php55',
+   * 'python', 'custom', 'python-compat', 'java7', 'python27', 'go']. (default: )
+   *
    * @parameter expression="${gcloud.runtime}"
-   */ 
-  
-  protected String runtime; 
- 
-    /**
+   */
+
+  protected String runtime;
+
+  /**
    * server The App Engine server to connect to.
    *
    * @parameter expression="${gcloud.server}"
@@ -168,16 +163,14 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
   protected String server;
 
   /**
-   * force Force deploying, overriding any previous in-progress deployments to
-   * this version.
+   * force Force deploying, overriding any previous in-progress deployments to this version.
    *
    * @parameter expression="${gcloud.force}"
    */
   protected boolean force;
 
   /**
-   * Set the encoding to be used when compiling Java source files (default
-   * "UTF-8")
+   * Set the encoding to be used when compiling Java source files (default "UTF-8")
    *
    * @parameter expression="${gcloud.compile_encoding}"
    */
@@ -207,47 +200,43 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
    */
   protected boolean enable_jar_splitting;
   /**
-   * Do not use symbolic links when making the temporary (staging)
-   * gcloud_directory used in uploading Java apps
+   * Do not use symbolic links when making the temporary (staging) gcloud_directory used in
+   * uploading Java apps
    *
    * @parameter expression="${gcloud.no_symlinks}"
    */
   protected boolean no_symlinks;
   /**
-   * Do not delete temporary (staging) gcloud_directory used in uploading Java
-   * apps
+   * Do not delete temporary (staging) gcloud_directory used in uploading Java apps
    *
    * @parameter expression="${gcloud.retain_upload_dir}"
    */
   protected boolean retain_upload_dir;
   /**
-   * When --enable-jar-splitting is specified and --jar-splitting-excludes
-   * specifies a comma-separated list of suffixes, a file in a jar whose name
-   * ends with one of the suffixes will not be included in the split jar
-   * fragments
+   * When --enable-jar-splitting is specified and --jar-splitting-excludes specifies a
+   * comma-separated list of suffixes, a file in a jar whose name ends with one of the suffixes will
+   * not be included in the split jar fragments
    *
    * @parameter expression="${gcloud.jar_splitting_excludes}"
    */
   protected String jar_splitting_excludes;
-  
- /**
-   * Tell if the command will be for run or deploy. Default is false: command is
-   * for `gcloud run`.
-   *
+
+  /**
+   * Tell if the command will be for run or deploy. Default is false: command is for `gcloud run`.
    */
   protected boolean deployCommand = false;
-  
+
   /**
    * Directory containing the App Engine app.yaml/Dockerfile files.
    *
-   * @parameter expression="${gcloud.appengine_config_directory}"
-   * default-value="${project.basedir}/src/main/appengine"
+   * @parameter expression="${gcloud.appengine_config_directory}" default-value="${project.basedir}/src/main/appengine"
    */
   protected String appengine_config_directory;
-  
+
   protected abstract ArrayList<String> getCommand(String appDir) throws MojoExecutionException;
 
-  protected ArrayList<String> setupInitialCommands(ArrayList<String> commands) throws MojoExecutionException {
+  protected ArrayList<String> setupInitialCommands(ArrayList<String> commands)
+      throws MojoExecutionException {
     String pythonLocation = Utils.getPythonExecutableLocation();
 
     commands.add(pythonLocation);
@@ -266,8 +255,10 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     }
     if (!script.exists()) {
       getLog().error("Cannot determine the default location of the Google Cloud SDK.");
-      getLog().error("If you need to install the Google Cloud SDK, follow the instructions located at https://cloud.google.com/appengine/docs/java/managed-vms");
-      getLog().error("You can then set it via <gcloud_directory> </gcloud_directory> in the pom.xml");
+      getLog().error(
+          "If you need to install the Google Cloud SDK, follow the instructions located at https://cloud.google.com/appengine/docs/java/managed-vms");
+      getLog()
+          .error("You can then set it via <gcloud_directory> </gcloud_directory> in the pom.xml");
       throw new MojoExecutionException("Unknown Google Cloud SDK location: " + gcloud_directory);
     }
 
@@ -304,17 +295,18 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
         commands.add("app"); // local sdk default project name 
       }
     }
- 
+
     return commands;
   }
 
-  protected static enum WaitDirective {
+  protected enum WaitDirective {
 
     WAIT_SERVER_STARTED,
     WAIT_SERVER_STOPPED
   }
 
-  protected void startCommand(File appDirFile, ArrayList<String> devAppServerCommand, WaitDirective waitDirective) throws MojoExecutionException {
+  protected void startCommand(File appDirFile, ArrayList<String> devAppServerCommand,
+      WaitDirective waitDirective) throws MojoExecutionException {
     getLog().info("Running " + Joiner.on(" ").join(devAppServerCommand));
 
     Thread stdOutThread;
@@ -331,20 +323,20 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       String docker_host_tls_verify = env.get("DOCKER_TLS_VERIFY");
       String docker_host_cert_path = env.get("DOCKER_CERT_PATH");
       boolean userDefined = (env_docker_host != null)
-              || (docker_host_tls_verify != null)
-              || (docker_host_cert_path != null);
+          || (docker_host_tls_verify != null)
+          || (docker_host_cert_path != null);
 
-     if (!userDefined) {
+      if (!userDefined) {
         if ("ENV_or_default".equals(docker_host)) {
           if (env_docker_host == null) {
             if (env.get("DEVSHELL_CLIENT_PORT") != null) {
               // we know we have a good chance to be in an old Google devshell:
               env_docker_host = "unix:///var/run/docker.sock";
             } else {
-                // we assume docker machine environment (Windows, Mac, and some Linux)
-                  env_docker_host = "tcp://192.168.99.100:2376";
-                }
-              }
+              // we assume docker machine environment (Windows, Mac, and some Linux)
+              env_docker_host = "tcp://192.168.99.100:2376";
+            }
+          }
         } else {
           env_docker_host = docker_host;
         }
@@ -358,28 +350,28 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
           } else {
             env.put("DOCKER_TLS_VERIFY", docker_tls_verify);
           }
-         // do not set the cert path if we do a dockerless deploy command:
-         boolean dockerless = deployCommand && remote;
-         if (!dockerless) {
-           if ("ENV_or_default".equals(docker_cert_path)) {
-             if (env.get("DOCKER_CERT_PATH") == null) {
-                 env.put("DOCKER_CERT_PATH",
-                         System.getProperty("user.home")
-                         + File.separator
-                         + ".docker"
-                         + File.separator
-                         + "machine"
-                         + File.separator
-                         + "machines"   
-                         + File.separator
-                         + "default"                                  
-                 );
-               }
-           } else {
-             env.put("DOCKER_CERT_PATH", docker_cert_path);
-           }
-         }
-       }
+          // do not set the cert path if we do a dockerless deploy command:
+          boolean dockerless = deployCommand && remote;
+          if (!dockerless) {
+            if ("ENV_or_default".equals(docker_cert_path)) {
+              if (env.get("DOCKER_CERT_PATH") == null) {
+                env.put("DOCKER_CERT_PATH",
+                    System.getProperty("user.home")
+                        + File.separator
+                        + ".docker"
+                        + File.separator
+                        + "machine"
+                        + File.separator
+                        + "machines"
+                        + File.separator
+                        + "default"
+                );
+              }
+            } else {
+              env.put("DOCKER_CERT_PATH", docker_cert_path);
+            }
+          }
+        }
       }
       //export DOCKER_CERT_PATH=/Users/ludo/.boot2docker/certs/boot2docker-vm
       //export DOCKER_TLS_VERIFY=1
@@ -396,8 +388,8 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       stdOutThread = new Thread("standard-out-redirection-devappserver") {
         @Override
         public void run() {
-         boolean serverStartedOK = false;
-         try {
+          boolean serverStartedOK = false;
+          try {
             long healthCount = 0;
             while (stdOut.hasNextLine() && !Thread.interrupted()) {
               String line = stdOut.nextLine();
@@ -423,11 +415,11 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
               }
             }
           } finally {
-           waitStartedLatch.countDown();
-           if ((!serverStartedOK) && (!deployCommand)) {
-             throw new RuntimeException("The Java Dev Server has stopped.");
+            waitStartedLatch.countDown();
+            if ((!serverStartedOK) && (!deployCommand)) {
+              throw new RuntimeException("The Java Dev Server has stopped.");
 
-           }
+            }
           }
         }
       };
@@ -477,13 +469,16 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     if (application_directory != null) {
       return application_directory;
     }
-    application_directory = maven_project.getBuild().getDirectory() + "/" + maven_project.getBuild().getFinalName();
+    application_directory =
+        maven_project.getBuild().getDirectory() + "/" + maven_project.getBuild().getFinalName();
     File appDirFile = new File(application_directory);
     if (!appDirFile.exists()) {
-      throw new MojoExecutionException("The application directory does not exist : " + application_directory);
+      throw new MojoExecutionException(
+          "The application directory does not exist : " + application_directory);
     }
     if (!appDirFile.isDirectory()) {
-      throw new MojoExecutionException("The application directory is not a directory : " + application_directory);
+      throw new MojoExecutionException(
+          "The application directory is not a directory : " + application_directory);
     }
     return application_directory;
   }
@@ -494,8 +489,8 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       URLConnection connection = url.openConnection();
       connection.setRequestProperty("X-Google-Metadata-Request", "True");
       try (BufferedReader reader
-              = new BufferedReader(new InputStreamReader(
-                      connection.getInputStream(), UTF_8))) {
+          = new BufferedReader(new InputStreamReader(
+          connection.getInputStream(), UTF_8))) {
         return reader.readLine();
       }
     } catch (IOException ignore) {
@@ -531,7 +526,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
         String project = section.get("project");
         if (project != null) {
           getLog().info("Getting project name: " + project
-                  + " from gcloud settings.");
+              + " from gcloud settings.");
           return project;
         }
       }
@@ -539,7 +534,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       String project = getProjectIdfromMetaData();
       if (project != null) {
         getLog().info("Getting project name: " + project
-                + " from the metadata server.");
+            + " from the metadata server.");
         return project;
       }
     } catch (IOException ioe) {
@@ -549,9 +544,9 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     String appDir = getApplicationDirectory();
     if (EarHelper.isEar(appDir)) { // EAR project
       AppEngineApplicationXmlReader reader
-              = new AppEngineApplicationXmlReader();
+          = new AppEngineApplicationXmlReader();
       AppEngineApplicationXml appEngineApplicationXml = reader.processXml(
-              getInputStream(new File(appDir, "META-INF/appengine-application.xml")));
+          getInputStream(new File(appDir, "META-INF/appengine-application.xml")));
       return appEngineApplicationXml.getApplicationId();
 
     }
@@ -594,8 +589,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
   protected RepositorySystemSession repoSession;
 
   /**
-   * The project's remote repositories to use for the resolution of project
-   * dependencies.
+   * The project's remote repositories to use for the resolution of project dependencies.
    *
    * @parameter default-value="${project.remoteProjectRepositories}"
    * @readonly
@@ -603,8 +597,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
   protected List<RemoteRepository> projectRepos;
 
   /**
-   * The project's remote repositories to use for the resolution of plugins and
-   * their dependencies.
+   * The project's remote repositories to use for the resolution of plugins and their dependencies.
    *
    * @parameter default-value="${project.remotePluginRepositories}"
    * @readonly
@@ -613,7 +606,8 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
 
   protected void resolveAndSetSdkRoot() throws MojoExecutionException {
 
-    File sdkBaseDir = SdkResolver.getSdk(maven_project, repoSystem, repoSession, pluginRepos, projectRepos);
+    File sdkBaseDir = SdkResolver
+        .getSdk(maven_project, repoSystem, repoSession, pluginRepos, projectRepos);
 
     try {
       System.setProperty("appengine.sdk.root", sdkBaseDir.getCanonicalPath());
@@ -621,8 +615,8 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       throw new MojoExecutionException("Could not open SDK zip archive.", e);
     }
   }
+
   /**
-   * 
    * @return the java version used the pom (target) and 1.7 if not present.
    */
   protected String getJavaVersion() {
@@ -640,31 +634,33 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     }
     return javaVersion;
   }
-          
+
   protected File executeAppCfgStagingCommand(String appDir)
-          throws MojoExecutionException {
-    
-   ArrayList<String> arguments = new ArrayList<>();
-  File destinationDir = new File(staging_directory);
-  if (!destinationDir.getParentFile().getAbsolutePath().equals(maven_project.getBuild().getDirectory())) {
-       throw new MojoExecutionException("Does not want to delete a directory no under the target directory" +staging_directory);
-   
-  }
+      throws MojoExecutionException {
+
+    ArrayList<String> arguments = new ArrayList<>();
+    File destinationDir = new File(staging_directory);
+    if (!destinationDir.getParentFile().getAbsolutePath()
+        .equals(maven_project.getBuild().getDirectory())) {
+      throw new MojoExecutionException(
+          "Does not want to delete a directory no under the target directory" + staging_directory);
+
+    }
     try {
       FileUtils.deleteDirectory(destinationDir);
     } catch (IOException ex) {
       throw new MojoExecutionException("Cannot delete staging directory.", ex);
     }
 
-   getLog().info("Creating staging directory in: " + destinationDir.getAbsolutePath());
-   resolveAndSetSdkRoot();
-  // System.setProperty("appengine.sdk.root", gcloud_directory +"/platform/google_appengine/google/appengine/tools/java");
+    getLog().info("Creating staging directory in: " + destinationDir.getAbsolutePath());
+    resolveAndSetSdkRoot();
+    // System.setProperty("appengine.sdk.root", gcloud_directory +"/platform/google_appengine/google/appengine/tools/java");
     AppEngineWebXml appengineWeb = getAppEngineWebXml(appDir);
     if ("true".equals(appengineWeb.getBetaSettings().get("java_quickstart"))) {
       arguments.add("--enable_quickstart");
     }
     arguments.add("--disable_update_check");
-    File  appDirFile= new File(appDir);
+    File appDirFile = new File(appDir);
 
     if (!new File(appDirFile, ".appyamlgenerated").exists()) {
       PrintWriter out;
@@ -686,7 +682,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       arguments.add("-V");
       arguments.add(version);
     }
-    
+
     if (server != null && !server.isEmpty()) {
       arguments.add("-s");
       arguments.add(server);
@@ -724,7 +720,7 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     if (enable_jar_classes) {
       arguments.add("--enable_jar_classes");
     }
-    
+
     if (runtime != null) {
       arguments.add("--runtime=" + runtime);
     }
@@ -735,29 +731,30 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
     env:2 java 7in pom ->ok, runtime is java
     env:2 java8 in pom ->ok runtime is java  
     */
-     boolean isVm = appengineWeb.getUseVm();
-   boolean isStandard = ("1".equals(appengineWeb.getEnv())
-            || "std".equals(appengineWeb.getEnv())) && isVm==false;
+    boolean isVm = appengineWeb.getUseVm();
+    boolean isStandard = ("1".equals(appengineWeb.getEnv())
+        || "std".equals(appengineWeb.getEnv())) && isVm == false;
     boolean isFlex = "2".equals(appengineWeb.getEnv())
-            || "flex".equals(appengineWeb.getEnv())
-            || "flexible".equals(appengineWeb.getEnv());
-    
+        || "flex".equals(appengineWeb.getEnv())
+        || "flexible".equals(appengineWeb.getEnv());
+
     //config error: vm false 
     if (isStandard && getJavaVersion().equals("1.8")) {
-      throw new MojoExecutionException("For now, Standard GAE runtime only works with Java7, but the pom.xml is targetting 1.8");
+      throw new MojoExecutionException(
+          "For now, Standard GAE runtime only works with Java7, but the pom.xml is targetting 1.8");
     }
 
     // Forcing Java runtime for Flex or 1.8 , otherwise it is default Java7
     // FYI: the 'java' runtime for Managed VMs is the real java8
-    if (isFlex)  {
+    if (isFlex) {
       arguments.add("-R");
       arguments.add("-r");
       arguments.add("java");
-    } else if (isVm && getJavaVersion().equals("1.8"))  {
+    } else if (isVm && getJavaVersion().equals("1.8")) {
       arguments.add("-R");
       arguments.add("-r");
       arguments.add("java");
-    } 
+    }
     arguments.add("stage");
     arguments.add(appDir);
     arguments.add(destinationDir.getAbsolutePath());
@@ -772,28 +769,29 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
         Files.write(content, fileAppYaml, Charsets.UTF_8);
         File dockerFile = new File(destinationDir, "/Dockerfile");
         if (!dockerFile.exists()) {
-          Files.write("FROM gcr.io/google_appengine/jetty9-compat\nADD . /app\n", dockerFile, Charsets.UTF_8);
+          Files.write("FROM gcr.io/google_appengine/jetty9-compat\nADD . /app\n", dockerFile,
+              Charsets.UTF_8);
         }
       }
     } catch (IOException ioe) {
       System.out.println("Error " + ioe);
     }
-    
+
     File[] yamlFiles = new File(destinationDir, "/WEB-INF/appengine-generated").listFiles();
     for (File f : yamlFiles) {
-     try {
-       Files.copy(f, new File(appDir, f.getName()));
-     } catch (IOException ex) {
-          throw new MojoExecutionException("Error: copying yaml file " + ex);
-     }
+      try {
+        Files.copy(f, new File(appDir, f.getName()));
+      } catch (IOException ex) {
+        throw new MojoExecutionException("Error: copying yaml file " + ex);
+      }
     }
     File qs = new File(destinationDir, "/WEB-INF/quickstart-web.xml");
     if (qs.exists()) {
-     try {
-       Files.copy(qs, new File(appDir, "/WEB-INF/quickstart-web.xml"));
-     } catch (IOException ex) {
-          throw new MojoExecutionException("Error: copying WEB-INF/quickstart-web.xml" + ex);
-     }
+      try {
+        Files.copy(qs, new File(appDir, "/WEB-INF/quickstart-web.xml"));
+      } catch (IOException ex) {
+        throw new MojoExecutionException("Error: copying WEB-INF/quickstart-web.xml" + ex);
+      }
     }
     // Delete the xml as we have now the index.yaml equivalent
     File index = new File(appDir, "/WEB-INF/datastore-indexes.xml");
@@ -804,12 +802,10 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
   }
 
   /**
-   * Executes the gcloud components update app-engine-java command to install
-   * the extra component needed for the Maven plugin.
-   * @param pythonLocation
-   * @throws MojoExecutionException
+   * Executes the gcloud components update app-engine-java command to install the extra component
+   * needed for the Maven plugin.
    */
-  private void installJavaAppEngineComponent(String pythonLocation ) throws MojoExecutionException {
+  private void installJavaAppEngineComponent(String pythonLocation) throws MojoExecutionException {
     ArrayList<String> installCommand = new ArrayList<>();
     installCommand.add(pythonLocation);
     if (Utils.canDisableImportOfPythonModuleSite()) {
@@ -832,8 +828,8 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
         public void run() {
           while (stdOut.hasNextLine() && !Thread.interrupted()) {
             getLog().info(stdOut.nextLine());
-              }
-            }
+          }
+        }
       };
       process.waitFor();
       getLog().info("Cloud SDK app-engine-java component installed.");

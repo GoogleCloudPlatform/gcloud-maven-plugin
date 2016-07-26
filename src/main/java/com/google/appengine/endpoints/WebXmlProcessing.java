@@ -33,7 +33,6 @@ import org.xml.sax.SAXException;
 
 /**
  * Process Endpoints annotations and change web.xml accordingly.
- *
  */
 public class WebXmlProcessing {
 
@@ -45,8 +44,8 @@ public class WebXmlProcessing {
 
 
   public WebXmlProcessing(Log log, String webXmlSourcePath,
-          String outputDirectory, MavenProject project,
-          String userSpecifiedServiceClassNames) {
+      String outputDirectory, MavenProject project,
+      String userSpecifiedServiceClassNames) {
     this.log = log;
     this.webXmlSourcePath = webXmlSourcePath;
     this.outputDirectory = outputDirectory;
@@ -62,18 +61,18 @@ public class WebXmlProcessing {
   public List<String> getAPIServicesClasses() {
     List<String> classes;
     if (userSpecifiedServiceClassNames != null) {
-          classes = Arrays.asList(userSpecifiedServiceClassNames.split(","));
+      classes = Arrays.asList(userSpecifiedServiceClassNames.split(","));
     } else {
-          ApiReporter reporter = new ApiReporter();
-          String targetDir = project.getBuild().getOutputDirectory();
+      ApiReporter reporter = new ApiReporter();
+      String targetDir = project.getBuild().getOutputDirectory();
 
-          final AnnotationDetector cf = new AnnotationDetector(reporter);
-          try {
-            cf.detect(new File(targetDir));
-          } catch (IOException ex) {
-            getLog().info(ex);
-          }
-          classes = reporter.getClasses();
+      final AnnotationDetector cf = new AnnotationDetector(reporter);
+      try {
+        cf.detect(new File(targetDir));
+      } catch (IOException ex) {
+        getLog().info(ex);
+      }
+      classes = reporter.getClasses();
     }
     XmlUtil util = new XmlUtil();
     try {
@@ -86,7 +85,7 @@ public class WebXmlProcessing {
 
   class ApiReporter implements AnnotationDetector.TypeReporter {
 
-    private List<String> classes = new ArrayList<String>();
+    private final List<String> classes = new ArrayList<>();
 
     @SuppressWarnings("unchecked")
     @Override
@@ -123,20 +122,19 @@ public class WebXmlProcessing {
     private static final String PARAM_VALUE = "param-value";
     private static final String SERVICES = "services";
     private static final String SYSTEM_SERVICE_SERVLET = "SystemServiceServlet";
-    private static final String SYSTEM_SERVICE_SERVLET_CLASS = 
-            "com.google.api.server.spi.SystemServiceServlet";
+    private static final String SYSTEM_SERVICE_SERVLET_CLASS =
+        "com.google.api.server.spi.SystemServiceServlet";
 
     /**
-     * Finds the WebApp node in web.xml document. Then tries to find
-     * SystemServiceServlet node and returns it. If not found, returns WebApp
-     * node. The returned type is of type Element
+     * Finds the WebApp node in web.xml document. Then tries to find SystemServiceServlet node and
+     * returns it. If not found, returns WebApp node. The returned type is of type Element
      *
      * @return SystemServiceServlet node if found, else WebApp node.
      */
     private Node findSystemServiceServlet(Document doc) {
       Node webAppNode;
       for (webAppNode = doc.getFirstChild(); webAppNode != null;
-              webAppNode = webAppNode.getNextSibling()) {
+          webAppNode = webAppNode.getNextSibling()) {
 
         if (isElementAndNamed(webAppNode, WEB_APP)) {
           break;
@@ -149,13 +147,13 @@ public class WebXmlProcessing {
 
       Node systemServiceServletNode;
       for (systemServiceServletNode = webAppNode.getFirstChild();
-              systemServiceServletNode != null;
-              systemServiceServletNode = systemServiceServletNode.getNextSibling()) {
+          systemServiceServletNode != null;
+          systemServiceServletNode = systemServiceServletNode.getNextSibling()) {
         if (isElementAndNamed(systemServiceServletNode, SERVLET)) {
           for (Node n3 = systemServiceServletNode.getFirstChild();
-                  n3 != null; n3 = n3.getNextSibling()) {
+              n3 != null; n3 = n3.getNextSibling()) {
             if (isElementAndNamed(n3, SERVLET_NAME)
-                    && n3.getTextContent().equals(SYSTEM_SERVICE_SERVLET)) {
+                && n3.getTextContent().equals(SYSTEM_SERVICE_SERVLET)) {
 
               return systemServiceServletNode;
             }
@@ -171,7 +169,7 @@ public class WebXmlProcessing {
      * @return The inserted SystemServiceServlet node.
      */
     private Node insertSystemServiceServlet(Document doc, Node webAppNode, String spc,
-            String delimiter) {
+        String delimiter) {
       Node n2, n3, n4, n5;
       n5 = doc.createTextNode(spc);
       webAppNode.appendChild(n5);
@@ -233,10 +231,7 @@ public class WebXmlProcessing {
     /**
      * Checks if a node is an XML element and checks if it has a specific name
      *
-     * @param node
-     * @param name
-     * @return true if matching element, false if name doesn't match OR if node
-     * type isn't ELEMENT
+     * @return true if matching element, false if name doesn't match OR if node type isn't ELEMENT
      */
     private boolean isElementAndNamed(Node node, String name) {
       if (node == null || name == null) {
@@ -246,28 +241,22 @@ public class WebXmlProcessing {
     }
 
     private void saveFile(Document doc, String filePath)
-            throws TransformerFactoryConfigurationError, TransformerException,
-            IOException {
+        throws TransformerFactoryConfigurationError, TransformerException,
+        IOException {
       Transformer transformer = TransformerFactory.newInstance().newTransformer();
       transformer.transform(new DOMSource(doc), new StreamResult(new File(filePath)));
     }
 
     /**
-     * Update the SystemServiceServlet parameter in web.xml, it doesn't make
-     * changes if nothing new is to be added. If changes are required, it will
-     * modify the file and save
-     *
-     * @param document
-     * @param systemServiceServletNode
-     * @param services
-     * @return
+     * Update the SystemServiceServlet parameter in web.xml, it doesn't make changes if nothing new
+     * is to be added. If changes are required, it will modify the file and save
      */
     private boolean updateSystemServiceServletParam(Document doc,
-            Node systemServiceServletNode, List<String> services) {
+        Node systemServiceServletNode, List<String> services) {
       Node initParamNode;
       for (initParamNode = systemServiceServletNode.getFirstChild();
-              initParamNode != null;
-              initParamNode = initParamNode.getNextSibling()) {
+          initParamNode != null;
+          initParamNode = initParamNode.getNextSibling()) {
         if (isElementAndNamed(initParamNode, INIT_PARAM)) {
           break;
         }
@@ -279,8 +268,8 @@ public class WebXmlProcessing {
 
       Node paramValueNode;
       for (paramValueNode = initParamNode.getFirstChild();
-              paramValueNode != null;
-              paramValueNode = paramValueNode.getNextSibling()) {
+          paramValueNode != null;
+          paramValueNode = paramValueNode.getNextSibling()) {
         if (isElementAndNamed(paramValueNode, PARAM_VALUE)) {
           break;
         }
@@ -293,7 +282,7 @@ public class WebXmlProcessing {
       // get all services the file currently lists,
       // put it in a treeset for sorted order, also removes duplicates
       String serviceXMLString = paramValueNode.getTextContent();
-      Set<String> servicesOnFile = new TreeSet<String>();
+      Set<String> servicesOnFile = new TreeSet<>();
       if (serviceXMLString != null && !serviceXMLString.trim().isEmpty()) {
         String[] servicesArray = serviceXMLString.split(",");
         for (String s : servicesArray) {
@@ -302,7 +291,7 @@ public class WebXmlProcessing {
       }
 
       // find all services we need to remove
-      List<String> servicesToRemove = new ArrayList<String>();
+      List<String> servicesToRemove = new ArrayList<>();
       for (String s : servicesOnFile) {
         if (!services.contains(s)) {
           servicesToRemove.add(s);
@@ -310,7 +299,7 @@ public class WebXmlProcessing {
       }
 
       // find all services we need to add
-      List<String> servicesToAdd = new ArrayList<String>();
+      List<String> servicesToAdd = new ArrayList<>();
       for (String s : services) {
         if (!servicesOnFile.contains(s)) {
           servicesToAdd.add(s);
@@ -345,8 +334,8 @@ public class WebXmlProcessing {
     }
 
     public void updateWebXml(List<String> services, String webXmlPath)
-            throws ParserConfigurationException, SAXException, IOException,
-            TransformerFactoryConfigurationError, TransformerException {
+        throws ParserConfigurationException, SAXException, IOException,
+        TransformerFactoryConfigurationError, TransformerException {
       boolean saveRequired;
 
       String spc = " ";
@@ -363,18 +352,18 @@ public class WebXmlProcessing {
       }
       if (isElementAndNamed(systemServiceServletNode, WEB_APP)) {
         systemServiceServletNode = insertSystemServiceServlet(document,
-                systemServiceServletNode, spc, delimiter);
+            systemServiceServletNode, spc, delimiter);
         saveRequired = true;
       }
 
       saveRequired = updateSystemServiceServletParam(document,
-              systemServiceServletNode, services);
-      String generatedWebInf = outputDirectory + "/WEB-INF";      
+          systemServiceServletNode, services);
+      String generatedWebInf = outputDirectory + "/WEB-INF";
       new File(generatedWebInf).mkdirs();
       saveFile(document, generatedWebInf + "/web.xml");
       Files.copy(
-              new File(new File(webXmlPath).getParentFile(), "appengine-web.xml"),
-              new File(generatedWebInf, "appengine-web.xml"));
+          new File(new File(webXmlPath).getParentFile(), "appengine-web.xml"),
+          new File(generatedWebInf, "appengine-web.xml"));
     }
   }
 }

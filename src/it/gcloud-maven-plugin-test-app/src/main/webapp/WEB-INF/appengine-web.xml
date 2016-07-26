@@ -5,6 +5,6 @@
 
 -->
 <appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
-    <threadsafe>true</threadsafe>
-    <vm>true</vm>
+  <threadsafe>true</threadsafe>
+  <vm>true</vm>
 </appengine-web-app>

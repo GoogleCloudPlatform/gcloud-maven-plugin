@@ -5,9 +5,6 @@ package com.google.appengine.gcloudapp;
 
 import com.google.appengine.repackaged.com.google.api.client.util.Throwables;
 import com.google.appengine.repackaged.com.google.common.io.ByteStreams;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -15,6 +12,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 
 /**
  * Runs the App Engine development server.
@@ -27,8 +26,7 @@ import java.util.List;
 public class GCloudAppRun extends AbstractGcloudMojo {
 
   /**
-   * The host and port on which to start the API server (in the format
-   * host:port)
+   * The host and port on which to start the API server (in the format host:port)
    *
    * @parameter expression="${gcloud.api_host}"
    */
@@ -42,41 +40,36 @@ public class GCloudAppRun extends AbstractGcloudMojo {
   private List<String> modules;
 
   /**
-   * The host and port on which to start the local web server (in the format
-   * host:port)
+   * The host and port on which to start the local web server (in the format host:port)
    *
    * @parameter expression="${gcloud.host}"
    */
   private String host;
 
   /**
-   * The host and port on which to start the admin server (in the format
-   * host:port)
+   * The host and port on which to start the admin server (in the format host:port)
    *
    * @parameter expression="${gcloud.admin_host}"
    */
   private String admin_host;
 
   /**
-   * The default location for storing application data. Can be overridden for
-   * specific kinds of data using --datastore-path, --blobstore-path, and/or
-   * --logs-path
+   * The default location for storing application data. Can be overridden for specific kinds of data
+   * using --datastore-path, --blobstore-path, and/or --logs-path
    *
    * @parameter expression="${gcloud.storage_path}"
    */
   private String storage_path;
 
   /**
-   * The minimum verbosity of logs from your app that will be displayed in the
-   * terminal. (debug, info, warning, critical, error) Defaults to current
-   * verbosity setting.
+   * The minimum verbosity of logs from your app that will be displayed in the terminal. (debug,
+   * info, warning, critical, error) Defaults to current verbosity setting.
    *
    * @parameter expression="${gcloud.log_level}"
    */
   private String log_level;
   /**
-   * Path to a file used to store request logs (defaults to a file in
-   * --storage-path if not set)
+   * Path to a file used to store request logs (defaults to a file in --storage-path if not set)
    *
    * @parameter expression="${gcloud.logs_path}"
    */
@@ -89,43 +82,41 @@ public class GCloudAppRun extends AbstractGcloudMojo {
   private String auth_domain;
 
   /**
-   * the maximum number of runtime instances that can be started for a
-   * particular module - the value can be an integer, in what case all modules
-   * are limited to that number of instances or a comma-separated list of
-   * module:max_instances e.g. "default:5,backend:3" (default: None)
+   * the maximum number of runtime instances that can be started for a particular module - the value
+   * can be an integer, in what case all modules are limited to that number of instances or a
+   * comma-separated list of module:max_instances e.g. "default:5,backend:3" (default: None)
    *
    * @parameter expression="${gcloud.max_module_instances}"
    */
   private String max_module_instances;
 
   /**
-   * email address associated with a service account that has a downloadable
-   * key. May be None for no local application identity. (default: None)
+   * email address associated with a service account that has a downloadable key. May be None for no
+   * local application identity. (default: None)
    *
    * @parameter expression="${gcloud.appidentity_email_address}"
    */
   private String appidentity_email_address;
 
   /**
-   * path to private key file associated with service account (.pem format).
-   * Must be set if appidentity_email_address is set. (default: None)
-   *
+   * path to private key file associated with service account (.pem format). Must be set if
+   * appidentity_email_address is set. (default: None)
    *
    * @parameter expression="${gcloud.appidentity_private_key_path}"
    */
   private String appidentity_private_key_path;
 
   /**
-   * path to gcloud_directory used to store blob contents (defaults to a
-   * subdirectory of --storage_path if not set) (default: None)
+   * path to gcloud_directory used to store blob contents (defaults to a subdirectory of
+   * --storage_path if not set) (default: None)
    *
    * @parameter expression="${gcloud.blobstore_path}"
    */
   private String blobstore_path;
 
   /**
-   * path to a file used to store datastore contents (defaults to a file in
-   * --storage_path if not set) (default: None)
+   * path to a file used to store datastore contents (defaults to a file in --storage_path if not
+   * set) (default: None)
    *
    * @parameter expression="${gcloud.datastore_path}"
    */
@@ -133,45 +124,42 @@ public class GCloudAppRun extends AbstractGcloudMojo {
   /**
    * clear the datastore on startup (default: False)
    *
-   *
    * @parameter expression="${gcloud.clear_datastore}"
    */
   private boolean clear_datastore;
 
   /**
-   * make files specified in the app.yaml "skip_files" or "static" handles
-   * readable by the application. (default: False)
+   * make files specified in the app.yaml "skip_files" or "static" handles readable by the
+   * application. (default: False)
    *
    * @parameter expression="${gcloud.allow_skipped_files}"
    */
   private boolean allow_skipped_files;
 
   /**
-   * Enable logs collection and display in local Admin Console for Managed VM
-   * modules.
+   * Enable logs collection and display in local Admin Console for Managed VM modules.
    *
    * @parameter expression="${gcloud.enable_mvm_logs}"
    */
   private boolean enable_mvm_logs;
 
   /**
-   * Use the "sendmail" tool to transmit e-mail sent using the Mail API (ignored
-   * if --smtp-host is set)
+   * Use the "sendmail" tool to transmit e-mail sent using the Mail API (ignored if --smtp-host is
+   * set)
    *
    * @parameter expression="${gcloud.enable_sendmail}"
    */
   private boolean enable_sendmail;
   /**
-   * Use mtime polling for detecting source code changes - useful if modifying
-   * code from a remote machine using a distributed file system
+   * Use mtime polling for detecting source code changes - useful if modifying code from a remote
+   * machine using a distributed file system
    *
    * @parameter expression="${gcloud.use_mtime_file_watcher}"
    */
   private boolean use_mtime_file_watcher;
   /**
-   * JVM_FLAG Additional arguments to pass to the java command when launching an
-   * instance of the app. May be specified more than once. Example:
-   * &lt;jvm_flag&gt; &lt;param&gt;-Xmx1024m&lt;/param&gt;
+   * JVM_FLAG Additional arguments to pass to the java command when launching an instance of the
+   * app. May be specified more than once. Example: &lt;jvm_flag&gt; &lt;param&gt;-Xmx1024m&lt;/param&gt;
    * &lt;param&gt;-Xms256m&lt;/param&gt; &lt;/jvm_flag&gt;.
    *
    * @parameter
@@ -192,8 +180,8 @@ public class GCloudAppRun extends AbstractGcloudMojo {
   private boolean enable_cloud_datastore;
 
   /**
-   * datastore_consistency_policy The policy to apply when deciding whether a
-   * datastore write should appear in global queries (default="time")
+   * datastore_consistency_policy The policy to apply when deciding whether a datastore write should
+   * appear in global queries (default="time")
    *
    * @parameter expression="${gcloud.datastore_consistency_policy}"
    */
@@ -206,15 +194,14 @@ public class GCloudAppRun extends AbstractGcloudMojo {
    */
   private String php_executable_path;
   /**
-   * The script to run at the startup of new Python runtime instances (useful
-   * for tools such as debuggers)
+   * The script to run at the startup of new Python runtime instances (useful for tools such as
+   * debuggers)
    *
    * @parameter expression="${gcloud.python_startup_script}"
    */
   private String python_startup_script;
   /**
-   * Generate an error on datastore queries that require a composite index not
-   * found in index.yaml
+   * Generate an error on datastore queries that require a composite index not found in index.yaml
    *
    * @parameter expression="${gcloud.require_indexes}"
    */
@@ -226,50 +213,49 @@ public class GCloudAppRun extends AbstractGcloudMojo {
    */
   private boolean show_mail_body;
   /**
-   * Allow TLS to be used when the SMTP server announces TLS support (ignored if
-   * --smtp-host is not set)
+   * Allow TLS to be used when the SMTP server announces TLS support (ignored if --smtp-host is not
+   * set)
    *
    * @parameter expression="${gcloud.smtp_allow_tls}"
    */
   private boolean smtp_allow_tls;
   /**
-   * The host and port of an SMTP server to use to transmit e-mail sent using
-   * the Mail API, in the format host:port
+   * The host and port of an SMTP server to use to transmit e-mail sent using the Mail API, in the
+   * format host:port
    *
    * @parameter expression="${gcloud.smtp_host}"
    */
   private String smtp_host;
   /**
-   * Password to use when connecting to the SMTP server specified with
-   * --smtp-host
+   * Password to use when connecting to the SMTP server specified with --smtp-host
    *
    * @parameter expression="${gcloud.smtp_password}"
    */
   private String smtp_password;
   /**
-   * Username to use when connecting to the SMTP server specified with
-   * --smtp-host
+   * Username to use when connecting to the SMTP server specified with --smtp-host
    *
    * @parameter expression="${gcloud.smtp_user}"
    */
   private String smtp_user;
 
   /**
-   * Specify an entrypoint for custom runtime modules. This is required when
-   * such modules are present. Include "{port}" in the string (without quotes)
-   * to pass the port number in as an argument. For instance:
-   * --custom_entrypoint="gunicorn -b localhost:{port} mymodule:application"
+   * Specify an entrypoint for custom runtime modules. This is required when such modules are
+   * present. Include "{port}" in the string (without quotes) to pass the port number in as an
+   * argument. For instance: --custom_entrypoint="gunicorn -b localhost:{port}
+   * mymodule:application"
    *
    * @parameter expression="${gcloud.custom_entrypoint}"
    */
-   
+
   private String custom_entrypoint;
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
     getLog().info("");
     if (application_directory == null) {
-      application_directory = maven_project.getBuild().getDirectory() + "/" + maven_project.getBuild().getFinalName();
+      application_directory =
+          maven_project.getBuild().getDirectory() + "/" + maven_project.getBuild().getFinalName();
     }
     File appDirFile = new File(application_directory);
     if (!appDirFile.exists()) {
@@ -277,11 +263,13 @@ public class GCloudAppRun extends AbstractGcloudMojo {
       if (f.exists()) {
         application_directory = f.getAbsolutePath();
       } else {
-        throw new MojoExecutionException("The application directory does not exist : " + application_directory);
+        throw new MojoExecutionException(
+            "The application directory does not exist : " + application_directory);
       }
     }
     if (!appDirFile.isDirectory()) {
-      throw new MojoExecutionException("The application directory is not a directory : " + application_directory);
+      throw new MojoExecutionException(
+          "The application directory is not a directory : " + application_directory);
     }
     //Just before starting, just to make sure, shut down any running devserver on this port.
     stopDevAppServer();
@@ -308,10 +296,10 @@ public class GCloudAppRun extends AbstractGcloudMojo {
     File f = new File(appDirectory, "WEB-INF/appengine-web.xml");
     if (!f.exists()) { // EAR project possibly, add all modules one by one:
       f = new File(appDirectory, "app.yaml");
-      boolean isAppYamlGenerated = new File (appDirectory, ".appyamlgenerated").exists();
+      boolean isAppYamlGenerated = new File(appDirectory, ".appyamlgenerated").exists();
       if (f.exists() && !isAppYamlGenerated) {
-          //executeAppCfgStagingCommand(appDir);
-          devAppServerCommand.add(f.getAbsolutePath());
+        //executeAppCfgStagingCommand(appDir);
+        devAppServerCommand.add(f.getAbsolutePath());
       } else {
         boolean oneMod = false;
         for (File w : appDirectory.listFiles()) {
@@ -322,22 +310,22 @@ public class GCloudAppRun extends AbstractGcloudMojo {
           }
         }
         if (!oneMod) {
-         executeAppCfgStagingCommand(application_directory);
-         devAppServerCommand.add(appDirectory.getAbsolutePath());
+          executeAppCfgStagingCommand(application_directory);
+          devAppServerCommand.add(appDirectory.getAbsolutePath());
 
         }
       }
 
     } else {
       f = new File(appDirectory, "app.yaml");
-      boolean isAppYamlGenerated = new File (appDirectory, ".appyamlgenerated").exists();
+      boolean isAppYamlGenerated = new File(appDirectory, ".appyamlgenerated").exists();
       if (f.exists() && !isAppYamlGenerated) {
         //executeAppCfgStagingCommand(appDir);
         devAppServerCommand.add(f.getAbsolutePath());
       } else {
         // Point to our application
         executeAppCfgStagingCommand(application_directory);
-      devAppServerCommand.add(appDirectory.getAbsolutePath()+"/app.yaml");
+        devAppServerCommand.add(appDirectory.getAbsolutePath() + "/app.yaml");
       }
     }
 
@@ -438,7 +426,7 @@ public class GCloudAppRun extends AbstractGcloudMojo {
     if (python_startup_script != null) {
       devAppServerCommand.add("--python_startup_script=" + python_startup_script);
     }
-    if (require_indexes) { 
+    if (require_indexes) {
       devAppServerCommand.add("--require_indexes");
     }
     if (show_mail_body) {
@@ -491,12 +479,15 @@ public class GCloudAppRun extends AbstractGcloudMojo {
       connection.disconnect();
 
       getLog().info("Shutting down Cloud SDK Server on port " + 8000
-              + " and waiting 4 seconds...");
+          + " and waiting 4 seconds...");
       Thread.sleep(4000);
     } catch (MalformedURLException e) {
-      throw new MojoExecutionException("URL malformed attempting to stop the devserver : " + e.getMessage());
+      throw new MojoExecutionException(
+          "URL malformed attempting to stop the devserver : " + e.getMessage());
     } catch (IOException e) {
-      getLog().debug("Was not able to contact the devappserver to shut it down.  Most likely this is due to it simply not running anymore. ", e);
+      getLog().debug(
+          "Was not able to contact the devappserver to shut it down.  Most likely this is due to it simply not running anymore. ",
+          e);
     } catch (InterruptedException e) {
       Throwables.propagate(e);
     }

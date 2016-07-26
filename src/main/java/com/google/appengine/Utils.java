@@ -6,7 +6,6 @@ package com.google.appengine;
 import java.io.File;
 
 /**
- *
  * @author ludo
  */
 public class Utils {
@@ -36,7 +35,7 @@ public class Utils {
     String gcloudDir;
     boolean isWindows = System.getProperty("os.name").contains("Windows");
     if (isWindows) {
-      String  relPath= "\\Google\\Cloud SDK\\google-cloud-sdk";
+      String relPath = "\\Google\\Cloud SDK\\google-cloud-sdk";
       // first look for user installation under "LOCALAPPDATA"
       String localSDK = System.getenv("LOCALAPPDATA") + relPath;
       if (new File(localSDK).exists()) {
@@ -65,24 +64,20 @@ public class Utils {
     }
     return gcloudDir;
   }
-  
+
   /**
    * Checks if either CLOUDSDK_PYTHON_SITEPACKAGES or VIRTUAL_ENV is defined.
-   * 
-   * <p> If either variable is defined, we shall not disable import of module
-   * 'site.
-   * 
-   * @return true if it is OK to disable import of module 'site' (python -S)  
+   *
+   * <p> If either variable is defined, we shall not disable import of module 'site.
+   *
+   * @return true if it is OK to disable import of module 'site' (python -S)
    */
   public static boolean canDisableImportOfPythonModuleSite() {
     String sitePackages = System.getenv("CLOUDSDK_PYTHON_SITEPACKAGES");
     String virtualEnv = System.getenv("VIRTUAL_ENV");
     boolean noSiteDefined = sitePackages == null || sitePackages.isEmpty();
     boolean noVirtEnvDefined = virtualEnv == null || virtualEnv.isEmpty();
-    if (noSiteDefined && noVirtEnvDefined) {
-      return true;
-    }
-    return false;
+    return noSiteDefined && noVirtEnvDefined;
   }
 
 }

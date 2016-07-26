@@ -23,7 +23,7 @@ public class GCloudAppDeploy extends GCloudAppStage {
    *
    * @parameter expression="${gcloud.promote}"
    */
-  private boolean promote = true;
+  private final boolean promote = true;
 
   /**
    * Bucket used for Admin Deployment API.
@@ -44,10 +44,7 @@ public class GCloudAppDeploy extends GCloudAppStage {
   }
 
   /**
-   * Add extra config files like dos, dispatch, index or queue to the deployment
-   * payload.
-   *
-   *
+   * Add extra config files like dos, dispatch, index or queue to the deployment payload.
    */
   private void addOtherConfigFiles(ArrayList<String> command, String appDir) {
     if (new File(appDir + "/cron.yaml").exists()) {
