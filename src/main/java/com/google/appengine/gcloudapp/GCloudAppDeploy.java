@@ -66,13 +66,12 @@ public class GCloudAppDeploy extends GCloudAppStage {
 
   @Override
   protected ArrayList<String> getCommand(String appDir) throws MojoExecutionException {
-
     getLog().info("Running gcloud app deploy...");
 
-    ArrayList<String> devAppServerCommand = new ArrayList<>();
-    setupInitialCommands(devAppServerCommand);
+    ArrayList<String> deployCommand = new ArrayList<>();
+    setupInitialCommands(deployCommand);
 
-    devAppServerCommand.add("deploy");
+    deployCommand.add("deploy");
 
     File f = new File(appDir, "WEB-INF/appengine-web.xml");
     if (!f.exists()) {
@@ -80,49 +79,62 @@ public class GCloudAppDeploy extends GCloudAppStage {
       File appyaml = new File(appDir, "app.yaml");
       if (appyaml.exists()) {
         // Point to our application
-        devAppServerCommand.add(appDir + "/app.yaml");
-        addOtherConfigFiles(devAppServerCommand, appDir);
+        deployCommand.add(appDir + "/app.yaml");
+        addOtherConfigFiles(deployCommand, appDir);
       } else {
         // EAR project possibly, add all modules one by one:
         File ear = new File(appDir);
         for (File w : ear.listFiles()) {
           if (new File(w, "WEB-INF/appengine-web.xml").exists()) {
-            devAppServerCommand.add(w.getAbsolutePath() + "/app.yaml");
-            addOtherConfigFiles(devAppServerCommand, w.getAbsolutePath());
+            deployCommand.add(w.getAbsolutePath() + "/app.yaml");
+            addOtherConfigFiles(deployCommand, w.getAbsolutePath());
           }
         }
       }
     } else {
       // Point to our application
-      devAppServerCommand.add(appDir + "/app.yaml");
-      addOtherConfigFiles(devAppServerCommand, appDir);
+      deployCommand.add(appDir + "/app.yaml");
+      addOtherConfigFiles(deployCommand, appDir);
     }
 
     // Add in additional options for starting the DevAppServer
     if (version != null) {
-      devAppServerCommand.add("--version=" + version);
+      deployCommand.add("--version=" + version);
     }
     if (server != null) {
-      devAppServerCommand.add("--server=" + server);
+      deployCommand.add("--server=" + server);
     }
     if (force) {
-      devAppServerCommand.add("--force");
+      deployCommand.add("--force");
     }
     if (docker_build != null) {
-      devAppServerCommand.add("--docker-build=" + docker_build);
+      deployCommand.add("--docker-build=" + docker_build);
 
     } else if (remote) {
-      devAppServerCommand.add("--remote");
+      deployCommand.add("--remote");
     }
     if (bucket != null) {
-      devAppServerCommand.add("--bucket=" + bucket);
+      deployCommand.add("--bucket=" + bucket);
     }
 
     if (promote) {
-      devAppServerCommand.add("--promote");
+      deployCommand.add("--promote");
     } else {
-      devAppServerCommand.add("--no-promote");
+      deployCommand.add("--no-promote");
     }
-    return devAppServerCommand;
+
+    String projectIdUsed = gcloud_project;
+    if (projectIdUsed == null) {
+      projectIdUsed = "the Cloud SDK default project";
+    }
+    String versionUsed = version;
+    if (version == null) {
+      versionUsed = "the time of deployment";
+    }
+    getLog().info("Note that the project ID and version specified in application configuration files"
+        + " (e.g. app.yaml or appengine-web.xml) are ignored. The project ID is set to "
+        + projectIdUsed + " and the version is set to " + versionUsed + ".");
+
+    return deployCommand;
   }
 }
