@@ -82,7 +82,7 @@ public class AppengineEnhancerMojo extends AbstractMojo {
   @Override
   public void execute() throws MojoExecutionException {
 
-    if(!enhancer_api.equals("JDO") && !enhancer_api.equals("JPA")) {
+    if (!enhancer_api.equals("JDO") && !enhancer_api.equals("JPA")) {
       throw new MojoExecutionException("enhancerApi must be either JPA or JDO");
     }
 
@@ -91,17 +91,18 @@ public class AppengineEnhancerMojo extends AbstractMojo {
     plugin.setArtifactId("datanucleus-maven-plugin");
     plugin.setVersion(DATANUCLEUS_VERSION);
     plugin.addDependency(enhancer_api.equals("JDO") ? JDO_DEPENDENCY : JPA_DEPENDENCY);
-    for (Dependency transitiveDep: project.getDependencies()){
+    for (Dependency transitiveDep : project.getDependencies()) {
       plugin.addDependency(transitiveDep);
     }
-         
+
     PluginDescriptor pluginDescriptor = null;
 
     try {
       pluginDescriptor = plugin_manager.loadPlugin(plugin,
           project.getRemotePluginRepositories(),
           session.getRepositorySession());
-    } catch (PluginNotFoundException | PluginResolutionException | PluginDescriptorParsingException | InvalidPluginDescriptorException e) {
+    } catch (PluginNotFoundException | PluginResolutionException | PluginDescriptorParsingException
+        | InvalidPluginDescriptorException e) {
       throw new MojoExecutionException("Could not load the datanucleus plugin.", e);
     }
 
@@ -118,13 +119,15 @@ public class AppengineEnhancerMojo extends AbstractMojo {
     configuration.addChild(apiElement);
     configuration.addChild(verboseElement);
 
-    configuration = Xpp3DomUtils.mergeXpp3Dom(configuration, convertPlexusConfiguration(mojoDescriptor.getMojoConfiguration()));
+    configuration = Xpp3DomUtils.mergeXpp3Dom(configuration,
+        convertPlexusConfiguration(mojoDescriptor.getMojoConfiguration()));
 
     MojoExecution exec = new MojoExecution(mojoDescriptor, configuration);
 
     try {
       plugin_manager.executeMojo(session, exec);
-    } catch (MojoFailureException | MojoExecutionException | PluginConfigurationException | PluginManagerException e) {
+    } catch (MojoFailureException | MojoExecutionException | PluginConfigurationException
+        | PluginManagerException e) {
       throw new MojoExecutionException("Could not execute datanucleus enhancer.", e);
     }
   }

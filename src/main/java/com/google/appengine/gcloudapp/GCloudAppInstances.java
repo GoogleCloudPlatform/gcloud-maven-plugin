@@ -3,8 +3,6 @@ package com.google.appengine.gcloudapp;
 import com.google.appengine.repackaged.net.sourceforge.yamlbeans.YamlException;
 import com.google.appengine.repackaged.net.sourceforge.yamlbeans.YamlReader;
 import com.google.apphosting.utils.config.AppEngineWebXml;
-import org.apache.maven.plugin.MojoExecutionException;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -13,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
 /**
@@ -23,20 +22,18 @@ import org.apache.maven.plugin.MojoFailureException;
 public abstract class GCloudAppInstances extends AbstractGcloudMojo {
 
   /**
-   * version The version of the app that will be created or replaced by this
-   * deployment.
+   * version The version of the app that will be created or replaced by this deployment.
    *
    * @parameter property="gcloud.version"
    */
   private String version;
 
   /**
-   * instance The instance of the app that will be used to enable/disable debug.
-   * Default is 1.
+   * instance The instance of the app that will be used to enable/disable debug. Default is 1.
    *
    * @parameter property="gcloud.instance"
    */
-  private String instance = "1";
+  private final String instance = "1";
 
   protected abstract String[] getSubCommand();
 
@@ -47,13 +44,14 @@ public abstract class GCloudAppInstances extends AbstractGcloudMojo {
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
     getLog().info("");
-
     ArrayList<String> devAppServerCommand = createCommand(
-            getApplicationDirectory(), getSubCommand());
-    startCommand(new File(getApplicationDirectory()), devAppServerCommand, AbstractGcloudMojo.WaitDirective.WAIT_SERVER_STOPPED);
+        getApplicationDirectory(), getSubCommand());
+    startCommand(new File(getApplicationDirectory()), devAppServerCommand,
+        AbstractGcloudMojo.WaitDirective.WAIT_SERVER_STOPPED);
   }
 
-  protected ArrayList<String> createCommand(String appDir, String[] subCommand) throws MojoExecutionException {
+  protected ArrayList<String> createCommand(String appDir, String[] subCommand)
+      throws MojoExecutionException {
 
     getLog().info("Running gcloud app instances...");
 
@@ -73,7 +71,6 @@ public abstract class GCloudAppInstances extends AbstractGcloudMojo {
         service = xmlContent.getService();
       }
       localVersion = xmlContent.getMajorVersionId();
-
     } else if (appyaml.exists()) {
       try {
         YamlReader reader = new YamlReader(new FileReader(appyaml));
@@ -89,7 +86,6 @@ public abstract class GCloudAppInstances extends AbstractGcloudMojo {
       } catch (IOException ex) {
         Logger.getLogger(GCloudAppModules.class.getName()).log(Level.SEVERE, null, ex);
       }
-
     } else {
       System.out.println("Cannot find app.yaml or appengine-web.xml");
       return null;
@@ -110,8 +106,9 @@ public abstract class GCloudAppInstances extends AbstractGcloudMojo {
       devAppServerCommand.add("--version");
       devAppServerCommand.add(localVersion);
     } else {
-      getLog().error("Warning: the Gcloud <version> Maven configuration is not defined, or <version> is not defined in appengine-web.xml");
-
+      getLog().error(
+          "Warning: the Gcloud <version> Maven configuration is not defined, or <version> is not "
+              + "defined in appengine-web.xml");
     }
     if (instance != null) {
       devAppServerCommand.add(instance);
@@ -125,7 +122,7 @@ public abstract class GCloudAppInstances extends AbstractGcloudMojo {
 
   @Override
   protected ArrayList<String> getCommand(String appDir) throws MojoExecutionException {
-    return null; //not used
+    return null; // not used
   }
 
   /**
@@ -135,7 +132,7 @@ public abstract class GCloudAppInstances extends AbstractGcloudMojo {
    * @execute phase="package"
    * @threadSafe false
    */
-  static public class EnableDebug extends GCloudAppInstances {
+  public static class EnableDebug extends GCloudAppInstances {
 
     @Override
     protected String[] getSubCommand() {
@@ -150,7 +147,7 @@ public abstract class GCloudAppInstances extends AbstractGcloudMojo {
    * @execute phase="package"
    * @threadSafe false
    */
-  static public class DisableDebug extends GCloudAppInstances {
+  public static class DisableDebug extends GCloudAppInstances {
 
     @Override
     protected String[] getSubCommand() {

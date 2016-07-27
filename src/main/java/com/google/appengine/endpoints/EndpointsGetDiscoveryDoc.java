@@ -3,12 +3,11 @@
  */
 package com.google.appengine.endpoints;
 
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 
 /**
  * App Engine endpoints get-discovery-doc command.
@@ -21,7 +20,7 @@ public class EndpointsGetDiscoveryDoc extends EndpointsMojo {
 
   @Override
   protected ArrayList<String> collectParameters(String command) {
-    ArrayList<String> arguments = new ArrayList<String>();
+    ArrayList<String> arguments = new ArrayList<>();
     arguments.add(command);
     handleClassPath(arguments);
     if (output_directory != null && !output_directory.isEmpty()) {
@@ -45,10 +44,10 @@ public class EndpointsGetDiscoveryDoc extends EndpointsMojo {
     }
     String rest[] = {"-f", "rest"};
     executeEndpointsCommand("get-discovery-doc", rest,
-                    classNames.toArray(new String[classNames.size()]));
+        classNames.toArray(new String[classNames.size()]));
     String rpc[] = {"-f", "rpc"};
     executeEndpointsCommand("get-discovery-doc", rpc,
-                    classNames.toArray(new String[classNames.size()]));
+        classNames.toArray(new String[classNames.size()]));
     getLog().info("Endpoints discovery doc generation done.");
 
   }

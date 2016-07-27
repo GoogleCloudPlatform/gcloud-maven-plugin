@@ -26,8 +26,6 @@ import org.apache.maven.plugin.MojoFailureException;
 public class GCloudAppStage extends AbstractGcloudMojo {
 
 
-
-
   public GCloudAppStage() {
     this.deployCommand = true;
   }
@@ -62,30 +60,30 @@ public class GCloudAppStage extends AbstractGcloudMojo {
         throw new MojoExecutionException("Error: creating default app.yaml " + ex);
       }
     }
-    for (File file: new File(appengine_config_directory).listFiles()) {
+    for (File file : new File(appengine_config_directory).listFiles()) {
       if (!file.getName().equals("app.yaml")) { // app.yaml was treated before
-          try {
-            Files.copy(file, new File(stagingDir, file.getName()));
-          } catch (IOException ex) {
-            throw new MojoExecutionException("Error: copying "
-                    + file.getAbsolutePath()
-                    + " "
-                    + ex);
-          }
+        try {
+          Files.copy(file, new File(stagingDir, file.getName()));
+        } catch (IOException ex) {
+          throw new MojoExecutionException("Error: copying "
+              + file.getAbsolutePath()
+              + " "
+              + ex);
         }
+      }
     }
 
     File targetDir = new File(maven_project.getBuild().getDirectory());
     File artifactToDeploy = new File(targetDir, maven_project.getBuild().getFinalName()
-            + "-jar-with-dependencies." + packaging);
+        + "-jar-with-dependencies." + packaging);
     if (!artifactToDeploy.exists()) {
       artifactToDeploy = new File(targetDir, maven_project.getBuild().getFinalName()
-              + "." + packaging);
+          + "." + packaging);
     }
     if (!artifactToDeploy.exists()) {
       // Handle fat jar with -fat.jar extension
       artifactToDeploy = new File(targetDir, maven_project.getBuild().getFinalName()
-              + "-fat." + packaging);
+          + "-fat." + packaging);
     }
     if (artifactToDeploy.exists()) {
       try {
@@ -97,12 +95,12 @@ public class GCloudAppStage extends AbstractGcloudMojo {
           // https://github.com/jboss-dockerfiles/wildfly/issues/19
           // Smaller image is done outside of Docker.
           Set<PosixFilePermission> perms = new HashSet<>();
-          //add owners permission
+          // add owners permission
           perms.add(PosixFilePermission.OWNER_READ);
           perms.add(PosixFilePermission.OWNER_WRITE);
-          //add group permissions
+          // add group permissions
           perms.add(PosixFilePermission.GROUP_READ);
-          //add others permissions
+          // add others permissions
           perms.add(PosixFilePermission.OTHERS_READ);
 
           java.nio.file.Files.setPosixFilePermissions(stagingArtifact.toPath(), perms);
@@ -117,12 +115,13 @@ public class GCloudAppStage extends AbstractGcloudMojo {
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
     File stagingDir = executeStaging();
-  getLog().info("Stagin directory updated at: " + stagingDir.getAbsolutePath());
+    getLog().info("Stagin directory updated at: " + stagingDir.getAbsolutePath());
 
   }
-  
+
   protected File executeStaging() throws MojoExecutionException {
-    String appDir = maven_project.getBuild().getDirectory() + "/" + maven_project.getBuild().getFinalName();
+    String appDir =
+        maven_project.getBuild().getDirectory() + "/" + maven_project.getBuild().getFinalName();
     File appDirFile = new File(appDir);
     String aewebxml = appDir + "/WEB-INF/appengine-web.xml";
     String packaging = maven_project.getPackaging();
@@ -153,7 +152,7 @@ public class GCloudAppStage extends AbstractGcloudMojo {
     }
     return appToDeploy;
   }
- 
+
   protected ArrayList<String> collectAppCfgParameters() throws MojoExecutionException {
     ArrayList<String> arguments = new ArrayList<>();
 

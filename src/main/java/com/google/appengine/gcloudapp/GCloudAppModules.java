@@ -6,8 +6,6 @@ package com.google.appengine.gcloudapp;
 import com.google.appengine.repackaged.net.sourceforge.yamlbeans.YamlException;
 import com.google.appengine.repackaged.net.sourceforge.yamlbeans.YamlReader;
 import com.google.apphosting.utils.config.AppEngineWebXml;
-import org.apache.maven.plugin.MojoExecutionException;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -16,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
 /**
@@ -33,8 +32,7 @@ public abstract class GCloudAppModules extends AbstractGcloudMojo {
   private String server;
 
   /**
-   * version The version of the app that will be created or replaced by this
-   * deployment.
+   * version The version of the app that will be created or replaced by this deployment.
    *
    * @parameter property="gcloud.version"
    */
@@ -51,11 +49,14 @@ public abstract class GCloudAppModules extends AbstractGcloudMojo {
     getLog().info("");
 
     ArrayList<String> devAppServerCommand = createCommand(
-            getApplicationDirectory(), getSubCommand());
-    throw new MojoExecutionException("Modules commands are removed. Please use enable_debug/disable_debug or service_start/service_stop goals.");
+        getApplicationDirectory(), getSubCommand());
+    throw new MojoExecutionException(
+        "Modules commands are removed. Please use enable_debug/disable_debug or "
+            + "service_start/service_stop goals.");
   }
 
-  protected ArrayList<String> createCommand(String appDir, String[] subCommand) throws MojoExecutionException {
+  protected ArrayList<String> createCommand(String appDir, String[] subCommand)
+      throws MojoExecutionException {
 
     getLog().info("Running gcloud app modules...");
 
@@ -71,11 +72,7 @@ public abstract class GCloudAppModules extends AbstractGcloudMojo {
     if (appwebxml.exists()) {      // get module name and module version
       AppEngineWebXml xmlContent = getAppEngineWebXml(appDir);
       module = xmlContent.getModule();
-//      if (module == null) {
-//              module = xmlContent.getService();
-//      }
       localVersion = xmlContent.getMajorVersionId();
-
     } else if (appyaml.exists()) {
       try {
         YamlReader reader = new YamlReader(new FileReader(appyaml));
@@ -91,7 +88,6 @@ public abstract class GCloudAppModules extends AbstractGcloudMojo {
       } catch (IOException ex) {
         Logger.getLogger(GCloudAppModules.class.getName()).log(Level.SEVERE, null, ex);
       }
-
     } else { // EAR project possibly, add all modules one by one:
       File ear = new File(appDir);
       for (File w : ear.listFiles()) {
@@ -114,7 +110,9 @@ public abstract class GCloudAppModules extends AbstractGcloudMojo {
     } else if (localVersion != null) {
       devAppServerCommand.add("--version=" + localVersion);
     } else {
-      getLog().error("Warning: the Gcloud <version> Maven configuration is not defined, or <version> is not defined in appengine-web.xml");
+      getLog().error(
+          "Warning: the Gcloud <version> Maven configuration is not defined, or <version> is not "
+              + "defined in appengine-web.xml");
 
     }
 
@@ -137,7 +135,7 @@ public abstract class GCloudAppModules extends AbstractGcloudMojo {
    * @execute phase="package"
    * @threadSafe false
    */
-  static public class Delete extends GCloudAppModules {
+  public static class Delete extends GCloudAppModules {
 
     @Override
     protected String[] getSubCommand() {
@@ -152,7 +150,7 @@ public abstract class GCloudAppModules extends AbstractGcloudMojo {
    * @execute phase="package"
    * @threadSafe false
    */
-  static public class Promote extends GCloudAppModules {
+  public static class Promote extends GCloudAppModules {
 
     @Override
     protected String[] getSubCommand() {
@@ -167,22 +165,21 @@ public abstract class GCloudAppModules extends AbstractGcloudMojo {
    * @execute phase="package"
    * @threadSafe false
    */
-  static public class SetManaged extends GCloudAppModules {
+  public static class SetManaged extends GCloudAppModules {
 
     /**
-     * This command sets the policy for the Managed VMs of the given modules and
-     * version. When your module uses VM runtimes, you can use this command to
-     * change the management mode for a set of your VMs. If you switch to
-     * self-managed, SSH will be enabled on the VMs, and they will be removed
-     * from the health checking pools, but will still receive requests. When you
-     * switch back to Google-managed mode, any local changes on the VMs are lost
-     * and they are restarted and added back into the normal pools.
+     * This command sets the policy for the Managed VMs of the given modules and version. When your
+     * module uses VM runtimes, you can use this command to change the management mode for a set of
+     * your VMs. If you switch to self-managed, SSH will be enabled on the VMs, and they will be
+     * removed from the health checking pools, but will still receive requests. When you switch back
+     * to Google-managed mode, any local changes on the VMs are lost and they are restarted and
+     * added back into the normal pools.
      *
-     * `google` Switch the VMs back to being Google managed. Any local changes
-     * on the VMs will be lost.
+     * `google` Switch the VMs back to being Google managed. Any local changes on the VMs will be
+     * lost.
      *
-     * `self` Switch the VMs to self managed mode. This will allow you SSH into,
-     * and debug your app on these machines. (Default).
+     * `self` Switch the VMs to self managed mode. This will allow you SSH into, and debug your app
+     * on these machines. (Default).
      *
      * @parameter property="gcloud.set_managed_by" default-value="self"
      */
@@ -201,7 +198,7 @@ public abstract class GCloudAppModules extends AbstractGcloudMojo {
    * @execute phase="package"
    * @threadSafe false
    */
-  static public class Start extends GCloudAppModules {
+  public static class Start extends GCloudAppModules {
 
     @Override
     protected String[] getSubCommand() {
@@ -216,7 +213,7 @@ public abstract class GCloudAppModules extends AbstractGcloudMojo {
    * @execute phase="package"
    * @threadSafe false
    */
-  static public class Stop extends GCloudAppModules {
+  public static class Stop extends GCloudAppModules {
 
     @Override
     protected String[] getSubCommand() {

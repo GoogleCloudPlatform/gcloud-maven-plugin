@@ -3,9 +3,6 @@
  */
 package com.google.appengine.endpoints;
 
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
@@ -19,6 +16,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.DefaultInvoker;
 import org.apache.maven.shared.invoker.InvocationRequest;
@@ -38,12 +37,14 @@ public class EndpointsGetClientLib extends EndpointsMojo {
   /**
    * The directory for the generated Maven client lib projects.
    *
-   * @parameter expression="${client_libs_directory}" default-value="${project.build.directory}/endpoints-client-libs"
+   * @parameter expression="${client_libs_directory}"
+   *     default-value="${project.build.directory}/endpoints-client-libs"
    */
-  protected String client_libs_directory;  
+  protected String client_libs_directory;
+
   @Override
   protected ArrayList<String> collectParameters(String command) {
-    ArrayList<String> arguments = new ArrayList<String>();
+    ArrayList<String> arguments = new ArrayList<>();
     arguments.add(command);
     handleClassPath(arguments);
 
@@ -76,7 +77,7 @@ public class EndpointsGetClientLib extends EndpointsMojo {
 
     try {
       executeEndpointsCommand("get-client-lib", new String[0],
-              classNames.toArray(new String[classNames.size()]));
+          classNames.toArray(new String[classNames.size()]));
       File webInf = new File(output_directory + "/WEB-INF");
       if (webInf.exists() && webInf.isDirectory()) {
         File[] files = webInf.listFiles(new FilenameFilter() {
@@ -107,12 +108,12 @@ public class EndpointsGetClientLib extends EndpointsMojo {
     } catch (MojoExecutionException e) {
       getLog().error(e);
       throw new MojoExecutionException(
-              "Error while generating Google App Engine endpoint get client lib", e);
+          "Error while generating Google App Engine endpoint get client lib", e);
     } catch (MavenInvocationException ex) {
       Logger.getLogger(EndpointsGetClientLib.class.getName()).log(Level.SEVERE, null, ex);
     }
   }
-  
+
   /*
   * Un-jar the jar file, and potentially, returns the pom.xml file if it exists 
   * in the jar file.
@@ -138,7 +139,7 @@ public class EndpointsGetClientLib extends EndpointsMojo {
         }
         if (!fl.exists()) {
           fl.getParentFile().mkdirs();
-          fl = new java.io.File(destdir , je.getName());
+          fl = new java.io.File(destdir, je.getName());
         }
         if (je.isDirectory()) {
           continue;
@@ -152,7 +153,9 @@ public class EndpointsGetClientLib extends EndpointsMojo {
         Logger.getLogger(EndpointsGetClientLib.class.getName()).log(Level.SEVERE, null, ex);
       } finally {
         try {
-         if (is!=null) is.close();
+          if (is != null) {
+            is.close();
+          }
         } catch (IOException ex) {
           Logger.getLogger(EndpointsGetClientLib.class.getName()).log(Level.SEVERE, null, ex);
         }

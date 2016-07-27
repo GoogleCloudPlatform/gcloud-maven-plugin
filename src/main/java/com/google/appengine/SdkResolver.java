@@ -5,12 +5,18 @@ package com.google.appengine;
 
 import static com.google.common.collect.Iterables.find;
 
-import com.google.common.io.ByteStreams;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
-
+import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -26,14 +32,6 @@ import org.eclipse.aether.resolution.VersionRangeResolutionException;
 import org.eclipse.aether.resolution.VersionRangeResult;
 import org.eclipse.aether.version.Version;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
 /**
  * Resolves the sdk in the .m2 repository, retrieving the appropriate version for this version of
  * the plugin if necessary.
@@ -41,13 +39,15 @@ import java.util.zip.ZipFile;
  * @author Matt Stephenson <mattstep@google.com>
  */
 public class SdkResolver {
+
   private static final String SDK_GROUP_ID = "com.google.appengine";
   private static final String SDK_ARTIFACT_ID = "appengine-java-sdk";
   private static final String SDK_EXTENSION = "zip";
 
-  public static File getSdk(MavenProject project, RepositorySystem repoSystem, RepositorySystemSession repoSession, List<RemoteRepository>... repos)
+  public static File getSdk(MavenProject project, RepositorySystem repoSystem,
+      RepositorySystemSession repoSession, List<RemoteRepository>... repos)
       throws MojoExecutionException {
-    Artifact artifact = (Artifact) find(project.getPluginArtifacts(), new Predicate<Artifact>() {
+    Artifact artifact = find(project.getPluginArtifacts(), new Predicate<Artifact>() {
       @Override
       public boolean apply(Artifact artifact1) {
         return artifact1.getArtifactId().equals("gcloud-maven-plugin");
@@ -56,7 +56,7 @@ public class SdkResolver {
 
     String version = artifact.getVersion();
 
-    if(version.endsWith("-SNAPSHOT")) {
+    if (version.endsWith("-SNAPSHOT")) {
       String newestVersion = determineNewestVersion(repoSystem, repoSession, repos);
       return getSdk(newestVersion, repoSystem, repoSession, repos);
     }
@@ -64,11 +64,14 @@ public class SdkResolver {
     return getSdk("1.9.40", repoSystem, repoSession, repos);
   }
 
-  private static String determineNewestVersion(RepositorySystem repoSystem, RepositorySystemSession repoSession, List<RemoteRepository>[] repos) throws MojoExecutionException {
-    String version;VersionRangeRequest rangeRequest = new VersionRangeRequest();
+  private static String determineNewestVersion(RepositorySystem repoSystem,
+      RepositorySystemSession repoSession, List<RemoteRepository>[] repos)
+      throws MojoExecutionException {
+    String version;
+    VersionRangeRequest rangeRequest = new VersionRangeRequest();
     rangeRequest.setArtifact(new DefaultArtifact(SDK_GROUP_ID + ":" + SDK_ARTIFACT_ID + ":[0,)"));
-    for(List<RemoteRepository> repoList : repos) {
-      for(RemoteRepository repo : repoList) {
+    for (List<RemoteRepository> repoList : repos) {
+      for (RemoteRepository repo : repoList) {
         rangeRequest.addRepository(repo);
       }
     }
@@ -77,7 +80,8 @@ public class SdkResolver {
     try {
       rangeResult = repoSystem.resolveVersionRange(repoSession, rangeRequest);
     } catch (VersionRangeResolutionException e) {
-      throw new MojoExecutionException("Could not resolve latest version of the App Engine Java SDK", e);
+      throw new MojoExecutionException(
+          "Could not resolve latest version of the App Engine Java SDK", e);
     }
 
     List<Version> versions = rangeResult.getVersions();
@@ -90,12 +94,14 @@ public class SdkResolver {
     return version;
   }
 
-  public static File getSdk(String version, RepositorySystem repoSystem, RepositorySystemSession repoSession, List<RemoteRepository>... repos)
+  public static File getSdk(String version, RepositorySystem repoSystem,
+      RepositorySystemSession repoSession, List<RemoteRepository>... repos)
       throws MojoExecutionException {
 
     List<RemoteRepository> allRepos = ImmutableList.copyOf(Iterables.concat(repos));
 
-    ArtifactRequest request = new ArtifactRequest(new DefaultArtifact(SDK_GROUP_ID, SDK_ARTIFACT_ID, SDK_EXTENSION, version), allRepos, null);
+    ArtifactRequest request = new ArtifactRequest(
+        new DefaultArtifact(SDK_GROUP_ID, SDK_ARTIFACT_ID, SDK_EXTENSION, version), allRepos, null);
 
     ArtifactResult result;
     try {
@@ -109,16 +115,17 @@ public class SdkResolver {
     File sdkBaseDir = new File(sdkRepoDir, SDK_ARTIFACT_ID);
 
     if (sdkBaseDir.exists() && !sdkBaseDir.isDirectory()) {
-      throw new MojoExecutionException("Could not unpack the SDK because there is an unexpected file at "
-          + sdkBaseDir + " which conflicts with where we plan to unpack the SDK.");
+      throw new MojoExecutionException(
+          "Could not unpack the SDK because there is an unexpected file at "
+              + sdkBaseDir + " which conflicts with where we plan to unpack the SDK.");
     }
 
     if (!sdkBaseDir.exists()) {
       sdkBaseDir.mkdirs();
     }
 
-    // While processing the zip archive, if we find an initial entry that is a directory, and all entries are a child
-    // of this directory, then we append this to the sdkBaseDir we return.
+    // While processing the zip archive, if we find an initial entry that is a directory, and all
+    // entries are a child of this directory, then we append this to the sdkBaseDir we return.
     String sdkBaseDirSuffix = null;
 
     try {
@@ -126,14 +133,15 @@ public class SdkResolver {
       Enumeration<? extends ZipEntry> zipEntries = sdkZipArchive.entries();
 
       if (!zipEntries.hasMoreElements()) {
-        throw new MojoExecutionException("The SDK zip archive appears corrupted.  There are no entries in the zip index.");
+        throw new MojoExecutionException(
+            "The SDK zip archive appears corrupted.  There are no entries in the zip index.");
       }
 
       ZipEntry firstEntry = zipEntries.nextElement();
       if (firstEntry.isDirectory()) {
         sdkBaseDirSuffix = firstEntry.getName();
       } else {
-        //Reinitialize entries
+        // Reinitialize entries
         zipEntries = sdkZipArchive.entries();
       }
 
@@ -144,13 +152,15 @@ public class SdkResolver {
           File zipEntryDestination = new File(sdkBaseDir, zipEntry.getName());
 
           if (!zipEntry.getName().startsWith(sdkBaseDirSuffix)) {
-            //We found an entry that doesn't use this initial base directory, oh well, just set it to null.
+            // We found an entry that doesn't use this initial base directory, oh well, just set it
+            // to null.
             sdkBaseDirSuffix = null;
           }
 
           if (!zipEntryDestination.exists()) {
             Files.createParentDirs(zipEntryDestination);
-            Files.write(ByteStreams.toByteArray(sdkZipArchive.getInputStream(zipEntry)), zipEntryDestination);
+            Files.write(ByteStreams.toByteArray(sdkZipArchive.getInputStream(zipEntry)),
+                zipEntryDestination);
           }
         }
       }

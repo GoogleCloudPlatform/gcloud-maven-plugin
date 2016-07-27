@@ -3,11 +3,10 @@
  */
 package com.google.appengine.gcloudapp;
 
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-
 import java.io.File;
 import java.util.ArrayList;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 
 /**
  * Starts the Gcloud App Engine development server and does not wait.
@@ -25,18 +24,21 @@ public class GcloudAppAsyncStart extends GCloudAppRun {
     getLog().info("Gcloud SDK - Starting the Development Server");
     getLog().info("");
 
-    if(application_directory == null) {
-      application_directory = maven_project.getBuild().getDirectory() + "/" + maven_project.getBuild().getFinalName();
+    if (application_directory == null) {
+      application_directory =
+          maven_project.getBuild().getDirectory() + "/" + maven_project.getBuild().getFinalName();
     }
-    
+
     File appDirFile = new File(application_directory);
 
-    if(!appDirFile.exists()) {
-      throw new MojoExecutionException("The application directory does not exist : " + application_directory);
+    if (!appDirFile.exists()) {
+      throw new MojoExecutionException(
+          "The application directory does not exist : " + application_directory);
     }
 
-    if(!appDirFile.isDirectory()) {
-      throw new MojoExecutionException("The application directory is not a directory : " + application_directory);
+    if (!appDirFile.isDirectory()) {
+      throw new MojoExecutionException(
+          "The application directory is not a directory : " + application_directory);
     }
 
     ArrayList<String> devAppServerCommand = getCommand(application_directory);
