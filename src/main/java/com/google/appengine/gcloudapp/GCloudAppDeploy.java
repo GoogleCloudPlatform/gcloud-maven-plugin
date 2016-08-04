@@ -23,7 +23,7 @@ public class GCloudAppDeploy extends GCloudAppStage {
    *
    * @parameter expression="${gcloud.promote}"
    */
-  private final boolean promote = true;
+  private boolean promote = true;
 
   /**
    * Bucket used for Admin Deployment API.

@@ -33,7 +33,7 @@ public abstract class GCloudAppInstances extends AbstractGcloudMojo {
    *
    * @parameter property="gcloud.instance"
    */
-  private final String instance = "1";
+  private String instance = "1";
 
   protected abstract String[] getSubCommand();
 
