@@ -60,15 +60,17 @@ public class GCloudAppStage extends AbstractGcloudMojo {
         throw new MojoExecutionException("Error: creating default app.yaml " + ex);
       }
     }
-    for (File file : new File(appengine_config_directory).listFiles()) {
-      if (!file.getName().equals("app.yaml")) { // app.yaml was treated before
-        try {
-          Files.copy(file, new File(stagingDir, file.getName()));
-        } catch (IOException ex) {
-          throw new MojoExecutionException("Error: copying "
-              + file.getAbsolutePath()
-              + " "
-              + ex);
+    if (appengineConfigDir.exists()) {
+      for (File file : appengineConfigDir.listFiles()) {
+        if (!file.getName().equals("app.yaml")) { // app.yaml was treated before
+          try {
+            Files.copy(file, new File(stagingDir, file.getName()));
+          } catch (IOException ex) {
+            throw new MojoExecutionException("Error: copying "
+                    + file.getAbsolutePath()
+                    + " "
+                    + ex);
+          }
         }
       }
     }
