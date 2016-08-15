@@ -38,7 +38,7 @@ following into the `plugins` section in the project `pom.xml` file:
     <plugin>
        <groupId>com.google.appengine</groupId>
        <artifactId>gcloud-maven-plugin</artifactId>
-       <version>2.0.9.120.v20160810</version>
+       <version>2.0.9.121.v20160815</version>
     </plugin>
 
 ## Compile and build your project using Maven
@@ -109,6 +109,7 @@ These are the Cloud SDK App Engine development server goals:
 | ------------|-------------|
 | `gcloud_directory` | The location of the Cloud SDK to use from Maven. (Default is `~/google-cloud-sdk`)|
 | `gcloud_project` | The Cloud project you want to work with. (Default is the one set up in the Cloud SDK)|
+| `gcloud_app_prefix` | Defines which gcloud app command you want (i.e preview or beta or nothing). By default, the plugin is excecuting `gcloud app`, but you can select the prefix to execute `gcloud preview app` or `gcloud beta app`.|
 
   Available parameters, corresponding to [gcloud app run command line flags](https://cloud.google.com/sdk/gcloud/reference/preview/app/run):
 
@@ -151,7 +152,7 @@ The following example shows how to use some of these settings:
       <plugin>
         <groupId>com.google.appengine</groupId>
         <artifactId>gcloud-maven-plugin</artifactId>
-        <version>>2.0.9.120.v20160810</version>
+        <version>>2.0.9.121.v20160815</version>
         <configuration>
           <gcloud_directory>/usr/foo/private/google-cloud-sdk</gcloud_directory>
           <verbosity>debug</verbosity>

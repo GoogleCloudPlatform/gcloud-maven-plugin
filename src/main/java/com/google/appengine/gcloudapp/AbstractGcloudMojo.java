@@ -228,11 +228,20 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
   /**
    * Directory containing the App Engine app.yaml/Dockerfile files.
    *
-   * @parameter expression="${gcloud.appengine_config_directory} "
+   * @parameter expression="${gcloud.appengine_config_directory}"
    * default-value="${project.basedir}/src/main/appengine"
    */
   protected String appengine_config_directory;
-
+  
+  /**
+   * Defines which gcloud app command you want (i.e preview or beta or nothing).
+   * By default, the plugin is excecuting "gcloud app", but you can select the
+   * prefix to execute "gcloud preview app" or "gcloud beta app".
+   *
+   * @parameter expression="${gcloud.gcloud_app_prefix}"
+   */
+  protected String gcloud_app_prefix;
+  
   protected abstract ArrayList<String> getCommand(String appDir) throws MojoExecutionException;
 
   protected ArrayList<String> setupInitialCommands(ArrayList<String> commands)
@@ -273,6 +282,9 @@ public abstract class AbstractGcloudMojo extends AbstractMojo {
       }
       if (gcloud_project != null) {
         commands.add("--project=" + gcloud_project);
+      }
+      if (gcloud_app_prefix != null) {
+        commands.add(gcloud_app_prefix);
       }
       commands.add("app");
 
