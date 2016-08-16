@@ -53,6 +53,10 @@ public class Utils {
         // try devshell VM:
         gcloudDir = "/google/google-cloud-sdk";
         if (!new File(gcloudDir).exists()) {
+          // try Ubuntu/Debian:
+          gcloudDir = "/usr/lib/google-cloud-sdk";
+        }
+        if (!new File(gcloudDir).exists()) {
           // try bitnani Jenkins VM:
           gcloudDir = "/usr/local/share/google/google-cloud-sdk";
         }
