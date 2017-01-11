@@ -1,3 +1,6 @@
+[![deprecated](http://badges.github.io/stability-badges/dist/deprecated.svg)](http://github.com/badges/stability-badges)
+
+**This plugin has been deprecated. Please migrate to the currently maintained [appengine-maven-plugin](https://github.com/GoogleCloudPlatform/app-maven-plugin).**
 
 # Cloud SDK App Engine Apache Maven Plugin
 
